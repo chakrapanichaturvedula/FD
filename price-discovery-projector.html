@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Price Discovery · Projector · DerivativesLab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#080b12;--bg2:#0e1420;--bg3:#151e30;--bg4:#1c2840;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);
+  --amber:#f5a623;--teal:#2dd4bf;
+  --green:#4ade80;--red:#f87171;--blue:#60a5fa;
+  --text:#f0f2f8;--text2:#9ba5be;--text3:#4a5568;
+  --mono:'DM Mono','Courier New',monospace;
+  --serif:'DM Serif Display',Georgia,serif;
+  --sans:'DM Sans',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;overflow:hidden}
+
+/* PROJECTOR LAYOUT: fixed full-screen grid */
+.proj-shell{display:grid;grid-template-rows:60px 1fr 44px;height:100vh;max-height:100vh}
+
+/* TOP BAR */
+.proj-top{display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:var(--bg2);border-bottom:1px solid var(--border2)}
+.proj-logo{font-family:var(--mono);font-size:0.85rem;color:var(--amber);letter-spacing:0.04em}
+.proj-logo span{color:var(--text3)}
+.proj-asset{font-family:var(--serif);font-size:1.3rem;color:var(--text)}
+.proj-right{display:flex;align-items:center;gap:16px}
+.proj-round{font-family:var(--mono);font-size:0.8rem;color:var(--text2)}
+.status-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:6px;font-family:var(--mono);font-size:0.72rem;letter-spacing:0.06em}
+.status-open{background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.3);color:var(--green)}
+.status-closed{background:var(--bg3);border:1px solid var(--border);color:var(--text3)}
+.status-waiting{background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.2);color:var(--blue)}
+.status-ended{background:var(--bg3);border:1px solid var(--border);color:var(--text2)}
+.status-dot{width:7px;height:7px;border-radius:50%;background:currentColor;animation:blink 1.2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+/* MAIN CONTENT AREA */
+.proj-body{display:grid;grid-template-columns:420px 1fr 320px;gap:0;overflow:hidden}
+
+/* LEFT: Order book */
+.proj-left{background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.panel-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.panel-title{font-family:var(--mono);font-size:0.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em}
+.inst-tabs{display:flex;gap:4px;padding:10px 14px;border-bottom:1px solid var(--border)}
+.inst-tab{padding:4px 12px;border-radius:5px;font-family:var(--mono);font-size:0.68rem;color:var(--text3);border:1px solid var(--border);cursor:pointer;transition:all .15s}
+.inst-tab.active{border-color:rgba(245,166,35,0.4);color:var(--amber);background:rgba(245,166,35,0.07)}
+.ob-split{display:grid;grid-template-columns:1fr 1fr;flex:1;overflow:hidden}
+.ob-col{padding:10px 12px;overflow-y:auto}
+.ob-col-hdr{font-family:var(--mono);font-size:0.65rem;text-align:center;padding:6px;border-radius:6px;margin-bottom:8px;letter-spacing:0.06em}
+.ob-col-hdr.bids{background:rgba(74,222,128,0.08);color:var(--green)}
+.ob-col-hdr.asks{background:rgba(248,113,113,0.08);color:var(--red)}
+.ob-row{display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border-radius:6px;margin-bottom:4px;position:relative;overflow:hidden;font-family:var(--mono);font-size:0.88rem}
+.ob-bg-bid{position:absolute;left:0;top:0;bottom:0;background:rgba(74,222,128,0.07);border-radius:6px}
+.ob-bg-ask{position:absolute;right:0;top:0;bottom:0;background:rgba(248,113,113,0.07);border-radius:6px}
+.ob-p-bid{color:var(--green);font-weight:500;font-size:0.95rem;position:relative}
+.ob-p-ask{color:var(--red);font-weight:500;font-size:0.95rem;position:relative}
+.ob-q{color:var(--text3);font-size:0.78rem;position:relative}
+.ob-empty{text-align:center;padding:24px;color:var(--text3);font-style:italic;font-size:0.85rem}
+.ob-divider{background:rgba(245,166,35,0.06);padding:10px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:4px 0;text-align:center}
+.ob-div-label{font-family:var(--mono);font-size:0.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em}
+.ob-div-price{font-family:var(--mono);font-size:1.2rem;font-weight:500;color:var(--amber)}
+
+/* CENTER: CUE + Chart */
+.proj-center{display:flex;flex-direction:column;overflow:hidden}
+.cue-panel{padding:20px 24px;border-bottom:1px solid var(--border);background:rgba(245,166,35,0.04)}
+.cue-label{font-family:var(--mono);font-size:0.65rem;color:var(--amber);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px}
+.cue-text{font-size:1.05rem;color:var(--text);line-height:1.6;font-weight:500}
+.cue-empty{color:var(--text3);font-style:italic;font-size:0.9rem}
+.chart-panel{flex:1;padding:16px 20px;display:flex;flex-direction:column}
+.chart-canvas{width:100%;flex:1}
+.round-history{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.rh-item{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 12px}
+.rh-round{font-family:var(--mono);font-size:0.6rem;color:var(--text3);margin-bottom:4px}
+.rh-prices{display:flex;gap:8px;flex-wrap:wrap}
+.rh-price{font-family:var(--mono);font-size:0.82rem;font-weight:500}
+
+/* RIGHT: Trade tape */
+.proj-right-col{background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.tape-feed{flex:1;overflow-y:auto;padding:10px 14px}
+.tape-row{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-radius:8px;background:rgba(74,222,128,0.05);border-left:2px solid rgba(74,222,128,0.3);margin-bottom:6px;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.tape-price{font-family:var(--mono);font-size:0.92rem;font-weight:500;color:var(--green)}
+.tape-right{text-align:right}
+.tape-detail{font-family:var(--mono);font-size:0.72rem;color:var(--text3)}
+.tape-time{font-family:var(--mono);font-size:0.65rem;color:var(--text3)}
+.tape-empty{padding:24px;text-align:center;color:var(--text3);font-style:italic;font-size:0.85rem}
+
+/* BOTTOM BAR */
+.proj-bottom{display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:var(--bg2);border-top:1px solid var(--border)}
+.proj-ticker{display:flex;gap:24px}
+.tick-item{display:flex;gap:8px;align-items:baseline}
+.tick-label{font-family:var(--mono);font-size:0.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em}
+.tick-val{font-family:var(--mono);font-size:0.82rem;font-weight:500;color:var(--amber)}
+.proj-refresh{font-family:var(--mono);font-size:0.62rem;color:var(--text3)}
+.live-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:4px;animation:blink 1.2s infinite}
+</style>
+</head>
+<body>
+
+<div class="proj-shell">
+
+  <!-- TOP BAR -->
+  <div class="proj-top">
+    <div class="proj-logo">DERIVATIVES<span>LAB</span></div>
+    <div class="proj-asset" id="projAsset">Price Discovery</div>
+    <div class="proj-right">
+      <div class="proj-round" id="projRound">—</div>
+      <div class="status-pill status-waiting" id="projStatus">
+        <div class="status-dot"></div>
+        <span id="projStatusText">Connecting...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="proj-body">
+
+    <!-- LEFT: Order book -->
+    <div class="proj-left">
+      <div class="panel-head">
+        <div class="panel-title">Order Book</div>
+        <div class="ob-div-price" id="centerPrice" style="font-size:1rem">—</div>
+      </div>
+      <div class="inst-tabs" id="projInstTabs">
+        <div class="inst-tab active" onclick="selectInst(this,'spot')">Spot</div>
+        <div class="inst-tab" onclick="selectInst(this,'futures')">Futures</div>
+        <div class="inst-tab" onclick="selectInst(this,'call')">Call</div>
+        <div class="inst-tab" onclick="selectInst(this,'put')">Put</div>
+      </div>
+      <div class="ob-split">
+        <div class="ob-col"><div class="ob-col-hdr bids">BIDS</div><div id="projBids"></div></div>
+        <div class="ob-col"><div class="ob-col-hdr asks">ASKS</div><div id="projAsks"></div></div>
+      </div>
+    </div>
+
+    <!-- CENTER: Cue + chart -->
+    <div class="proj-center">
+      <div class="cue-panel">
+        <div class="cue-label">Round Information</div>
+        <div class="cue-text" id="projCue"><span class="cue-empty">Waiting for instructor...</span></div>
+      </div>
+      <div class="chart-panel">
+        <div class="panel-title" style="margin-bottom:12px">Price Discovery</div>
+        <canvas class="chart-canvas" id="projChart"></canvas>
+        <div class="round-history" id="projRoundHistory"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Trade tape -->
+    <div class="proj-right-col">
+      <div class="panel-head"><div class="panel-title">Trade Tape</div></div>
+      <div class="tape-feed" id="projTape">
+        <div class="tape-empty">Trades will appear here</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM BAR -->
+  <div class="proj-bottom">
+    <div class="proj-ticker" id="projTicker"></div>
+    <div class="proj-refresh"><span class="live-dot"></span>Live · Firebase real-time</div>
+  </div>
+
+</div>
+
+<script src="site-config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+if (window.DLabConfig?.firebase?.apiKey) firebase.initializeApp(window.DLabConfig.firebase);
+</script>
+<script src="pd-firebase.js"></script>
+<script>
+let projInst = 'spot';
+let gameState = null;
+
+function fmt(n){if(!n&&n!==0)return'—';return new Intl.NumberFormat('en-IN',{minimumFractionDigits:0,maximumFractionDigits:2}).format(n)}
+function fmtP(n){return'₹'+fmt(n)}
+
+function selectInst(el, inst){
+  projInst=inst;
+  document.querySelectorAll('#projInstTabs .inst-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  if(gameState) renderOrderBook(gameState.orderBook||{bids:[],asks:[]}, gameState.trades||[]);
+}
+
+function renderOrderBook(ob, trades){
+  const bids=(ob.bids||[]).filter(o=>o.instrument===projInst);
+  const asks=(ob.asks||[]).filter(o=>o.instrument===projInst);
+  const isSpot=projInst==='spot';
+  function agg(arr){const m={};arr.forEach(o=>{if(!m[o.price])m[o.price]={price:o.price,qty:0};m[o.price].qty+=o.qty});return Object.values(m)}
+  const aBids=agg(bids).sort((a,b)=>b.price-a.price).slice(0,10);
+  const aAsks=agg(asks).sort((a,b)=>a.price-b.price).slice(0,10);
+  const maxQ=Math.max(...aBids.map(b=>b.qty),...aAsks.map(a=>a.qty),1);
+  function rows(arr,type){
+    if(!arr.length)return`<div class="ob-empty">No ${type==='bid'?'bids':'asks'}</div>`;
+    return arr.map(r=>{
+      const w=Math.round((r.qty/maxQ)*70);
+      const qLbl=isSpot?fmt(r.qty)+' sh':r.qty+(r.qty===1?' lot':' lots');
+      return`<div class="ob-row"><div class="${type==='bid'?'ob-bg-bid':'ob-bg-ask'}" style="width:${w}%"></div><span class="${type==='bid'?'ob-p-bid':'ob-p-ask'}">${fmtP(r.price)}</span><span class="ob-q">${qLbl}</span></div>`
+    }).join('')
+  }
+  document.getElementById('projBids').innerHTML=rows(aBids,'bid');
+  document.getElementById('projAsks').innerHTML=rows(aAsks,'ask');
+
+  const instTrades=(trades||[]).filter(t=>t.instrument===projInst);
+  document.getElementById('centerPrice').textContent=instTrades[0]?fmtP(instTrades[0].price):'—';
+}
+
+function renderTape(trades){
+  const el=document.getElementById('projTape');
+  if(!trades?.length){el.innerHTML='<div class="tape-empty">Trades will appear here</div>';return}
+  el.innerHTML=trades.slice(0,20).map(t=>{
+    const inst=t.instrument==='spot'?'Spot':t.instrument.toUpperCase()+(t.strike?' '+fmt(t.strike):'');
+    const qLbl=t.instrument==='spot'?fmt(t.qty)+' sh':t.qty+(t.qty===1?' lot':' lots');
+    const time=new Date(t.timestamp?.seconds?t.timestamp.seconds*1000:t.timestamp).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    return`<div class="tape-row"><span class="tape-price">${fmtP(t.price)}</span><div class="tape-right"><div class="tape-detail">${inst} · ${qLbl}</div><div class="tape-time">${time}</div></div></div>`
+  }).join('')
+}
+
+function drawChart(dp, numRounds){
+  const canvas=document.getElementById('projChart');
+  if(!canvas)return;
+  const dpr=window.devicePixelRatio||1;
+  const W=canvas.offsetWidth||600, H=canvas.offsetHeight||200;
+  canvas.width=W*dpr; canvas.height=H*dpr;
+  const ctx=canvas.getContext('2d'); ctx.scale(dpr,dpr);
+  if(!dp?.length){ctx.fillStyle='#4a5568';ctx.font='13px DM Mono,monospace';ctx.textAlign='center';ctx.fillText('Discovery prices appear after each round closes',W/2,H/2);return}
+  const insts=[...new Set(dp.map(p=>p.instrument||p.inst))];
+  const rounds=[...new Set(dp.map(p=>parseInt(p.round)))].sort((a,b)=>a-b);
+  const colors={spot:'#f5a623',futures:'#2dd4bf',call:'#4ade80',put:'#f87171'};
+  const prices=dp.map(p=>parseFloat(p.price));
+  const minP=Math.min(...prices)*0.97, maxP=Math.max(...prices)*1.03, range=maxP-minP||1;
+  const pL=60,pR=20,pT=20,pB=30,cW=W-pL-pR,cH=H-pT-pB;
+  ctx.strokeStyle='rgba(255,255,255,0.05)';ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){const y=pT+cH*(1-i/4);ctx.beginPath();ctx.moveTo(pL,y);ctx.lineTo(W-pR,y);ctx.stroke();ctx.fillStyle='#4a5568';ctx.font='10px DM Mono,monospace';ctx.textAlign='right';ctx.fillText('₹'+fmt((minP+range*i/4).toFixed(0)),pL-6,y+4)}
+  ctx.fillStyle='#4a5568';ctx.font='11px DM Mono,monospace';ctx.textAlign='center';
+  rounds.forEach((r,i)=>{const x=pL+(i/(rounds.length-1||1))*cW;ctx.fillText('Round '+r,x,H-8)});
+  insts.forEach(inst=>{
+    const color=colors[inst]||'#8b91a8';
+    ctx.strokeStyle=color;ctx.lineWidth=3;ctx.beginPath();let started=false;
+    rounds.forEach((r,i)=>{const f=dp.find(p=>parseInt(p.round)===r&&(p.instrument||p.inst)===inst);if(!f)return;const x=pL+(i/(rounds.length-1||1))*cW,y=pT+cH*(1-(parseFloat(f.price)-minP)/range);if(!started){ctx.moveTo(x,y);started=true}else ctx.lineTo(x,y)});
+    ctx.stroke();
+    rounds.forEach((r,i)=>{const f=dp.find(p=>parseInt(p.round)===r&&(p.instrument||p.inst)===inst);if(!f)return;const x=pL+(i/(rounds.length-1||1))*cW,y=pT+cH*(1-(parseFloat(f.price)-minP)/range);ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,6,0,Math.PI*2);ctx.fill();ctx.fillStyle='#080b12';ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fill()});
+  });
+  // Legend
+  let lx=pL; const ly=pT-6;
+  insts.forEach(inst=>{const color=colors[inst]||'#8b91a8';ctx.fillStyle=color;ctx.fillRect(lx,ly-5,16,3);ctx.fillStyle='#9ba5be';ctx.font='9px DM Mono,monospace';ctx.textAlign='left';ctx.fillText(inst.toUpperCase(),lx+20,ly);lx+=70});
+}
+
+function renderTicker(dp, spotPrice, lotSize){
+  const colors={spot:'var(--amber)',futures:'var(--teal)',call:'var(--green)',put:'var(--red)'};
+  const items=[{label:'SPOT',val:fmtP(spotPrice||0)},{label:'LOT',val:(lotSize||1)+' sh'}];
+  const latest={};dp.forEach(p=>{if(!latest[p.instrument||p.inst])latest[p.instrument||p.inst]=p});
+  Object.keys(latest).forEach(inst=>{items.push({label:inst.toUpperCase(),val:fmtP(parseFloat(latest[inst].price).toFixed(0)),color:colors[inst]})});
+  document.getElementById('projTicker').innerHTML=items.map(i=>`<div class="tick-item"><div class="tick-label">${i.label}</div><div class="tick-val" style="${i.color?'color:'+i.color:''}">${i.val}</div></div>`).join('');
+}
+
+function applyState(data){
+  if(data.status==='no_game'){document.getElementById('projAsset').textContent='Waiting for game...';return}
+  gameState=data;
+  document.getElementById('projAsset').textContent=data.assetName+(data.assetSymbol?' ('+data.assetSymbol+')':'');
+  document.getElementById('projRound').textContent='Round '+data.currentRound+' of '+data.numRounds;
+  document.getElementById('projCue').innerHTML=data.roundCue||'<span class="cue-empty">Waiting for instructor to release information...</span>';
+
+  const stMap={waiting:'status-waiting',open:'status-open',closed:'status-closed',ended:'status-ended'};
+  const stText={waiting:'Waiting',open:'Trading Open',closed:'Round Closed',ended:'Game Ended'};
+  document.getElementById('projStatus').className='status-pill '+(stMap[data.status]||'status-waiting');
+  document.getElementById('projStatusText').textContent=stText[data.status]||data.status;
+
+  renderOrderBook(data.orderBook||{bids:[],asks:[]}, data.trades||[]);
+  renderTape(data.trades||[]);
+  drawChart(data.discoveryPrices||[], data.numRounds);
+  renderTicker(data.discoveryPrices||[], data.spotPrice, data.lotSize);
+
+  // Round history pills
+  const dp=data.discoveryPrices||[];
+  const colors={spot:'#f5a623',futures:'#2dd4bf',call:'#4ade80',put:'#f87171'};
+  const byRound={};dp.forEach(p=>{const r=parseInt(p.round);if(!byRound[r])byRound[r]=[];byRound[r].push(p)});
+  document.getElementById('projRoundHistory').innerHTML=Object.keys(byRound).sort((a,b)=>a-b).map(r=>`<div class="rh-item"><div class="rh-round">Round ${r}</div><div class="rh-prices">${byRound[r].map(p=>`<span class="rh-price" style="color:${colors[p.instrument||p.inst]||'#8b91a8'}">${(p.instrument||p.inst).toUpperCase()} ${fmtP(parseFloat(p.price).toFixed(0))}</span>`).join('')}</div></div>`).join('')
+}
+
+PD.init(applyState);
+window.addEventListener('resize', ()=>{ if(gameState) drawChart(gameState.discoveryPrices||[], gameState.numRounds) });
+</script>
+</body>
+</html>
