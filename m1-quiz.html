@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Module 1 Quiz · DerivativesLab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0f1117;--bg2:#161b26;--bg3:#1e2535;--bg4:#252e42;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --amber:#f5a623;--amber2:#ffc75a;--teal:#2dd4bf;
+  --green:#4ade80;--red:#f87171;--blue:#60a5fa;--violet:#a78bfa;
+  --text:#e8eaf0;--text2:#8b91a8;--text3:#555e78;
+  --serif:'DM Serif Display',Georgia,serif;
+  --mono:'DM Mono','Courier New',monospace;
+  --sans:'DM Sans',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh}
+a{text-decoration:none;color:inherit}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:56px;background:rgba(15,17,23,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--mono);font-size:0.82rem;color:var(--amber);letter-spacing:0.04em}
+.nav-logo span{color:var(--text2)}
+.nav-back{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;background:var(--bg3);border:1px solid var(--border2);font-size:0.78rem;font-weight:600;color:var(--text2);transition:color .15s}
+.nav-back:hover{color:var(--text)}
+
+.shell{max-width:760px;margin:0 auto;padding:80px 24px 80px}
+
+/* MODE SELECTOR */
+.mode-card{background:var(--bg2);border:1px solid var(--border2);border-radius:24px;padding:40px;margin-bottom:0;text-align:center}
+.mode-kicker{font-family:var(--mono);font-size:0.7rem;color:var(--amber);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px}
+.mode-card h1{font-family:var(--serif);font-size:2.2rem;margin-bottom:10px}
+.mode-card p{color:var(--text2);font-size:0.92rem;max-width:420px;margin:0 auto 32px}
+.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:480px;margin:0 auto}
+.mode-btn{padding:20px;border-radius:16px;border:1.5px solid var(--border2);background:var(--bg3);cursor:pointer;transition:all .2s;text-align:left;font-family:var(--sans)}
+.mode-btn:hover{border-color:var(--amber);background:rgba(245,166,35,0.06)}
+.mode-btn-title{font-family:var(--serif);font-size:1.1rem;color:var(--text);margin-bottom:6px}
+.mode-btn-sub{font-size:0.78rem;color:var(--text2);line-height:1.5}
+.mode-btn-tag{display:inline-block;margin-top:10px;font-family:var(--mono);font-size:0.62rem;padding:3px 8px;border-radius:5px}
+.mode-btn.practice .mode-btn-tag{background:rgba(45,212,191,0.1);color:var(--teal);border:1px solid rgba(45,212,191,0.2)}
+.mode-btn.quiz .mode-btn-tag{background:rgba(245,166,35,0.1);color:var(--amber);border:1px solid rgba(245,166,35,0.2)}
+
+/* QUIZ SURFACE */
+#quizSurface{display:none}
+
+/* PROGRESS */
+.quiz-progress{margin-bottom:24px}
+.qp-meta{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.qp-label{font-family:var(--mono);font-size:0.7rem;color:var(--text3)}
+.qp-mode{font-family:var(--mono);font-size:0.68rem;padding:3px 9px;border-radius:5px}
+.qp-mode.practice{background:rgba(45,212,191,0.1);color:var(--teal);border:1px solid rgba(45,212,191,0.2)}
+.qp-mode.quiz{background:rgba(245,166,35,0.1);color:var(--amber);border:1px solid rgba(245,166,35,0.2)}
+.qp-steps{display:flex;gap:4px}
+.qp-step{flex:1;height:4px;border-radius:3px;background:var(--bg3);transition:background .3s}
+.qp-step.answered{background:var(--amber)}
+.qp-step.correct{background:var(--green)}
+.qp-step.wrong{background:var(--red)}
+
+/* QUESTION CARD */
+.q-card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:28px;margin-bottom:16px}
+.q-num{font-family:var(--mono);font-size:0.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px}
+.q-text{font-size:1rem;color:var(--text);line-height:1.65;margin-bottom:20px;font-weight:500}
+.q-type-tf .q-text::before{content:'True or False  ';font-family:var(--mono);font-size:0.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:8px}
+.options{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;align-items:flex-start;gap:12px;padding:13px 16px;border-radius:12px;background:var(--bg3);border:1.5px solid var(--border);cursor:pointer;font-size:0.9rem;color:var(--text2);transition:all .15s;text-align:left;width:100%;font-family:var(--sans);line-height:1.5}
+.opt:hover:not(:disabled){border-color:var(--border2);color:var(--text)}
+.opt-letter{display:flex;align-items:center;justify-content:center;width:24px;height:24px;flex-shrink:0;border-radius:7px;background:var(--bg4);font-family:var(--mono);font-size:0.72rem;color:var(--text3);transition:all .15s;margin-top:1px}
+.opt.selected{border-color:var(--amber);background:rgba(245,166,35,0.06);color:var(--text)}
+.opt.selected .opt-letter{background:var(--amber);color:#0f1117}
+.opt.correct{border-color:rgba(74,222,128,0.4);background:rgba(74,222,128,0.07);color:var(--text)}
+.opt.correct .opt-letter{background:var(--green);color:#0f1117}
+.opt.wrong{border-color:rgba(248,113,113,0.4);background:rgba(248,113,113,0.07);color:var(--text)}
+.opt.wrong .opt-letter{background:var(--red);color:#0f1117}
+.opt:disabled{cursor:default}
+
+/* PRACTICE FEEDBACK */
+.practice-fb{display:none;margin-top:12px;padding:12px 14px;border-radius:12px;font-size:0.85rem}
+.practice-fb.show{display:block}
+.practice-fb.correct{background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);color:var(--green)}
+.practice-fb.wrong{background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:var(--red)}
+
+/* NAV BTNS */
+.q-nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.btn-nav{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:12px;font-size:0.88rem;font-weight:600;cursor:pointer;border:none;transition:all .15s;font-family:var(--sans)}
+.btn-primary{background:var(--amber);color:#0f1117}
+.btn-primary:hover{background:var(--amber2)}
+.btn-ghost{background:var(--bg3);border:1px solid var(--border2);color:var(--text2)}
+.btn-ghost:hover{color:var(--text)}
+.btn-nav:disabled{opacity:.35;cursor:not-allowed}
+
+/* RESULTS */
+#resultSurface{display:none}
+.result-card{background:var(--bg2);border:1px solid var(--border2);border-radius:24px;padding:40px;text-align:center;margin-bottom:20px}
+.result-score{font-family:var(--mono);font-size:3.5rem;font-weight:500;line-height:1;margin-bottom:6px}
+.result-denom{font-family:var(--mono);font-size:1rem;color:var(--text3)}
+.result-label{font-family:var(--serif);font-size:1.4rem;margin:16px 0 8px}
+.result-sub{color:var(--text2);font-size:0.88rem}
+.result-bar-wrap{max-width:300px;margin:20px auto 0;height:6px;background:var(--bg3);border-radius:6px;overflow:hidden}
+.result-bar-fill{height:100%;border-radius:6px;transition:width 1s ease}
+.review-list{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+.review-item{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;border-radius:12px;font-size:0.85rem}
+.review-item.r-correct{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.15)}
+.review-item.r-wrong{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.15)}
+.ri-icon{font-family:var(--mono);font-size:0.7rem;flex-shrink:0;margin-top:2px;width:16px}
+.ri-text{flex:1;color:var(--text2)}
+.ri-text strong{color:var(--text);display:block;margin-bottom:3px}
+.result-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.saved-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.2);color:var(--green);font-family:var(--mono);font-size:0.68rem;margin-bottom:16px}
+
+@media(max-width:600px){
+  .mode-grid{grid-template-columns:1fr}
+  .shell{padding:80px 16px 80px}
+  .result-card,.mode-card{padding:28px 20px}
+  .q-card{padding:20px 18px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">DERIVATIVES<span>LAB</span></div>
+  <a class="nav-back" href="module1.html">← Module 1</a>
+</nav>
+
+<div class="shell">
+
+  <!-- MODE SELECTOR -->
+  <div id="modeSurface">
+    <div class="mode-card">
+      <div class="mode-kicker">Module 1 Assessment</div>
+      <h1>Foundations Quiz</h1>
+      <p>10 questions covering derivatives, spot markets, long &amp; short, hedging, speculation, and arbitrage.</p>
+      <div class="mode-grid">
+        <button class="mode-btn practice" onclick="startQuiz('practice')">
+          <div class="mode-btn-title">Practice Mode</div>
+          <div class="mode-btn-sub">Instant feedback after each question with a one-line explanation.</div>
+          <span class="mode-btn-tag">Feedback as you go</span>
+        </button>
+        <button class="mode-btn quiz" onclick="startQuiz('quiz')">
+          <div class="mode-btn-title">Quiz Mode</div>
+          <div class="mode-btn-sub">All questions first, then score and review at the end. Score saved to Firebase.</div>
+          <span class="mode-btn-tag">Score stored</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ SURFACE -->
+  <div id="quizSurface">
+    <div class="quiz-progress">
+      <div class="qp-meta">
+        <div class="qp-label" id="qpLabel">Question 1 of 10</div>
+        <div class="qp-mode" id="qpMode">Practice</div>
+      </div>
+      <div class="qp-steps" id="qpSteps"></div>
+    </div>
+    <div class="q-card" id="qCard">
+      <div class="q-num" id="qNum"></div>
+      <div class="q-text" id="qText"></div>
+      <div class="options" id="qOpts"></div>
+      <div class="practice-fb" id="qPracticeFb"></div>
+    </div>
+    <div class="q-nav">
+      <button class="btn-nav btn-ghost" id="btnPrev" onclick="goTo(currentQ-1)">← Previous</button>
+      <button class="btn-nav btn-primary" id="btnNext" onclick="advance()">Next →</button>
+    </div>
+  </div>
+
+  <!-- RESULT SURFACE -->
+  <div id="resultSurface"></div>
+
+</div>
+
+<script src="site-config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+if(window.DLabConfig?.firebase?.apiKey) firebase.initializeApp(window.DLabConfig.firebase);
+const session = JSON.parse(localStorage.getItem('dlabSession')||'null');
+
+/* ── QUIZ DATA ── */
+const QUESTIONS = [
+  {
+    id:'Q1', type:'mcq', text:'Which statement best defines a derivative?',
+    opts:['A physical asset exchanged immediately for cash','A contract whose value depends on an underlying asset, rate, or index','A bank deposit that earns fixed interest','A government bond with no risk'],
+    correct:1,
+    expl:'A derivative derives its value from an underlying — it is a contract linked to that asset, not ownership of it.'
+  },
+  {
+    id:'Q2', type:'mcq', text:'Which of the following is the clearest example of a spot transaction?',
+    opts:['Agreeing today to buy wheat after two months','Locking today\'s price for future dollar delivery','Buying shares in the cash market for immediate settlement','Signing a contract today for future commodity purchase'],
+    correct:2,
+    expl:'A spot transaction settles now or near-immediately. All other options involve an agreement today with exchange later.'
+  },
+  {
+    id:'Q3', type:'mcq', text:'In the spot market, short selling generally requires:',
+    opts:['Price volatility to be low','Borrowing the underlying asset first','Holding the asset for a long time','Using only futures contracts'],
+    correct:1,
+    expl:'In the spot market you cannot sell what you do not have. The asset must be borrowed first, then sold, then bought back and returned.'
+  },
+  {
+    id:'Q4', type:'mcq', text:'Which statement best describes an arbitrageur?',
+    opts:['A trader who wants certainty of cash flow','A trader who profits by correctly forecasting direction','A trader who exploits temporary price discrepancies across related markets','A trader who always holds long positions only'],
+    correct:2,
+    expl:'Arbitrage is about price inconsistency — not directional prediction or certainty-seeking. That is what distinguishes it from speculation and hedging.'
+  },
+  {
+    id:'Q5', type:'tf', text:'A long position benefits when price rises.',
+    opts:['True','False'],
+    correct:0,
+    expl:'Long means you bought first. You profit when the price moves up after your purchase.'
+  },
+  {
+    id:'Q6', type:'tf', text:'If a participant already has an exposure and chooses not to hedge it, the uncertainty still remains open to market movement.',
+    opts:['True','False'],
+    correct:0,
+    expl:'Choosing not to hedge does not remove the exposure. It just means the risk stays open — not hedging is itself a risk position.'
+  },
+  {
+    id:'Q7', type:'mcq', text:'An exporter expects to receive USD after three months and uses currency futures to reduce uncertainty in rupee cash flows. This participant is best described as:',
+    opts:['Speculator','Hedger','Arbitrageur','Market maker'],
+    correct:1,
+    expl:'The objective is certainty of future cash flow — not profit from a market view. That is the defining characteristic of hedging.'
+  },
+  {
+    id:'Q8', type:'mcq', text:'A trader takes a futures position because she expects the market to rise and wants to profit if that view is correct. This participant is best described as:',
+    opts:['Hedger','Speculator','Arbitrageur','Borrower'],
+    correct:1,
+    expl:'No underlying business exposure, directional market view, profit motive — this is speculation. The motive determines the label.'
+  },
+  {
+    id:'Q9', type:'applied', text:'A student buys 100 shares at ₹1,500 and later sells 100 shares at ₹1,560. Which pair of statements is correct?',
+    opts:['Original position was short · Later sale created a new position','Original position was long · Later sale squared off the position','Original position was long · Later sale doubled the position','Original position was short · Later sale closed a short'],
+    correct:1,
+    expl:'Buying creates a long position. Selling the same quantity later closes it — that is squaring off. Profit = (1,560 − 1,500) × 100 = ₹6,000.'
+  },
+  {
+    id:'Q10', type:'applied', text:'The same asset trades at ₹60,000 in Market A and ₹60,600 in Market B at the same moment. Which pair of answers is correct?',
+    opts:['This indicates a hedging opportunity · A hedger acts first','This indicates a speculative opportunity · A speculator acts first','This indicates an arbitrage opportunity · An arbitrageur acts first','This indicates normal market behaviour · No one acts'],
+    correct:2,
+    expl:'Simultaneous price discrepancy across markets = arbitrage opportunity. The arbitrageur buys in the cheaper market and sells in the costlier one, locking in the ₹600 spread.'
+  }
+];
+
+/* ── STATE ── */
+let mode = 'practice';
+let currentQ = 0;
+let answers = new Array(QUESTIONS.length).fill(null); // index of selected option
+let submitted = false;
+
+/* ── START ── */
+function startQuiz(m){
+  mode = m;
+  submitted = false;
+  answers = new Array(QUESTIONS.length).fill(null);
+  document.getElementById('modeSurface').style.display='none';
+  document.getElementById('quizSurface').style.display='block';
+  document.getElementById('qpMode').textContent = m==='practice' ? 'Practice' : 'Quiz';
+  document.getElementById('qpMode').className = 'qp-mode '+m;
+  buildSteps();
+  goTo(0);
+}
+
+function buildSteps(){
+  const el=document.getElementById('qpSteps');
+  el.innerHTML=QUESTIONS.map((_,i)=>`<div class="qp-step" id="step-${i}"></div>`).join('');
+}
+
+/* ── RENDER QUESTION ── */
+function goTo(idx){
+  if(idx<0||idx>=QUESTIONS.length) return;
+  currentQ=idx;
+  const q=QUESTIONS[idx];
+  document.getElementById('qpLabel').textContent=`Question ${idx+1} of ${QUESTIONS.length}`;
+  document.getElementById('qNum').textContent=`Q${idx+1} · ${q.type==='tf'?'True / False':q.type==='applied'?'Applied reasoning':'Multiple choice'}`;
+  document.getElementById('qText').textContent=q.text;
+  document.getElementById('qText').parentElement.className=`q-card${q.type==='tf'?' q-type-tf':''}`;
+
+  const letters = ['A','B','C','D'];
+  const opts = document.getElementById('qOpts');
+  opts.innerHTML=q.opts.map((o,i)=>`
+    <button class="opt${answers[idx]===i?' selected':''}" onclick="selectOpt(${i})" ${(mode==='practice'&&answers[idx]!==null)||submitted?'disabled':''}>
+      <span class="opt-letter">${q.type==='tf'?o:letters[i]}</span>${q.type==='tf'?'':o}
+    </button>
+  `).join('');
+
+  // In practice mode, re-apply correct/wrong styling if already answered
+  if(mode==='practice'&&answers[idx]!==null){
+    applyPracticeStyle(idx);
+  }
+
+  // In quiz mode after submission, show correct/wrong
+  if(submitted) applyQuizStyle(idx);
+
+  // Practice feedback
+  const fb=document.getElementById('qPracticeFb');
+  fb.className='practice-fb';
+  if(mode==='practice'&&answers[idx]!==null){
+    const isCorrect=answers[idx]===q.correct;
+    fb.className='practice-fb show '+(isCorrect?'correct':'wrong');
+    fb.innerHTML='<strong>'+(isCorrect?'✓ Correct':'✗ Not quite')+'</strong> — '+q.expl;
+  }
+
+  // Prev/Next
+  document.getElementById('btnPrev').disabled=idx===0;
+  const isLast=idx===QUESTIONS.length-1;
+  const btnNext=document.getElementById('btnNext');
+  if(isLast&&mode==='quiz'&&!submitted){
+    btnNext.textContent='Submit Quiz';
+    btnNext.onclick=submitQuiz;
+  } else if(isLast&&mode==='practice'){
+    btnNext.textContent='See Results';
+    btnNext.onclick=showResults;
+  } else {
+    btnNext.textContent='Next →';
+    btnNext.onclick=()=>advance();
+  }
+  btnNext.disabled=(mode==='quiz'&&answers[idx]===null&&!submitted)||(mode==='practice'&&answers[idx]===null&&!isLast);
+
+  updateSteps();
+}
+
+function selectOpt(optIdx){
+  if(submitted) return;
+  if(mode==='practice'&&answers[currentQ]!==null) return;
+  answers[currentQ]=optIdx;
+  const q=QUESTIONS[currentQ];
+  const opts=document.querySelectorAll('#qOpts .opt');
+  opts.forEach(o=>o.disabled=true);
+
+  if(mode==='practice'){
+    applyPracticeStyle(currentQ);
+    const isCorrect=optIdx===q.correct;
+    const fb=document.getElementById('qPracticeFb');
+    fb.className='practice-fb show '+(isCorrect?'correct':'wrong');
+    fb.innerHTML='<strong>'+(isCorrect?'✓ Correct':'✗ Not quite')+'</strong> — '+q.expl;
+  } else {
+    opts.forEach((o,i)=>{ if(i===optIdx) o.classList.add('selected') });
+  }
+
+  updateSteps();
+  // enable next
+  document.getElementById('btnNext').disabled=false;
+}
+
+function applyPracticeStyle(idx){
+  const q=QUESTIONS[idx];
+  const opts=document.querySelectorAll('#qOpts .opt');
+  opts.forEach((o,i)=>{
+    if(i===q.correct) o.classList.add('correct');
+    if(i===answers[idx]&&i!==q.correct) o.classList.add('wrong');
+  });
+}
+
+function applyQuizStyle(idx){
+  const q=QUESTIONS[idx];
+  const opts=document.querySelectorAll('#qOpts .opt');
+  opts.forEach((o,i)=>{
+    if(i===q.correct) o.classList.add('correct');
+    if(i===answers[idx]&&i!==q.correct) o.classList.add('wrong');
+  });
+  const isCorrect=answers[idx]===q.correct;
+  const fb=document.getElementById('qPracticeFb');
+  fb.className='practice-fb show '+(isCorrect?'correct':'wrong');
+  fb.innerHTML='<strong>'+(isCorrect?'✓ Correct':'✗ Not quite')+'</strong> — '+q.expl;
+}
+
+function updateSteps(){
+  QUESTIONS.forEach((_,i)=>{
+    const el=document.getElementById('step-'+i);
+    if(!el) return;
+    if(answers[i]===null){el.className='qp-step';return}
+    if(submitted||mode==='practice'){
+      el.className='qp-step '+(answers[i]===QUESTIONS[i].correct?'correct':'wrong');
+    } else {
+      el.className='qp-step answered';
+    }
+  });
+}
+
+function advance(){
+  if(currentQ<QUESTIONS.length-1) goTo(currentQ+1);
+}
+
+/* ── SUBMIT ── */
+function submitQuiz(){
+  if(answers.some(a=>a===null)){ alert('Please answer all questions before submitting.'); return; }
+  submitted=true;
+  updateSteps();
+  showResults();
+}
+
+/* ── RESULTS ── */
+function showResults(){
+  document.getElementById('quizSurface').style.display='none';
+  const score=answers.filter((a,i)=>a===QUESTIONS[i].correct).length;
+  const pct=Math.round((score/QUESTIONS.length)*100);
+  const grade = pct>=80?'Strong foundation':pct>=60?'Good progress':pct>=40?'Some gaps remain':'Review the sessions';
+  const color = pct>=80?'var(--green)':pct>=60?'var(--amber)':'var(--red)';
+
+  // Save to Firebase
+  let savedMsg='';
+  if(mode==='quiz'&&session&&window.firebase&&firebase.firestore){
+    try{
+      firebase.firestore().collection('quizScores').add({
+        studentId: session.enrollId||session.studentId||'',
+        name: session.name||'',
+        module:'1', quiz:'m1-quiz',
+        score, total:QUESTIONS.length, pct,
+        mode, answers,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      savedMsg=`<div class="saved-badge">✓ Score saved to gradebook</div>`;
+    } catch(e){}
+  }
+
+  const reviewItems=QUESTIONS.map((q,i)=>{
+    const correct=answers[i]===q.correct;
+    const chosen=answers[i]!==null?q.opts[answers[i]]:'—';
+    return`<div class="review-item ${correct?'r-correct':'r-wrong'}">
+      <div class="ri-icon">${correct?'✓':'✗'}</div>
+      <div class="ri-text"><strong>Q${i+1}: ${q.text.substring(0,60)}${q.text.length>60?'…':''}</strong>
+        ${correct?'Correct.':'Your answer: '+chosen+'<br>Correct: '+q.opts[q.correct]+'<br>'}
+        <span style="color:var(--text3);font-size:0.78rem">${q.expl}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('resultSurface').style.display='block';
+  document.getElementById('resultSurface').innerHTML=`
+    <div class="result-card">
+      ${savedMsg}
+      <div class="result-score" style="color:${color}">${score}<span class="result-denom">/${QUESTIONS.length}</span></div>
+      <div class="result-label">${grade}</div>
+      <div class="result-sub">${pct}% correct · ${mode==='quiz'?'Quiz mode':'Practice mode'}</div>
+      <div class="result-bar-wrap"><div class="result-bar-fill" id="resultBar" style="width:0%;background:${color}"></div></div>
+    </div>
+    <div style="font-family:var(--mono);font-size:0.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px">Question Review</div>
+    <div class="review-list">${reviewItems}</div>
+    <div class="result-actions">
+      <button class="btn-nav btn-ghost" onclick="retake()">Retake Quiz</button>
+      <a class="btn-nav btn-primary" href="module1.html">Back to Module 1 →</a>
+    </div>
+  `;
+  setTimeout(()=>{ const b=document.getElementById('resultBar'); if(b) b.style.width=pct+'%' },100);
+}
+
+function retake(){
+  answers=new Array(QUESTIONS.length).fill(null);
+  submitted=false;
+  document.getElementById('resultSurface').style.display='none';
+  document.getElementById('resultSurface').innerHTML='';
+  document.getElementById('modeSurface').style.display='block';
+}
+</script>
+</body>
+</html>
