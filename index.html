@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DerivativesLab — Financial Derivatives</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:       #0f1117;
+  --bg2:      #161b26;
+  --bg3:      #1e2535;
+  --border:   rgba(255,255,255,0.07);
+  --border2:  rgba(255,255,255,0.13);
+  --amber:    #f5a623;
+  --amber2:   #ffc75a;
+  --teal:     #2dd4bf;
+  --red:      #f87171;
+  --green:    #4ade80;
+  --text:     #e8eaf0;
+  --text2:    #8b91a8;
+  --text3:    #555e78;
+  --serif:    'DM Serif Display', Georgia, serif;
+  --mono:     'DM Mono', 'Courier New', monospace;
+  --sans:     'DM Sans', system-ui, sans-serif;
+  --r:        14px;
+  --r2:       20px;
+  --r3:       28px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+a { text-decoration: none; color: inherit; }
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 28px; height: 56px;
+  background: rgba(15,17,23,0.88);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--amber);
+  letter-spacing: 0.04em;
+}
+.nav-logo span { color: var(--text2); }
+.nav-links { display: flex; gap: 4px; }
+.nav-links a {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text2);
+  transition: color .15s, background .15s;
+}
+.nav-links a:hover { color: var(--text); background: var(--bg3); }
+.nav-links a.active { color: var(--amber); }
+.nav-badge {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(245,166,35,0.12);
+  border: 1px solid rgba(245,166,35,0.25);
+  color: var(--amber);
+}
+
+/* ── LAYOUT ── */
+.shell { max-width: 1200px; margin: 0 auto; padding: 80px 24px 64px; }
+
+/* ── HERO ── */
+.hero {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 32px;
+  padding: 52px 48px;
+  border-radius: var(--r3);
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; top: -60px; right: -60px;
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(245,166,35,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--amber);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.hero-tag::before {
+  content: '';
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--amber);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+.hero h1 {
+  font-family: var(--serif);
+  font-size: clamp(2.2rem, 4vw, 3.4rem);
+  line-height: 1.05;
+  color: var(--text);
+  margin-bottom: 12px;
+  letter-spacing: -0.01em;
+}
+.hero h1 em { color: var(--amber); font-style: italic; }
+.hero-sub { color: var(--text2); font-size: 0.95rem; max-width: 480px; }
+.hero-actions { display: flex; gap: 10px; margin-top: 24px; flex-wrap: wrap; }
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 11px 22px; border-radius: var(--r);
+  background: var(--amber); color: #0f1117;
+  font-weight: 600; font-size: 0.88rem;
+  border: none; cursor: pointer;
+  transition: background .15s, transform .1s;
+}
+.btn-primary:hover { background: var(--amber2); transform: translateY(-1px); }
+.btn-ghost {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 11px 22px; border-radius: var(--r);
+  background: transparent; color: var(--text2);
+  font-weight: 500; font-size: 0.88rem;
+  border: 1px solid var(--border2); cursor: pointer;
+  transition: color .15s, border-color .15s;
+}
+.btn-ghost:hover { color: var(--text); border-color: var(--border2); }
+.hero-stats {
+  display: flex; flex-direction: column; gap: 10px;
+  align-items: flex-end;
+}
+.stat-pill {
+  display: flex; flex-direction: column; align-items: flex-end;
+  padding: 12px 16px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  min-width: 120px;
+}
+.stat-val {
+  font-family: var(--mono);
+  font-size: 1.6rem;
+  font-weight: 500;
+  color: var(--amber);
+  line-height: 1;
+}
+.stat-label { font-size: 0.72rem; color: var(--text3); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.06em; }
+
+/* ── GRID ── */
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+/* ── SECTION HEADER ── */
+.sec-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px;
+}
+.sec-title {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.sec-line { flex: 1; height: 1px; background: var(--border); margin: 0 16px; }
+.sec-count {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text3);
+}
+.mb24 { margin-bottom: 24px; }
+.mb16 { margin-bottom: 16px; }
+
+/* ── MODULE CARD ── */
+.module-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  padding: 24px;
+  display: flex; flex-direction: column;
+  gap: 12px;
+  transition: border-color .2s, transform .15s;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.module-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+.module-card.active { border-color: rgba(245,166,35,0.4); }
+.module-card.active::before {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: var(--amber); border-radius: 3px 0 0 3px;
+}
+.module-card.locked { opacity: 0.45; cursor: default; }
+.mod-num {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--amber);
+  letter-spacing: 0.08em;
+}
+.mod-title { font-family: var(--serif); font-size: 1.1rem; line-height: 1.2; }
+.mod-meta { font-size: 0.8rem; color: var(--text2); }
+.mod-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.tag {
+  display: inline-block;
+  padding: 3px 8px; border-radius: 6px;
+  font-size: 0.68rem; font-weight: 500;
+  background: var(--bg3); color: var(--text3);
+  border: 1px solid var(--border);
+}
+.tag.amber { background: rgba(245,166,35,0.1); color: var(--amber); border-color: rgba(245,166,35,0.2); }
+.mod-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: auto; padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.mod-progress-bar {
+  flex: 1; height: 3px; background: var(--bg3); border-radius: 3px; overflow: hidden; margin-right: 12px;
+}
+.mod-progress-fill { height: 100%; background: var(--amber); border-radius: 3px; }
+.mod-pct { font-family: var(--mono); font-size: 0.7rem; color: var(--text2); }
+
+/* ── QUICK ACCESS ── */
+.qa-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  padding: 20px 22px;
+  display: flex; flex-direction: column; gap: 10px;
+  cursor: pointer;
+  transition: border-color .2s, transform .15s;
+}
+.qa-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+.qa-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+.qa-icon.amber { background: rgba(245,166,35,0.12); }
+.qa-icon.teal { background: rgba(45,212,191,0.1); }
+.qa-icon.red { background: rgba(248,113,113,0.1); }
+.qa-icon.green { background: rgba(74,222,128,0.1); }
+.qa-title { font-weight: 600; font-size: 0.92rem; }
+.qa-sub { font-size: 0.78rem; color: var(--text2); }
+
+/* ── ACTIVITY FEED ── */
+.feed-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  padding: 20px;
+}
+.feed-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.feed-row:last-child { border-bottom: none; }
+.feed-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--bg3); flex-shrink: 0; }
+.feed-dot.done { background: var(--green); }
+.feed-dot.active { background: var(--amber); }
+.feed-text { flex: 1; font-size: 0.85rem; }
+.feed-text strong { color: var(--text); font-weight: 500; }
+.feed-text span { color: var(--text2); }
+.feed-time { font-family: var(--mono); font-size: 0.7rem; color: var(--text3); flex-shrink: 0; }
+
+/* ── TICKER ── */
+.ticker {
+  display: flex; gap: 0;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+.tick-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 20px;
+  border-right: 1px solid var(--border);
+  flex: 1;
+}
+.tick-item:last-child { border-right: none; }
+.tick-label { font-family: var(--mono); font-size: 0.68rem; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; }
+.tick-val { font-family: var(--mono); font-size: 0.88rem; color: var(--text); font-weight: 500; }
+.tick-change { font-family: var(--mono); font-size: 0.72rem; }
+.tick-change.up { color: var(--green); }
+.tick-change.dn { color: var(--red); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; }
+  .hero-stats { flex-direction: row; align-items: flex-start; }
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .hero { padding: 28px 24px; }
+  .grid-2, .grid-4 { grid-template-columns: 1fr; }
+  .ticker { flex-direction: column; }
+  .tick-item { border-right: none; border-bottom: 1px solid var(--border); }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">DERIVATIVES<span>LAB</span></div>
+  <div class="nav-links">
+    <a href="index.html" class="active">Home</a>
+    <a href="module1.html">Module 1</a>
+    <a href="#simulations">Simulations</a>
+    <a href="#games">Games</a>
+    <a href="#resources">Resources</a>
+  </div>
+  <div class="nav-badge">FIA 401 · 2026</div>
+</nav>
+
+<div class="shell">
+
+  <!-- Live ticker bar -->
+  <div class="ticker">
+    <div class="tick-item">
+      <div>
+        <div class="tick-label">Nifty Futures</div>
+        <div style="display:flex;align-items:baseline;gap:8px">
+          <div class="tick-val">24,850</div>
+          <div class="tick-change up">+1.2%</div>
+        </div>
+      </div>
+    </div>
+    <div class="tick-item">
+      <div>
+        <div class="tick-label">USD/INR</div>
+        <div style="display:flex;align-items:baseline;gap:8px">
+          <div class="tick-val">83.42</div>
+          <div class="tick-change dn">-0.08%</div>
+        </div>
+      </div>
+    </div>
+    <div class="tick-item">
+      <div>
+        <div class="tick-label">India VIX</div>
+        <div style="display:flex;align-items:baseline;gap:8px">
+          <div class="tick-val">13.84</div>
+          <div class="tick-change up">+4.1%</div>
+        </div>
+      </div>
+    </div>
+    <div class="tick-item">
+      <div>
+        <div class="tick-label">Nifty Open Interest</div>
+        <div style="display:flex;align-items:baseline;gap:8px">
+          <div class="tick-val">1,82,450</div>
+          <div class="tick-change up">+4.8%</div>
+        </div>
+      </div>
+    </div>
+    <div class="tick-item">
+      <div>
+        <div class="tick-label">Your Progress</div>
+        <div style="display:flex;align-items:baseline;gap:8px">
+          <div class="tick-val">M1 · S1</div>
+          <div class="tick-change up">Active</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <div class="hero mb24">
+    <div>
+      <div class="hero-tag">Financial Derivatives · IMT Hyderabad · PGDM 2026</div>
+      <h1>Learn derivatives<br>the <em>market way</em></h1>
+      <p class="hero-sub">Activity-first learning across futures, options, swaps, and risk management. Built on real NSE data and market mechanics.</p>
+      <div class="hero-actions">
+        <a class="btn-primary" href="module1.html">Continue Module 1 →</a>
+        <a class="btn-ghost" href="#module-map">All Modules</a>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-pill">
+        <div class="stat-val">6</div>
+        <div class="stat-label">Modules</div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-val">20</div>
+        <div class="stat-label">Sessions</div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-val">12+</div>
+        <div class="stat-label">Simulations</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick access -->
+  <div class="sec-head mb16">
+    <div class="sec-title">Quick Access</div>
+    <div class="sec-line"></div>
+    <div class="sec-count">4 sections</div>
+  </div>
+  <div class="grid-4 mb24">
+    <a class="qa-card" href="module1.html#checks">
+      <div class="qa-icon amber">✦</div>
+      <div class="qa-title">Concept Checks</div>
+      <div class="qa-sub">Quick reinforcement after each session</div>
+    </a>
+    <a class="qa-card" href="module1.html#quiz">
+      <div class="qa-icon teal">◈</div>
+      <div class="qa-title">Quizzes</div>
+      <div class="qa-sub">Module-end formal assessment</div>
+    </a>
+    <a class="qa-card" href="#simulations">
+      <div class="qa-icon green">⬡</div>
+      <div class="qa-title">Simulations</div>
+      <div class="qa-sub">Option pricers, payoff builders</div>
+    </a>
+    <a class="qa-card" href="#games">
+      <div class="qa-icon red">▲</div>
+      <div class="qa-title">Market Games</div>
+      <div class="qa-sub">Pit trading, price discovery</div>
+    </a>
+  </div>
+
+  <!-- Modules -->
+  <div class="sec-head mb16" id="module-map">
+    <div class="sec-title">Course Modules</div>
+    <div class="sec-line"></div>
+    <div class="sec-count">6 modules</div>
+  </div>
+  <div class="grid-2 mb24" id="moduleGrid">
+
+    <a class="module-card active" href="module1.html">
+      <div class="mod-num">MOD — 01</div>
+      <div class="mod-title">Foundations of Derivatives</div>
+      <div class="mod-meta">Sessions 1–3 · Spot markets · Long/Short · Hedgers, Speculators, Arbitrageurs</div>
+      <div class="mod-tags">
+        <span class="tag amber">Active</span>
+        <span class="tag">Futures Track</span>
+        <span class="tag">NSE Contract Reader</span>
+      </div>
+      <div class="mod-footer">
+        <div class="mod-progress-bar"><div class="mod-progress-fill" style="width:15%"></div></div>
+        <div class="mod-pct">15%</div>
+      </div>
+    </a>
+
+    <a class="module-card locked" href="#">
+      <div class="mod-num">MOD — 02</div>
+      <div class="mod-title">Futures Pricing &amp; Basis</div>
+      <div class="mod-meta">Sessions 4–5 · Cost of carry · Basis · Convergence · Arbitrage logic</div>
+      <div class="mod-tags"><span class="tag">Locked</span></div>
+      <div class="mod-footer">
+        <div class="mod-progress-bar"><div class="mod-progress-fill" style="width:0%"></div></div>
+        <div class="mod-pct">0%</div>
+      </div>
+    </a>
+
+    <a class="module-card locked" href="#">
+      <div class="mod-num">MOD — 03</div>
+      <div class="mod-title">Options Foundations</div>
+      <div class="mod-meta">Sessions 6–7 · Calls &amp; Puts · Payoff intuition · Option terminology</div>
+      <div class="mod-tags"><span class="tag">Locked</span></div>
+      <div class="mod-footer">
+        <div class="mod-progress-bar"><div class="mod-progress-fill" style="width:0%"></div></div>
+        <div class="mod-pct">0%</div>
+      </div>
+    </a>
+
+    <a class="module-card locked" href="#">
+      <div class="mod-num">MOD — 04</div>
+      <div class="mod-title">Hedging &amp; Risk Management</div>
+      <div class="mod-meta">Sessions 8 &amp; 15 · Futures hedging · Options hedging · Cases</div>
+      <div class="mod-tags"><span class="tag">Locked</span></div>
+      <div class="mod-footer">
+        <div class="mod-progress-bar"><div class="mod-progress-fill" style="width:0%"></div></div>
+        <div class="mod-pct">0%</div>
+      </div>
+    </a>
+
+    <a class="module-card locked" href="#">
+      <div class="mod-num">MOD — 05</div>
+      <div class="mod-title">Options Strategies &amp; Pricing</div>
+      <div class="mod-meta">Sessions 9–14 · Strategies · Binomial trees · Black-Scholes</div>
+      <div class="mod-tags"><span class="tag">Locked</span></div>
+      <div class="mod-footer">
+        <div class="mod-progress-bar"><div class="mod-progress-fill" style="width:0%"></div></div>
+        <div class="mod-pct">0%</div>
+      </div>
+    </a>
+
+    <a class="module-card locked" href="#">
+      <div class="mod-num">MOD — 06</div>
+      <div class="mod-title">Greeks, Exotics &amp; Simulation</div>
+      <div class="mod-meta">Sessions 16–20 · Option Greeks · Exotic options · Monte Carlo</div>
+      <div class="mod-tags"><span class="tag">Locked</span></div>
+      <div class="mod-footer">
+        <div class="mod-progress-bar"><div class="mod-progress-fill" style="width:0%"></div></div>
+        <div class="mod-pct">0%</div>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- Bottom row -->
+  <div class="grid-3">
+    <!-- Recent activity -->
+    <div class="feed-card">
+      <div class="sec-title" style="margin-bottom:12px">Recent Activity</div>
+      <div class="feed-row">
+        <div class="feed-dot done"></div>
+        <div class="feed-text"><strong>Session 1.1</strong> <span>completed · Spot, Long, Short</span></div>
+        <div class="feed-time">Today</div>
+      </div>
+      <div class="feed-row">
+        <div class="feed-dot active"></div>
+        <div class="feed-text"><strong>Session 1.2</strong> <span>in progress</span></div>
+        <div class="feed-time">Now</div>
+      </div>
+      <div class="feed-row">
+        <div class="feed-dot"></div>
+        <div class="feed-text"><strong>Module 1 Quiz</strong> <span>not started</span></div>
+        <div class="feed-time">–</div>
+      </div>
+      <div class="feed-row">
+        <div class="feed-dot"></div>
+        <div class="feed-text"><strong>NSE Contract Reader</strong> <span>not started</span></div>
+        <div class="feed-time">–</div>
+      </div>
+    </div>
+
+    <!-- Market context card -->
+    <div class="qa-card" style="grid-column:span 2; flex-direction:row; align-items:center; justify-content:space-between; gap:32px;">
+      <div>
+        <div class="sec-title" style="margin-bottom:8px">Why This Matters</div>
+        <p style="font-family:var(--serif);font-size:1.15rem;color:var(--text);line-height:1.4;margin-bottom:8px;">"If you are not hedging, you are speculating."</p>
+        <p style="font-size:0.82rem;color:var(--text2);">Every firm with a currency, commodity, or interest rate exposure makes a derivatives decision — either actively or by default. This course teaches you to make that decision well.</p>
+      </div>
+      <div style="flex-shrink:0;">
+        <a class="btn-primary" href="module1.html">Start Learning →</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

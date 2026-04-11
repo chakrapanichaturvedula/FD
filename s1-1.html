@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Session 1.1 — Spot, Long, Short &amp; Square Off · DerivativesLab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:#0f1117;--bg2:#161b26;--bg3:#1e2535;--bg4:#252e42;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --amber:#f5a623;--amber2:#ffc75a;--teal:#2dd4bf;--red:#f87171;--green:#4ade80;
+  --text:#e8eaf0;--text2:#8b91a8;--text3:#555e78;
+  --serif:'DM Serif Display',Georgia,serif;
+  --mono:'DM Mono','Courier New',monospace;
+  --sans:'DM Sans',system-ui,sans-serif;
+  --r:14px;--r2:20px;--r3:28px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+a{text-decoration:none;color:inherit}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:56px;background:rgba(15,17,23,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--mono);font-size:0.82rem;color:var(--amber);letter-spacing:0.04em}
+.nav-logo span{color:var(--text2)}
+.nav-pill{display:flex;align-items:center;gap:10px}
+.nav-session{font-family:var(--mono);font-size:0.72rem;color:var(--text3)}
+.nav-next{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;background:var(--bg3);border:1px solid var(--border2);font-size:0.78rem;font-weight:600;color:var(--text2);transition:color .15s,border-color .15s}
+.nav-next:hover{color:var(--amber);border-color:rgba(245,166,35,0.3)}
+
+/* LAYOUT */
+.shell{max-width:900px;margin:0 auto;padding:80px 24px 80px}
+
+/* PROGRESS BAR */
+.progress-bar{
+  height:2px;background:var(--bg3);
+  margin-bottom:28px;border-radius:2px;
+  position:relative;overflow:hidden;
+}
+.progress-fill{height:100%;background:var(--amber);border-radius:2px;transition:width .4s ease;width:0%}
+.progress-meta{display:flex;justify-content:space-between;margin-bottom:6px}
+.progress-label{font-family:var(--mono);font-size:0.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em}
+
+/* SESSION HERO */
+.s-hero{
+  padding:36px 40px;border-radius:var(--r3);
+  background:var(--bg2);border:1px solid var(--border2);
+  margin-bottom:28px;position:relative;overflow:hidden;
+}
+.s-hero::before{
+  content:'';position:absolute;bottom:-40px;right:-40px;
+  width:200px;height:200px;
+  background:radial-gradient(circle,rgba(245,166,35,0.08) 0%,transparent 70%);
+  pointer-events:none;
+}
+.crumb{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:0.68rem;color:var(--text3);margin-bottom:14px}
+.crumb a{color:var(--text3);transition:color .15s}.crumb a:hover{color:var(--amber)}
+.s-kicker{font-family:var(--mono);font-size:0.68rem;color:var(--amber);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px}
+.s-hero h1{font-family:var(--serif);font-size:clamp(1.8rem,3vw,2.6rem);line-height:1.1;margin-bottom:8px}
+.s-hero p{color:var(--text2);font-size:0.9rem;max-width:500px}
+.s-outcomes{display:flex;flex-direction:column;gap:5px;margin-top:14px}
+.s-out{display:flex;align-items:flex-start;gap:8px;font-size:0.82rem;color:var(--text2)}
+.s-out::before{content:'→';color:var(--amber);font-family:var(--mono);flex-shrink:0}
+
+/* ACTIVITY CARD */
+.activity{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--r2);
+  overflow:hidden;
+  margin-bottom:16px;
+  transition:border-color .2s;
+}
+.activity.done{border-color:rgba(74,222,128,0.25)}
+.activity-head{
+  display:flex;align-items:center;gap:14px;
+  padding:18px 22px;border-bottom:1px solid var(--border);
+  cursor:pointer;
+}
+.act-num{
+  display:flex;align-items:center;justify-content:center;
+  width:32px;height:32px;border-radius:10px;flex-shrink:0;
+  background:var(--bg3);
+  font-family:var(--mono);font-size:0.75rem;color:var(--text3);
+  border:1px solid var(--border);
+  transition:background .2s,color .2s,border-color .2s;
+}
+.activity.done .act-num{background:rgba(74,222,128,0.1);color:var(--green);border-color:rgba(74,222,128,0.25)}
+.act-meta{flex:1}
+.act-tag{font-family:var(--mono);font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px}
+.act-title{font-size:0.95rem;font-weight:600}
+.act-check{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.activity.done .act-check{background:var(--green);border-color:var(--green);color:#0f1117;font-size:0.65rem}
+.activity-body{padding:20px 22px}
+
+/* PROMPT */
+.prompt{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--r);padding:14px 16px;
+  font-size:0.88rem;color:var(--text);margin-bottom:16px;
+  border-left:3px solid var(--amber);
+}
+.prompt strong{color:var(--amber)}
+
+/* MCQ OPTIONS */
+.options{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.opt{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:12px 14px;border-radius:var(--r);
+  background:var(--bg3);border:1px solid var(--border);
+  cursor:pointer;font-size:0.88rem;color:var(--text2);
+  transition:border-color .15s,background .15s,color .15s;
+  text-align:left;width:100%;font-family:var(--sans);
+}
+.opt:hover{border-color:var(--border2);color:var(--text)}
+.opt-letter{
+  display:flex;align-items:center;justify-content:center;
+  width:22px;height:22px;flex-shrink:0;
+  border-radius:6px;background:var(--bg4);
+  font-family:var(--mono);font-size:0.7rem;color:var(--text3);
+  transition:background .15s,color .15s;
+  margin-top:1px;
+}
+.opt.selected{border-color:var(--amber);background:rgba(245,166,35,0.06);color:var(--text)}
+.opt.selected .opt-letter{background:var(--amber);color:#0f1117}
+.opt.correct{border-color:rgba(74,222,128,0.4);background:rgba(74,222,128,0.07);color:var(--text)}
+.opt.correct .opt-letter{background:var(--green);color:#0f1117}
+.opt.wrong{border-color:rgba(248,113,113,0.4);background:rgba(248,113,113,0.07);color:var(--text)}
+.opt.wrong .opt-letter{background:var(--red);color:#0f1117}
+.opt:disabled{cursor:default}
+
+/* FEEDBACK */
+.feedback{
+  display:none;
+  padding:12px 14px;border-radius:var(--r);
+  font-size:0.85rem;margin-top:4px;
+}
+.feedback.show{display:block}
+.feedback.fb-correct{background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);color:var(--green)}
+.feedback.fb-wrong{background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:var(--red)}
+.feedback .fb-icon{display:inline;margin-right:6px}
+
+/* EXPLANATION */
+.explanation{
+  display:none;
+  margin-top:12px;padding:14px 16px;
+  border-radius:var(--r);background:var(--bg3);
+  border:1px solid var(--border);
+  font-size:0.85rem;color:var(--text2);line-height:1.7;
+}
+.explanation.show{display:block}
+.explanation strong{color:var(--text)}
+
+/* SEQUENCE PUZZLE */
+.seq-items{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.seq-row{display:flex;align-items:center;gap:10px}
+.seq-num{
+  width:32px;height:32px;border-radius:10px;
+  border:1px solid var(--border2);background:var(--bg3);
+  font-family:var(--mono);font-size:0.8rem;color:var(--text2);
+  text-align:center;appearance:none;-webkit-appearance:none;
+  cursor:pointer;outline:none;
+  transition:border-color .15s;
+}
+.seq-num:focus{border-color:var(--amber)}
+.seq-label{font-size:0.88rem;color:var(--text2)}
+.check-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:9px 18px;border-radius:var(--r);
+  background:var(--bg3);border:1px solid var(--border2);
+  font-size:0.82rem;font-weight:600;color:var(--text2);
+  cursor:pointer;font-family:var(--sans);
+  transition:color .15s,border-color .15s,background .15s;
+}
+.check-btn:hover{color:var(--amber);border-color:rgba(245,166,35,0.3);background:rgba(245,166,35,0.05)}
+
+/* P&L CALCULATOR */
+.calc-card{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:var(--r);padding:16px;margin-bottom:12px;
+}
+.calc-given{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+  margin-bottom:16px;
+}
+.calc-field{
+  background:var(--bg4);border:1px solid var(--border);
+  border-radius:var(--r);padding:10px 12px;
+}
+.calc-flabel{font-family:var(--mono);font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px}
+.calc-fval{font-family:var(--mono);font-size:1rem;color:var(--amber);font-weight:500}
+.calc-answer{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.answer-input{
+  flex:1;min-width:160px;padding:10px 14px;
+  border-radius:var(--r);background:var(--bg4);
+  border:1px solid var(--border2);
+  font-family:var(--mono);font-size:0.95rem;color:var(--text);
+  outline:none;transition:border-color .15s;
+}
+.answer-input:focus{border-color:var(--amber)}
+.answer-input::placeholder{color:var(--text3)}
+.steps-panel{
+  display:none;margin-top:10px;
+  padding:12px 14px;border-radius:var(--r);
+  background:var(--bg4);border:1px solid var(--border);
+  font-family:var(--mono);font-size:0.82rem;color:var(--text2);
+  line-height:1.8;
+}
+.steps-panel.show{display:block}
+.steps-panel .hl{color:var(--amber)}
+
+/* CONCEPT CHECK (QUIZ) */
+.quiz-section{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--r2);padding:24px;margin-bottom:16px;
+}
+.quiz-head{margin-bottom:20px}
+.quiz-head h2{font-family:var(--serif);font-size:1.4rem;margin-bottom:4px}
+.quiz-head p{font-size:0.85rem;color:var(--text2)}
+.quiz-q{
+  padding:16px 20px;margin-bottom:4px;
+  border-radius:var(--r);background:var(--bg3);
+  font-size:0.88rem;font-weight:500;color:var(--text);
+  border-left:3px solid var(--border2);
+}
+.quiz-q .qnum{font-family:var(--mono);font-size:0.7rem;color:var(--text3);margin-bottom:6px}
+
+/* NEXT BUTTON */
+.next-section{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:22px;border-radius:var(--r2);
+  background:var(--bg2);border:1px solid var(--border);
+  margin-top:24px;
+}
+.next-info h3{font-family:var(--serif);font-size:1.1rem;margin-bottom:4px}
+.next-info p{font-size:0.82rem;color:var(--text2)}
+.btn-next{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:11px 22px;border-radius:var(--r);
+  background:var(--amber);color:#0f1117;
+  font-weight:600;font-size:0.88rem;
+  white-space:nowrap;transition:background .15s,transform .1s;
+}
+.btn-next:hover{background:var(--amber2);transform:translateY(-1px)}
+
+/* TAKEAWAY BOX */
+.takeaway{
+  background:rgba(245,166,35,0.05);
+  border:1px solid rgba(245,166,35,0.15);
+  border-radius:var(--r2);padding:20px 22px;
+  margin-bottom:16px;
+}
+.takeaway-title{font-family:var(--mono);font-size:0.7rem;color:var(--amber);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px}
+.takeaway-list{display:flex;flex-direction:column;gap:8px}
+.takeaway-item{display:flex;align-items:flex-start;gap:10px;font-size:0.88rem;color:var(--text2)}
+.takeaway-item::before{content:'✦';color:var(--amber);font-size:0.6rem;flex-shrink:0;margin-top:4px}
+
+@media(max-width:600px){
+  .s-hero{padding:24px 20px}
+  .activity-body,.activity-head{padding:14px 16px}
+  .calc-given{grid-template-columns:1fr}
+  .quiz-section{padding:18px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">DERIVATIVES<span>LAB</span></div>
+  <div class="nav-pill">
+    <div class="nav-session">Module 1 · Session 1.1</div>
+    <a class="nav-next" href="s1-2.html">Next: Session 1.2 →</a>
+  </div>
+</nav>
+
+<div class="shell">
+
+  <!-- Progress -->
+  <div class="progress-meta">
+    <div class="progress-label">Session 1.1 of 3</div>
+    <div class="progress-label" id="progress-pct">0 / 4 activities</div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+
+  <!-- Hero -->
+  <div class="s-hero">
+    <div class="crumb">
+      <a href="index.html">Home</a> <span style="color:var(--text3)">/</span>
+      <a href="module1.html">Module 1</a> <span style="color:var(--text3)">/</span>
+      <span>Session 1.1</span>
+    </div>
+    <div class="s-kicker">Session 1.1 — Foundations</div>
+    <h1>Spot, Long, Short<br>&amp; Square Off</h1>
+    <p>Do the activities and discover the basic grammar of markets. Concepts first, definitions after.</p>
+    <div class="s-outcomes">
+      <div class="s-out">Identify a spot transaction and explain why it matters</div>
+      <div class="s-out">Explain how short selling works in the spot market</div>
+      <div class="s-out">Distinguish long and short positions by their direction</div>
+      <div class="s-out">Explain what squaring off a position means</div>
+    </div>
+  </div>
+
+  <!-- ───── ACTIVITY 1: SPOT OR NOT ───── -->
+  <div class="activity" id="act1">
+    <div class="activity-head" onclick="toggleActivity('act1')">
+      <div class="act-num">1</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity 1 · Spot or Not</div>
+        <div class="act-title">Identify the spot transaction</div>
+      </div>
+      <div class="act-check" id="act1-check"></div>
+    </div>
+    <div class="activity-body" id="act1-body">
+      <div class="prompt">A <strong>spot transaction</strong> means trade and settlement happen now or near-immediately. Which of these is a spot transaction?</div>
+      <div class="options" id="a1-opts">
+        <button class="opt" onclick="checkMCQ('a1',this,false,'Not this one. Agreeing today for future delivery is not spot — settlement is deferred.')">
+          <span class="opt-letter">A</span>
+          Agree today to buy wheat after 2 months at a fixed price
+        </button>
+        <button class="opt" onclick="checkMCQ('a1',this,true,'Correct. Buying shares in the cash market settles in T+1 — that is spot.')">
+          <span class="opt-letter">B</span>
+          Buy 100 Infosys shares in the NSE cash market today
+        </button>
+        <button class="opt" onclick="checkMCQ('a1',this,false,'Not this one. A futures contract creates exposure for a future delivery/settlement date.')">
+          <span class="opt-letter">C</span>
+          Enter a Nifty futures contract expiring next month
+        </button>
+        <button class="opt" onclick="checkMCQ('a1',this,false,'Not this one. A call option is a derivative — it gives a right to buy later, not immediate exchange.')">
+          <span class="opt-letter">D</span>
+          Buy a call option on Reliance expiring in 3 weeks
+        </button>
+      </div>
+      <div class="feedback" id="a1-feedback"></div>
+      <div class="explanation" id="a1-expl">
+        <strong>Spot markets</strong> are where you buy or sell today and receive or deliver the asset immediately (or within a standard short settlement window like T+1). All other choices involve an agreement today but exchange at a <em>later date</em> — that is the world of forwards, futures, and options.
+      </div>
+    </div>
+  </div>
+
+  <!-- ───── ACTIVITY 2: SHORT SELLING SEQUENCE ───── -->
+  <div class="activity" id="act2">
+    <div class="activity-head" onclick="toggleActivity('act2')">
+      <div class="act-num">2</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity 2 · Short Selling</div>
+        <div class="act-title">How does short selling work in the spot market?</div>
+      </div>
+      <div class="act-check" id="act2-check"></div>
+    </div>
+    <div class="activity-body" id="act2-body">
+      <div class="prompt">To <strong>profit from falling prices</strong> in the spot market, you need to sell first. But how can you sell what you don't own? Pick the correct answer.</div>
+      <div class="options" id="a2-opts">
+        <button class="opt" onclick="checkMCQ('a2',this,false,'Not quite. Margin is for futures/derivatives. In the spot market, you need to borrow the actual asset.')">
+          <span class="opt-letter">A</span>
+          Pay margin to the exchange and sell without owning the stock
+        </button>
+        <button class="opt" onclick="checkMCQ('a2',this,true,'Correct. The sequence is: borrow → sell → buy back later → return. This is how spot market short selling works.')">
+          <span class="opt-letter">B</span>
+          Borrow the asset, sell it, buy it back later at a lower price, return it
+        </button>
+        <button class="opt" onclick="checkMCQ('a2',this,false,'Not quite. You cannot deliver something you haven\'t borrowed — the exchange requires actual delivery.')">
+          <span class="opt-letter">C</span>
+          Promise to deliver later without borrowing anything upfront
+        </button>
+        <button class="opt" onclick="checkMCQ('a2',this,false,'Not quite. Short selling requires actual sale of borrowed shares — you do need to sell something.')">
+          <span class="opt-letter">D</span>
+          Take a short position without making any sale
+        </button>
+      </div>
+      <div class="feedback" id="a2-feedback"></div>
+
+      <div class="explanation" id="a2-expl">
+        <strong>Short selling in the spot market requires an operational sequence:</strong><br><br>
+        Put the steps in the correct order (enter 1, 2, 3, 4):
+      </div>
+
+      <div class="seq-items" id="a2-seq" style="display:none;margin-top:12px">
+        <div class="seq-row">
+          <input class="seq-num" type="number" min="1" max="4" placeholder="?" data-correct="3" />
+          <div class="seq-label">Buy back the asset at a lower price</div>
+        </div>
+        <div class="seq-row">
+          <input class="seq-num" type="number" min="1" max="4" placeholder="?" data-correct="1" />
+          <div class="seq-label">Borrow the asset from a broker or securities lender</div>
+        </div>
+        <div class="seq-row">
+          <input class="seq-num" type="number" min="1" max="4" placeholder="?" data-correct="4" />
+          <div class="seq-label">Return the asset to the lender</div>
+        </div>
+        <div class="seq-row">
+          <input class="seq-num" type="number" min="1" max="4" placeholder="?" data-correct="2" />
+          <div class="seq-label">Sell the borrowed asset in the market</div>
+        </div>
+        <button class="check-btn" id="seq-check-btn" onclick="checkSequence()">Check sequence →</button>
+        <div class="feedback" id="a2-seq-feedback"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───── ACTIVITY 3: LONG OR SHORT ───── -->
+  <div class="activity" id="act3">
+    <div class="activity-head" onclick="toggleActivity('act3')">
+      <div class="act-num">3</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity 3 · Positions</div>
+        <div class="act-title">Long or short — and who gains?</div>
+      </div>
+      <div class="act-check" id="act3-check"></div>
+    </div>
+    <div class="activity-body" id="act3-body">
+
+      <div class="prompt">
+        Trader A buys one Nifty futures contract expecting the market to rise.<br>
+        Trader B sells one Nifty futures contract expecting the market to fall.<br><br>
+        The next day Nifty futures settle <strong>+200 points higher</strong>.
+        Who gains and who loses?
+      </div>
+      <div class="options" id="a3-opts">
+        <button class="opt" onclick="checkMCQ('a3',this,true,'Correct. Trader A (long) gains because the price rose. Trader B (short) loses for the same reason.')">
+          <span class="opt-letter">A</span>
+          Trader A gains · Trader B loses
+        </button>
+        <button class="opt" onclick="checkMCQ('a3',this,false,'Incorrect. A long position benefits from a price rise, not a fall.')">
+          <span class="opt-letter">B</span>
+          Trader A loses · Trader B gains
+        </button>
+        <button class="opt" onclick="checkMCQ('a3',this,false,'Incorrect. Both positions are directly affected by price change.')">
+          <span class="opt-letter">C</span>
+          Both gain because the market moved
+        </button>
+        <button class="opt" onclick="checkMCQ('a3',this,false,'Incorrect. The position type — not just the trade — determines profit direction.')">
+          <span class="opt-letter">D</span>
+          Neither gains until expiry
+        </button>
+      </div>
+      <div class="feedback" id="a3-feedback"></div>
+      <div class="explanation" id="a3-expl">
+        <strong>Long</strong> = benefits when price rises. <strong>Short</strong> = benefits when price falls.<br><br>
+        This is direction language, not time language. Long does not mean "held for a long time" and short does not mean "small position." These words describe which side of the market you are on.
+      </div>
+    </div>
+  </div>
+
+  <!-- ───── ACTIVITY 4: SQUARE OFF ───── -->
+  <div class="activity" id="act4">
+    <div class="activity-head" onclick="toggleActivity('act4')">
+      <div class="act-num">4</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity 4 · Closing a Position</div>
+        <div class="act-title">What does squaring off mean?</div>
+      </div>
+      <div class="act-check" id="act4-check"></div>
+    </div>
+    <div class="activity-body" id="act4-body">
+      <div class="prompt">
+        Priya bought 100 Nifty futures contracts (long). She wants to <strong>close her position</strong> before expiry. What should she do?
+      </div>
+      <div class="options" id="a4-opts">
+        <button class="opt" onclick="checkMCQ('a4',this,false,'Not this. Buying more would increase her long exposure, not close it.')">
+          <span class="opt-letter">A</span>
+          Buy 100 more Nifty futures contracts
+        </button>
+        <button class="opt" onclick="checkMCQ('a4',this,true,'Correct. Selling 100 contracts offsets her long, bringing net position to zero — that is squaring off.')">
+          <span class="opt-letter">B</span>
+          Sell 100 Nifty futures contracts of the same expiry
+        </button>
+        <button class="opt" onclick="checkMCQ('a4',this,false,'Not this. Waiting for expiry is one option, but it does not describe squaring off.')">
+          <span class="opt-letter">C</span>
+          Hold all contracts until expiry date
+        </button>
+        <button class="opt" onclick="checkMCQ('a4',this,false,'Not this. Options are a different instrument — you cannot convert futures into options.')">
+          <span class="opt-letter">D</span>
+          Convert the futures position into call options
+        </button>
+      </div>
+      <div class="feedback" id="a4-feedback"></div>
+      <div class="explanation" id="a4-expl">
+        <strong>Squaring off</strong> means taking the opposite transaction in the same contract and quantity, bringing your net position to zero.<br><br>
+        Long 100 + Sell 100 = Net 0. No open position means no further price risk from that trade. You can square off at any time before expiry — you do not have to wait.
+      </div>
+    </div>
+  </div>
+
+  <!-- ───── PRACTICE: P&L CALCULATION ───── -->
+  <div class="activity" id="act5">
+    <div class="activity-head" onclick="toggleActivity('act5')">
+      <div class="act-num">₹</div>
+      <div class="act-meta">
+        <div class="act-tag">Practice · Calculation</div>
+        <div class="act-title">Calculate a short futures P&amp;L</div>
+      </div>
+      <div class="act-check" id="act5-check"></div>
+    </div>
+    <div class="activity-body" id="act5-body">
+      <div class="prompt">Priya shorts one Nifty futures contract. Calculate her total profit or loss.</div>
+      <div class="calc-card">
+        <div class="calc-given">
+          <div class="calc-field">
+            <div class="calc-flabel">Entry price</div>
+            <div class="calc-fval">21,800</div>
+          </div>
+          <div class="calc-field">
+            <div class="calc-flabel">Closing price</div>
+            <div class="calc-fval">21,600</div>
+          </div>
+          <div class="calc-field">
+            <div class="calc-flabel">Lot size</div>
+            <div class="calc-fval">50</div>
+          </div>
+        </div>
+        <div class="calc-answer">
+          <input class="answer-input" id="pnl-input" type="number" placeholder="Enter P&L in ₹" />
+          <button class="check-btn" onclick="checkPnL()">Check →</button>
+          <button class="check-btn" id="steps-toggle" onclick="toggleSteps()">Show steps</button>
+        </div>
+        <div class="feedback" id="pnl-feedback"></div>
+        <div class="steps-panel" id="steps-panel">
+          Short P&L = (Entry − Exit) × Lot size<br>
+          = (<span class="hl">21,800</span> − <span class="hl">21,600</span>) × <span class="hl">50</span><br>
+          = <span class="hl">200 × 50</span> = <span class="hl">₹10,000 profit</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───── CONCEPT CHECK: 3 QUESTIONS ───── -->
+  <div class="quiz-section" id="checks">
+    <div class="quiz-head">
+      <h2>Quick Check</h2>
+      <p>3 questions · Instant feedback · No score stored</p>
+    </div>
+
+    <!-- Q1 -->
+    <div style="margin-bottom:20px">
+      <div class="quiz-q"><div class="qnum">Question 1</div>Which market uses standardised contracts and central clearing through a clearing corporation?</div>
+      <div class="options" id="q1-opts">
+        <button class="opt" onclick="checkMCQ('q1',this,true,'Correct. Exchange-traded markets use standardized contracts and a clearing corporation as central counterparty.')"><span class="opt-letter">A</span>Exchange-traded market</button>
+        <button class="opt" onclick="checkMCQ('q1',this,false,'Not this. OTC markets are bilateral — no central clearing.')"><span class="opt-letter">B</span>OTC bilateral market</button>
+        <button class="opt" onclick="checkMCQ('q1',this,false,'Not this. Forward contracts are typically OTC agreements.')"><span class="opt-letter">C</span>Forward contract only</button>
+        <button class="opt" onclick="checkMCQ('q1',this,false,'Not this. Spot markets involve immediate exchange, not standardized future contracts.')"><span class="opt-letter">D</span>Private spot market</button>
+      </div>
+      <div class="feedback" id="q1-feedback"></div>
+    </div>
+
+    <!-- Q2 -->
+    <div style="margin-bottom:20px">
+      <div class="quiz-q"><div class="qnum">Question 2</div>A long futures position benefits when the futures price:</div>
+      <div class="options" id="q2-opts">
+        <button class="opt" onclick="checkMCQ('q2',this,false,'Incorrect. A long position loses when price falls.')"><span class="opt-letter">A</span>Falls</button>
+        <button class="opt" onclick="checkMCQ('q2',this,true,'Correct. Long = benefits from a price rise.')"><span class="opt-letter">B</span>Rises</button>
+        <button class="opt" onclick="checkMCQ('q2',this,false,'Incorrect. There is no gain when the price does not move.')"><span class="opt-letter">C</span>Never changes</button>
+        <button class="opt" onclick="checkMCQ('q2',this,false,'Incorrect. Volatility alone does not determine profit — direction matters.')"><span class="opt-letter">D</span>Only becomes more volatile</button>
+      </div>
+      <div class="feedback" id="q2-feedback"></div>
+    </div>
+
+    <!-- Q3 -->
+    <div>
+      <div class="quiz-q"><div class="qnum">Question 3</div>Squaring off a position means:</div>
+      <div class="options" id="q3-opts">
+        <button class="opt" onclick="checkMCQ('q3',this,true,'Correct. Squaring off means taking the opposite trade to close the open position.')"><span class="opt-letter">A</span>Taking the opposite trade and closing the open position</button>
+        <button class="opt" onclick="checkMCQ('q3',this,false,'Incorrect. Doubling would increase risk, not eliminate it.')"><span class="opt-letter">B</span>Doubling the same position to average down</button>
+        <button class="opt" onclick="checkMCQ('q3',this,false,'Incorrect. Waiting for expiry is not what squaring off means.')"><span class="opt-letter">C</span>Waiting until expiry in all cases</button>
+        <button class="opt" onclick="checkMCQ('q3',this,false,'Incorrect. You cannot convert between contract types this way.')"><span class="opt-letter">D</span>Changing contract type from futures to options</button>
+      </div>
+      <div class="feedback" id="q3-feedback"></div>
+    </div>
+  </div>
+
+  <!-- TAKEAWAY -->
+  <div class="takeaway">
+    <div class="takeaway-title">Session 1.1 — Remember This</div>
+    <div class="takeaway-list">
+      <div class="takeaway-item">Spot means trade and settlement happen now or near-immediately</div>
+      <div class="takeaway-item">Long benefits from a price rise · Short benefits from a price fall</div>
+      <div class="takeaway-item">Short selling in the spot market requires borrowing the asset first</div>
+      <div class="takeaway-item">Squaring off = taking the opposite trade → net position becomes zero → no further price risk from that trade</div>
+    </div>
+  </div>
+
+  <!-- NEXT -->
+  <div class="next-section">
+    <div class="next-info">
+      <h3>Next: Session 1.2</h3>
+      <p>Risk, Hedging &amp; Speculation — why do different participants enter the same market?</p>
+    </div>
+    <a class="btn-next" href="s1-2.html">Continue →</a>
+  </div>
+
+</div>
+
+<script>
+/* ── ACTIVITY COLLAPSE ── */
+const activityBodies = {};
+function toggleActivity(id) {
+  const body = document.getElementById(id + '-body');
+  if (!body) return;
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : '';
+}
+
+/* ── PROGRESS ── */
+const completed = new Set();
+function updateProgress() {
+  const total = 4;
+  completed.size;
+  const pct = Math.round((completed.size / total) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-pct').textContent = completed.size + ' / ' + total + ' activities';
+}
+
+/* ── MCQ ── */
+function checkMCQ(groupId, btn, isCorrect, msg) {
+  const opts = document.querySelectorAll('#' + groupId + '-opts .opt');
+  opts.forEach(o => {
+    o.disabled = true;
+    if (o.dataset.correct === 'true' || o === btn && isCorrect) {
+      // mark correct answers
+    }
+  });
+  // style the clicked button
+  opts.forEach(o => o.disabled = true);
+  btn.classList.add(isCorrect ? 'correct' : 'wrong');
+  if (!isCorrect) {
+    // highlight correct
+    opts.forEach(o => {
+      if (o.onclick && o.onclick.toString().includes('true,')) {
+        o.classList.add('correct');
+      }
+    });
+  }
+  const fb = document.getElementById(groupId + '-feedback');
+  if (fb) {
+    fb.className = 'feedback show ' + (isCorrect ? 'fb-correct' : 'fb-wrong');
+    fb.innerHTML = '<span class="fb-icon">' + (isCorrect ? '✓' : '✗') + '</span>' + msg;
+  }
+  const expl = document.getElementById(groupId + '-expl');
+  if (expl) expl.className = 'explanation show';
+
+  // show sequence if activity 2 answered correctly
+  if (groupId === 'a2' && isCorrect) {
+    const seq = document.getElementById('a2-seq');
+    if (seq) seq.style.display = 'flex';
+    seq.style.flexDirection = 'column';
+    seq.style.gap = '8px';
+  }
+
+  // mark activity done
+  const actMap = {a1:'act1',a2:'act2',a3:'act3',a4:'act4',q1:null,q2:null,q3:null};
+  const actId = actMap[groupId];
+  if (actId && isCorrect) {
+    document.getElementById(actId).classList.add('done');
+    const check = document.getElementById(actId + '-check');
+    if (check) check.innerHTML = '✓';
+    if (!['q1','q2','q3'].includes(groupId)) {
+      completed.add(actId);
+      updateProgress();
+    }
+  }
+}
+
+/* ── SEQUENCE PUZZLE ── */
+function checkSequence() {
+  const inputs = document.querySelectorAll('#a2-seq .seq-num');
+  const allFilled = Array.from(inputs).every(i => i.value.trim() !== '');
+  if (!allFilled) {
+    const fb = document.getElementById('a2-seq-feedback');
+    fb.className = 'feedback show fb-wrong';
+    fb.innerHTML = '<span class="fb-icon">✗</span> Please fill in all 4 positions first.';
+    return;
+  }
+  const ok = Array.from(inputs).every(i => String(i.value).trim() === String(i.dataset.correct));
+  const fb = document.getElementById('a2-seq-feedback');
+  fb.className = 'feedback show ' + (ok ? 'fb-correct' : 'fb-wrong');
+  fb.innerHTML = ok
+    ? '<span class="fb-icon">✓</span> Correct. The order is: Borrow → Sell → Buy back → Return.'
+    : '<span class="fb-icon">✗</span> Not quite. Try again. The order is: Borrow (1) → Sell (2) → Buy back (3) → Return (4).';
+  if (ok) {
+    document.getElementById('act2').classList.add('done');
+    document.getElementById('act2-check').innerHTML = '✓';
+    completed.add('act2');
+    updateProgress();
+  }
+}
+
+/* ── P&L CHECK ── */
+function checkPnL() {
+  const val = parseFloat(document.getElementById('pnl-input').value);
+  const fb = document.getElementById('pnl-feedback');
+  const correct = 10000;
+  const ok = Math.abs(val - correct) <= 10;
+  fb.className = 'feedback show ' + (ok ? 'fb-correct' : 'fb-wrong');
+  fb.innerHTML = ok
+    ? '<span class="fb-icon">✓</span> Correct. Short P&L = (21,800 − 21,600) × 50 = ₹10,000 profit.'
+    : '<span class="fb-icon">✗</span> Not quite. Use: (Entry − Exit) × Lot size. For a short, profit when price falls.';
+  if (ok) {
+    document.getElementById('act5').classList.add('done');
+    document.getElementById('act5-check').innerHTML = '✓';
+    completed.add('act5');
+  }
+}
+
+function toggleSteps() {
+  const p = document.getElementById('steps-panel');
+  const btn = document.getElementById('steps-toggle');
+  const showing = p.classList.contains('show');
+  p.classList.toggle('show', !showing);
+  btn.textContent = showing ? 'Show steps' : 'Hide steps';
+}
+
+/* Start with all open */
+document.addEventListener('DOMContentLoaded', () => {
+  updateProgress();
+});
+</script>
+</body>
+</html>
