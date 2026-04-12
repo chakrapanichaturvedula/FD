@@ -46,7 +46,7 @@ const PD = (() => {
     const tradesRef = db().collection(`games/${gameId}/trades`).orderBy('executedAt', 'desc').limit(50);
     const studentsRef = db().collection(`games/${gameId}/students`);
     const annsRef = db().collection(`games/${gameId}/announcements`).orderBy('createdAt', 'desc').limit(5);
-    const mktRef = db().doc(`games/${gameId}/marketData`);
+    const mktRef = db().doc(`games/${gameId}/marketData/current`);
 
     let state = {};
     let listeners = [];
