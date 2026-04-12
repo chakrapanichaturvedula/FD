@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Instructor · Price Discovery · DerivativesLab</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Instructor Panel · Price Discovery · DerivativesLab</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
@@ -11,9 +11,7 @@
   --bg:#0f1117;--bg2:#161b26;--bg3:#1e2535;--bg4:#252e42;
   --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
   --amber:#f5a623;--amber2:#ffc75a;--teal:#2dd4bf;
-  --green:#4ade80;--green-dim:rgba(74,222,128,0.1);--green-border:rgba(74,222,128,0.25);
-  --red:#f87171;--red-dim:rgba(248,113,113,0.1);--red-border:rgba(248,113,113,0.25);
-  --blue:#60a5fa;
+  --green:#4ade80;--red:#f87171;--violet:#a78bfa;--blue:#60a5fa;
   --text:#e8eaf0;--text2:#8b91a8;--text3:#555e78;
   --serif:'DM Serif Display',Georgia,serif;
   --mono:'DM Mono','Courier New',monospace;
@@ -21,294 +19,369 @@
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh}
-
-nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:52px;background:rgba(15,17,23,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+a{text-decoration:none;color:inherit}
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:52px;background:rgba(15,17,23,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
 .nav-logo{font-family:var(--mono);font-size:0.82rem;color:var(--amber)}
 .nav-logo span{color:var(--text3)}
-.nav-badge{font-family:var(--mono);font-size:0.68rem;padding:3px 10px;border-radius:6px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);color:var(--red)}
-.nav-links{display:flex;gap:4px}
-.nav-links a{padding:5px 12px;border-radius:8px;font-size:0.8rem;color:var(--text2);transition:color .15s}
-.nav-links a:hover{color:var(--text)}
-
-main{max-width:1100px;margin:0 auto;padding:24px 20px 64px}
-
-/* AUTH */
-#authScreen{max-width:400px;margin:80px auto}
-.auth-card{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:36px 32px}
-.auth-title{font-family:var(--serif);font-size:1.6rem;margin-bottom:6px}
-.auth-sub{font-size:0.85rem;color:var(--text2);margin-bottom:24px}
-.form-input{width:100%;padding:11px 14px;border-radius:10px;background:var(--bg3);border:1.5px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:0.9rem;outline:none;transition:border-color .15s;margin-bottom:12px}
-.form-input:focus{border-color:var(--amber)}
-.form-textarea{width:100%;padding:11px 14px;border-radius:10px;background:var(--bg3);border:1.5px solid var(--border2);color:var(--text);font-family:var(--sans);font-size:0.85rem;outline:none;transition:border-color .15s;min-height:80px;resize:vertical;line-height:1.5}
-.form-textarea:focus{border-color:var(--amber)}
-.form-select{width:100%;padding:10px 14px;border-radius:10px;background:var(--bg3);border:1.5px solid var(--border2);color:var(--text);font-family:var(--sans);font-size:0.88rem;outline:none;cursor:pointer}
-.form-label{font-family:var(--mono);font-size:0.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px;display:block}
-.form-group{margin-bottom:14px}
-
-/* BUTTONS */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 20px;border-radius:10px;font-size:0.85rem;font-weight:600;cursor:pointer;border:none;transition:all .15s}
-.btn:active{transform:scale(0.97)}
-.btn:disabled{opacity:.38;cursor:not-allowed;transform:none}
-.btn-amber{background:var(--amber);color:#0f1117}
-.btn-amber:hover:not(:disabled){background:var(--amber2)}
-.btn-green{background:rgba(74,222,128,0.15);border:1px solid var(--green-border);color:var(--green)}
-.btn-green:hover:not(:disabled){background:rgba(74,222,128,0.25)}
-.btn-red{background:rgba(248,113,113,0.12);border:1px solid var(--red-border);color:var(--red)}
-.btn-red:hover:not(:disabled){background:rgba(248,113,113,0.2)}
-.btn-ghost{background:var(--bg3);border:1px solid var(--border2);color:var(--text2)}
-.btn-ghost:hover:not(:disabled){color:var(--text)}
-.btn-lg{width:100%;padding:13px 20px;font-size:0.92rem}
-
-/* LAYOUT */
+.nav-links{display:flex;gap:6px}
+.nav-links a{padding:5px 12px;border-radius:8px;font-size:0.8rem;color:var(--text2);border:1px solid transparent;transition:all .15s}
+.nav-links a:hover{color:var(--text);border-color:var(--border2)}
+.badge-instructor{font-family:var(--mono);font-size:0.65rem;padding:3px 10px;border-radius:6px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);color:var(--red)}
+main{max-width:1200px;margin:0 auto;padding:24px 20px 60px}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-@media(max-width:800px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
-.mb16{margin-bottom:16px}
-.mb20{margin-bottom:20px}
+@media(max-width:900px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:0}
+.card-title{font-family:var(--mono);font-size:0.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px}
+.mb14{margin-bottom:14px}.mb20{margin-bottom:20px}
 
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px}
-.card-title{font-family:var(--mono);font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px}
+/* AUTH */
+#authScreen{max-width:380px;margin:100px auto}
+.auth-card{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:36px 32px;text-align:center}
+.auth-title{font-family:var(--serif);font-size:1.5rem;margin-bottom:6px}
+.auth-sub{font-size:0.84rem;color:var(--text2);margin-bottom:22px}
 
-/* STATUS PILL */
-.status-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:6px;font-family:var(--mono);font-size:0.65rem;letter-spacing:0.06em}
-.status-open{background:var(--green-dim);border:1px solid var(--green-border);color:var(--green)}
-.status-closed{background:var(--bg3);border:1px solid var(--border);color:var(--text3)}
-.status-waiting{background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.2);color:var(--blue)}
-.status-ended{background:var(--bg3);border:1px solid var(--border);color:var(--text2)}
-.status-dot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:blink 1.2s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+/* FORM ELEMENTS */
+.fi{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.fi label{font-family:var(--mono);font-size:0.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em}
+.fi input,.fi select,.fi textarea{padding:9px 12px;border-radius:9px;background:var(--bg3);border:1.5px solid var(--border2);color:var(--text);font-family:var(--sans);font-size:0.86rem;outline:none;transition:border-color .15s;width:100%}
+.fi input:focus,.fi select:focus,.fi textarea:focus{border-color:var(--amber)}
+.fi textarea{resize:vertical;min-height:70px;line-height:1.5}
+.fi input[type="number"]{font-family:var(--mono)}
 
-/* STAT BOX */
-.stat-box{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center}
-.stat-val{font-family:var(--mono);font-size:1.7rem;font-weight:500;color:var(--amber)}
-.stat-lbl{font-family:var(--mono);font-size:0.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-top:4px}
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 18px;border-radius:9px;font-size:0.83rem;font-weight:600;cursor:pointer;border:none;font-family:var(--sans);transition:all .15s}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn:active:not(:disabled){transform:scale(0.97)}
+.btn-amber{background:var(--amber);color:#0f1117}.btn-amber:hover:not(:disabled){background:var(--amber2)}
+.btn-green{background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.3);color:var(--green)}.btn-green:hover:not(:disabled){background:rgba(74,222,128,0.25)}
+.btn-red{background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:var(--red)}.btn-red:hover:not(:disabled){background:rgba(248,113,113,0.22)}
+.btn-ghost{background:var(--bg3);border:1px solid var(--border2);color:var(--text2)}.btn-ghost:hover:not(:disabled){color:var(--text)}
+.btn-violet{background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.3);color:var(--violet)}.btn-violet:hover:not(:disabled){background:rgba(167,139,250,0.22)}
+.btn-full{width:100%;padding:11px}
 
-/* CONTROL HEADER */
-.ctrl-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:20px;flex-wrap:wrap}
-.ctrl-asset{font-family:var(--serif);font-size:1.6rem}
-.ctrl-meta{font-family:var(--mono);font-size:0.72rem;color:var(--text3);margin-top:4px}
+/* STATUS */
+.status-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:6px;font-family:var(--mono);font-size:0.62rem}
+.s-open{background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.25);color:var(--green)}
+.s-closed{background:var(--bg3);border:1px solid var(--border);color:var(--text3)}
+.s-waiting{background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.2);color:var(--blue)}
+.s-ended{background:var(--bg3);border:1px solid var(--border);color:var(--text2)}
+.s-dot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:blink 1.2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
-/* ROUND PROGRESS */
-.round-steps{display:flex;gap:6px;margin-bottom:16px}
-.rs-step{flex:1;height:4px;border-radius:3px;background:var(--bg3)}
-.rs-step.done{background:var(--green)}
-.rs-step.active{background:var(--amber)}
+/* STAT BOXES */
+.stat-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}
+@media(max-width:700px){.stat-row{grid-template-columns:repeat(3,1fr)}}
+.sbox{background:var(--bg3);border:1px solid var(--border);border-radius:11px;padding:12px;text-align:center}
+.sbox-val{font-family:var(--mono);font-size:1.4rem;font-weight:500;color:var(--amber)}
+.sbox-lbl{font-family:var(--mono);font-size:0.56rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-top:3px}
 
-/* CUE BOX */
-.cue-box{background:rgba(245,166,35,0.05);border:1px solid rgba(245,166,35,0.18);border-radius:12px;padding:14px 16px;margin-bottom:14px}
-.cue-box-label{font-family:var(--mono);font-size:0.62rem;color:var(--amber);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px}
-.cue-box-text{font-size:0.88rem;color:var(--text);line-height:1.6}
-
-/* ROUND ACTIONS */
-.rc-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+/* INSTRUMENT TOGGLE */
+.inst-toggle{display:flex;flex-direction:column;gap:8px;padding:14px;background:var(--bg3);border:1px solid var(--border);border-radius:12px;margin-bottom:14px}
+.inst-row{display:flex;align-items:center;justify-content:space-between}
+.inst-label{font-size:0.86rem;font-weight:500}
+.inst-sub{font-size:0.74rem;color:var(--text3)}
+.toggle{position:relative;width:38px;height:20px;cursor:pointer}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;inset:0;background:var(--bg4);border-radius:10px;border:1px solid var(--border2);transition:background .2s}
+.toggle-slider::before{content:'';position:absolute;width:14px;height:14px;left:2px;top:2px;background:var(--text3);border-radius:50%;transition:transform .2s,background .2s}
+.toggle input:checked + .toggle-slider{background:rgba(167,139,250,0.2);border-color:rgba(167,139,250,0.4)}
+.toggle input:checked + .toggle-slider::before{transform:translateX(18px);background:var(--violet)}
+.inst-badge{padding:2px 8px;border-radius:5px;font-family:var(--mono);font-size:0.62rem}
+.badge-always{background:rgba(74,222,128,0.1);color:var(--green);border:1px solid rgba(74,222,128,0.2)}
+.badge-off{background:var(--bg4);color:var(--text3);border:1px solid var(--border)}
+.badge-on{background:rgba(167,139,250,0.1);color:var(--violet);border:1px solid rgba(167,139,250,0.2)}
 
 /* ORDER BOOK */
-.ob-split{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border)}
+.ob-split{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border-radius:8px;overflow:hidden}
 .ob-col{background:var(--bg2);padding:8px}
-.ob-hdr{font-family:var(--mono);font-size:0.62rem;text-align:center;padding:5px;border-radius:6px;margin-bottom:6px;letter-spacing:0.06em}
+.ob-hdr{font-family:var(--mono);font-size:0.6rem;text-align:center;padding:5px;border-radius:5px;margin-bottom:6px;letter-spacing:0.06em}
 .ob-hdr.bids{background:rgba(74,222,128,0.08);color:var(--green)}
 .ob-hdr.asks{background:rgba(248,113,113,0.08);color:var(--red)}
-.ob-row{display:flex;justify-content:space-between;padding:5px 8px;border-radius:5px;margin-bottom:3px;position:relative;overflow:hidden;font-family:var(--mono);font-size:0.78rem}
-.ob-bg-bid{position:absolute;left:0;top:0;bottom:0;background:rgba(74,222,128,0.07);border-radius:5px}
-.ob-bg-ask{position:absolute;right:0;top:0;bottom:0;background:rgba(248,113,113,0.07);border-radius:5px}
-.ob-p-bid{color:var(--green);font-weight:500;position:relative}
-.ob-p-ask{color:var(--red);font-weight:500;position:relative}
-.ob-q{color:var(--text3);font-size:0.72rem;position:relative}
-.ob-empty{text-align:center;padding:18px;color:var(--text3);font-size:0.8rem;font-style:italic}
-.ob-last{text-align:center;padding:8px;border:1px solid var(--border);border-radius:8px;margin-bottom:10px}
-.ob-last-label{font-family:var(--mono);font-size:0.6rem;color:var(--text3);margin-bottom:2px}
-.ob-last-price{font-family:var(--mono);font-size:1.1rem;font-weight:500;color:var(--amber)}
+.ob-row{display:flex;justify-content:space-between;align-items:center;padding:5px 8px;border-radius:5px;margin-bottom:2px;position:relative;overflow:hidden;font-family:var(--mono);font-size:0.76rem}
+.ob-bg{position:absolute;top:0;bottom:0;border-radius:5px}
+.ob-bid-bg{left:0;background:rgba(74,222,128,0.06)}
+.ob-ask-bg{right:0;background:rgba(248,113,113,0.06)}
+.ob-p-b{color:var(--green);font-weight:500;position:relative}
+.ob-p-a{color:var(--red);font-weight:500;position:relative}
+.ob-q{color:var(--text3);font-size:0.7rem;position:relative}
+.ob-who{color:var(--text3);font-size:0.6rem;position:relative;font-family:var(--sans)}
+.ob-empty{text-align:center;padding:16px;color:var(--text3);font-size:0.78rem;font-style:italic}
+.spread-bar{text-align:center;padding:5px;font-family:var(--mono);font-size:0.7rem;color:var(--amber);background:rgba(245,166,35,0.05);border:1px solid rgba(245,166,35,0.1);border-radius:6px;margin-bottom:8px}
 
-/* INST TABS */
-.inst-tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
-.inst-tab{padding:5px 14px;border-radius:6px;font-family:var(--mono);font-size:0.68rem;background:var(--bg3);border:1px solid var(--border);color:var(--text3);cursor:pointer;transition:all .15s}
-.inst-tab.active{border-color:rgba(245,166,35,0.3);color:var(--amber);background:rgba(245,166,35,0.06)}
+/* STUDENT TABLE */
+.stud-table{width:100%;border-collapse:collapse;font-size:0.82rem}
+.stud-table th{font-family:var(--mono);font-size:0.58rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;padding:6px 10px;text-align:left;border-bottom:1px solid var(--border)}
+.stud-table td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+.stud-table tr:last-child td{border-bottom:none}
+.stud-table tr:hover td{background:rgba(255,255,255,0.02)}
+.pos-long{color:var(--green);font-family:var(--mono);font-weight:500}
+.pos-short{color:var(--red);font-family:var(--mono);font-weight:500}
+.pos-flat{color:var(--text3);font-family:var(--mono)}
+.pnl-pos{color:var(--green);font-family:var(--mono)}
+.pnl-neg{color:var(--red);font-family:var(--mono)}
 
-.view-toggle{display:flex;gap:6px;margin-bottom:10px}
-.view-btn{padding:5px 14px;border-radius:6px;font-family:var(--mono);font-size:0.68rem;background:var(--bg3);border:1px solid var(--border);color:var(--text3);cursor:pointer;transition:all .15s}
-.view-btn.active{border-color:rgba(245,166,35,0.3);color:var(--amber);background:rgba(245,166,35,0.06)}
+/* CAPITAL ADJUST */
+.cap-adjust-row{display:flex;align-items:center;gap:6px}
+.cap-input{width:90px;padding:5px 8px;border-radius:7px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:0.78rem;outline:none}
+.cap-input:focus{border-color:var(--amber)}
+.cap-btn{padding:5px 10px;border-radius:7px;background:rgba(245,166,35,0.12);border:1px solid rgba(245,166,35,0.25);color:var(--amber);font-size:0.72rem;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .15s}
+.cap-btn:hover{background:rgba(245,166,35,0.2)}
 
-.trade-row{display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border-radius:8px;background:var(--green-dim);border-left:2px solid var(--green-border);margin-bottom:4px;font-size:0.78rem}
-.trade-price{font-family:var(--mono);font-weight:500;color:var(--green)}
-.trade-detail{color:var(--text3);font-size:0.72rem}
-.trade-time{font-family:var(--mono);font-size:0.65rem;color:var(--text3)}
+/* CONTROLS */
+.ctrl-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.announce-box{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:12px;margin-bottom:10px}
+.announce-presets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.preset-btn{padding:5px 10px;border-radius:7px;background:var(--bg4);border:1px solid var(--border2);font-size:0.74rem;color:var(--text2);cursor:pointer;transition:all .15s;font-family:var(--sans)}
+.preset-btn:hover{color:var(--text);border-color:var(--border2)}
 
-/* DISCOVERY SUMMARY */
-.discovery-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
-@media(max-width:600px){.discovery-grid{grid-template-columns:repeat(2,1fr)}}
-.dp-item{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
-.dp-inst{font-family:var(--mono);font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px}
-.dp-price{font-family:var(--mono);font-size:1rem;font-weight:500}
+/* TRADE LOG */
+.trade-row{display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border-radius:8px;background:rgba(74,222,128,0.05);border-left:2px solid rgba(74,222,128,0.3);margin-bottom:4px;font-size:0.78rem}
+.t-price{font-family:var(--mono);font-weight:500;color:var(--green)}
+.t-detail{color:var(--text3);font-size:0.72rem}
+.t-time{font-family:var(--mono);font-size:0.65rem;color:var(--text3)}
 
-/* NEXT ROUND */
-.nr-form{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:16px}
-
-/* CHART */
-.chart-canvas{width:100%;display:block}
+/* SETTLE */
+.settle-card{background:rgba(245,166,35,0.04);border:1px solid rgba(245,166,35,0.2);border-radius:12px;padding:16px;margin-top:12px;display:none}
+.settle-title{font-family:var(--mono);font-size:0.62rem;color:var(--amber);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px}
 
 /* TOAST */
-.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:10px 20px;border-radius:10px;font-size:0.84rem;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;z-index:999;white-space:nowrap}
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:9px 18px;border-radius:9px;font-size:0.82rem;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;z-index:999;white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
 </head>
 <body>
-
 <nav>
-  <div class="nav-logo">DERIVATIVES<span>LAB</span></div>
+  <a class="nav-logo" href="index.html">DERIVATIVES<span>LAB</span></a>
   <div class="nav-links">
-    <a href="course.html">Course</a>
+    <a href="index.html">← Home</a>
     <a href="price-discovery-projector.html" target="_blank">Projector ↗</a>
+    <a href="price-discovery.html" target="_blank">Student view ↗</a>
   </div>
-  <div class="nav-badge">INSTRUCTOR</div>
+  <div class="badge-instructor">INSTRUCTOR</div>
 </nav>
 
-<!-- AUTH SCREEN -->
+<!-- AUTH -->
 <div id="authScreen">
   <div class="auth-card">
     <div class="auth-title">Instructor Access</div>
-    <p class="auth-sub">Enter the instructor password to access the game controls.</p>
-    <input class="form-input" id="secretInput" type="password" placeholder="Instructor password" onkeydown="if(event.key==='Enter')doAuth()"/>
-    <button class="btn btn-amber btn-lg" onclick="doAuth()">Unlock →</button>
+    <p class="auth-sub">Password required to access game controls</p>
+    <div class="fi"><label>Password</label><input id="pwInput" type="password" placeholder="Enter instructor password" onkeydown="if(event.key==='Enter')doAuth()"/></div>
+    <button class="btn btn-amber btn-full" onclick="doAuth()">Unlock →</button>
   </div>
 </div>
 
-<!-- MAIN CONSOLE -->
-<div id="mainConsole" style="display:none">
+<!-- CONSOLE -->
+<div id="console" style="display:none">
 <main>
 
-  <!-- SETUP PANEL -->
-  <div id="setupPanel" style="display:none">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-      <h2 style="font-family:var(--serif);font-size:1.5rem">New Game Setup</h2>
-    </div>
+  <!-- SETUP -->
+  <div id="setupPanel">
+    <h2 style="font-family:var(--serif);font-size:1.6rem;margin-bottom:20px">Game Setup</h2>
     <div class="grid-2 mb20">
+
+      <!-- Left: Game structure -->
       <div class="card">
-        <div class="card-title">Asset</div>
-        <div class="form-group">
-          <label class="form-label">Asset name</label>
-          <input class="form-input" id="assetName" placeholder="e.g. Nifty Index"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Symbol</label>
-          <input class="form-input" id="assetSymbol" placeholder="e.g. NIFTY"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Spot price (₹)</label>
-          <input class="form-input" id="spotPrice" type="number" placeholder="24850"/>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">Structure</div>
-        <div class="form-group">
-          <label class="form-label">Number of rounds</label>
-          <select class="form-select" id="numRounds">
+        <div class="card-title">Game structure</div>
+        <div class="fi"><label>Asset name</label><input id="assetName" value="Nifty Index" placeholder="e.g. Nifty Index"/></div>
+        <div class="fi"><label>Symbol</label><input id="assetSymbol" value="NIFTY" placeholder="NIFTY"/></div>
+        <div class="fi"><label>Spot price (₹)</label><input id="spotPrice" type="number" value="24800"/></div>
+        <div class="fi"><label>Lot size (shares per lot)</label><input id="lotSize" type="number" value="50"/></div>
+        <div class="fi"><label>Number of rounds</label>
+          <select id="numRounds">
             <option value="2">2 rounds</option>
             <option value="3" selected>3 rounds</option>
             <option value="4">4 rounds</option>
             <option value="5">5 rounds</option>
           </select>
         </div>
-        <div class="form-group">
-          <label class="form-label">Lot size (shares per lot)</label>
-          <input class="form-input" id="lotSize" type="number" value="50"/>
+        <div class="fi"><label>Position limit (lots per student)</label><input id="posLimit" type="number" value="10" min="1" max="50"/></div>
+      </div>
+
+      <!-- Right: Capital + instruments -->
+      <div class="card">
+        <div class="card-title">Capital &amp; instruments</div>
+        <div class="fi"><label>Default starting capital (₹)</label><input id="defaultCapital" type="number" value="500000" min="10000"/></div>
+
+        <div style="font-family:var(--mono);font-size:0.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;margin-top:4px">Instruments</div>
+        <div class="inst-toggle">
+          <div class="inst-row">
+            <div><div class="inst-label">Spot &amp; Futures</div><div class="inst-sub">Nifty Spot, Nifty Futures, Bank Nifty Futures</div></div>
+            <span class="inst-badge badge-always">Always ON</span>
+          </div>
+          <div class="inst-row">
+            <div><div class="inst-label">USD/INR Forward</div><div class="inst-sub">Currency exposure, hedger vs exporter</div></div>
+            <span class="inst-badge badge-always">Always ON</span>
+          </div>
+          <div class="inst-row" style="padding-top:8px;border-top:1px solid var(--border)">
+            <div><div class="inst-label">Options trading</div><div class="inst-sub">Nifty Call ATM + Put ATM · Module 3 content</div></div>
+            <label class="toggle"><input type="checkbox" id="optionsEnabled" onchange="toggleOptionsConfig()"/><span class="toggle-slider"></span></label>
+          </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Round 1 information cue</label>
-          <textarea class="form-textarea" id="round1Cue" placeholder="What information will students receive at the start?"></textarea>
+        <div id="optionsConfig" style="display:none;padding:10px;background:rgba(167,139,250,0.05);border:1px solid rgba(167,139,250,0.15);border-radius:9px;margin-bottom:12px">
+          <div class="fi"><label>Strike price (₹)</label><input id="optionsStrike" type="number" value="24800"/></div>
+          <div class="fi"><label>Expiry label</label><input id="optionsExpiry" value="Jun 2026" placeholder="Jun 2026"/></div>
         </div>
+
+        <div class="fi"><label>Round 1 information cue</label><textarea id="round1Cue" placeholder="What information do students receive at round start? E.g. 'RBI holds rates steady. Market consensus expects Nifty to stay range-bound.'"></textarea></div>
       </div>
     </div>
-    <button class="btn btn-amber btn-lg" onclick="createGame()">Create Game →</button>
+    <button class="btn btn-amber btn-full" onclick="createGame()">Create Game →</button>
   </div>
 
   <!-- CONTROL PANEL -->
   <div id="controlPanel" style="display:none">
 
-    <!-- Header -->
-    <div class="ctrl-header">
+    <!-- Header bar -->
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px;flex-wrap:wrap">
       <div>
-        <div class="ctrl-asset" id="ctrlAssetName">—</div>
-        <div class="ctrl-meta" id="ctrlMeta">—</div>
+        <div style="font-family:var(--serif);font-size:1.5rem;margin-bottom:3px" id="cpAsset">—</div>
+        <div style="font-family:var(--mono);font-size:0.7rem;color:var(--text3)" id="cpMeta">—</div>
       </div>
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        <div class="status-pill" id="ctrlStatus"><div class="status-dot"></div><span id="ctrlStatusText">Waiting</span></div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <div class="status-pill s-waiting" id="cpStatus"><div class="s-dot"></div><span id="cpStatusTxt">Waiting</span></div>
         <button class="btn btn-ghost" onclick="showSetup()">+ New Game</button>
         <a class="btn btn-ghost" href="price-discovery-projector.html" target="_blank">Projector ↗</a>
       </div>
     </div>
 
-    <!-- Stats -->
-    <div class="grid-4 mb16">
-      <div class="stat-box"><div class="stat-val" id="statOrders">0</div><div class="stat-lbl">Open orders</div></div>
-      <div class="stat-box"><div class="stat-val" id="statTrades">0</div><div class="stat-lbl">Trades done</div></div>
-      <div class="stat-box"><div class="stat-val" id="statRound">—</div><div class="stat-lbl">Round</div></div>
-      <div class="stat-box"><div class="stat-val" id="statSpread">—</div><div class="stat-lbl">Best spread</div></div>
+    <!-- Stat row -->
+    <div class="stat-row mb14">
+      <div class="sbox"><div class="sbox-val" id="statStudents">0</div><div class="sbox-lbl">Students</div></div>
+      <div class="sbox"><div class="sbox-val" id="statOrders">0</div><div class="sbox-lbl">Open orders</div></div>
+      <div class="sbox"><div class="sbox-val" id="statTrades">0</div><div class="sbox-lbl">Trades</div></div>
+      <div class="sbox"><div class="sbox-val" id="statOI">0</div><div class="sbox-lbl">Open interest</div></div>
+      <div class="sbox"><div class="sbox-val" id="statSpread">—</div><div class="sbox-lbl">Best spread</div></div>
     </div>
 
-    <!-- Round control -->
-    <div class="card mb16">
-      <div class="card-title">Round Control</div>
-      <div class="round-steps" id="rcProgress"></div>
-      <div class="cue-box">
-        <div class="cue-box-label">Current information cue</div>
-        <div class="cue-box-text" id="ctrlCueTxt">—</div>
-      </div>
-      <div class="rc-actions">
-        <button class="btn btn-green" id="btnOpenRound" onclick="openRound()">▶ Open Round</button>
-        <button class="btn btn-red" id="btnCloseRound" onclick="closeRound()" style="display:none">■ Close Round</button>
-        <button class="btn btn-red" onclick="endGame()">End Game</button>
-      </div>
+    <div class="grid-2 mb14">
 
-      <!-- Discovery summary (shown after round closes) -->
-      <div id="clearingSummary" style="display:none">
-        <div class="card-title" style="margin-bottom:10px">Discovery prices — last trade per instrument</div>
-        <div class="discovery-grid" id="clearingGrid"></div>
-      </div>
+      <!-- LEFT: Round control + order book -->
+      <div style="display:flex;flex-direction:column;gap:14px">
 
-      <!-- Next round form -->
-      <div id="nextRoundForm" style="display:none" class="nr-form">
-        <div class="card-title">Next round</div>
-        <div class="form-group" style="margin-bottom:10px">
-          <label class="form-label">New information cue</label>
-          <textarea class="form-textarea" id="nextCueInput" placeholder="What new information will students receive?"></textarea>
-        </div>
-        <button class="btn btn-amber" onclick="nextRound()">→ Start Next Round</button>
-      </div>
-      <div id="endedMsg" style="display:none;margin-top:12px;padding:14px;background:var(--bg3);border-radius:10px;font-size:0.88rem;color:var(--text2)">Game ended. Export results from Firebase console.</div>
-    </div>
-
-    <!-- Order book + chart -->
-    <div class="grid-2 mb16">
-      <div class="card">
-        <div class="card-title">Market</div>
-        <div class="inst-tabs" id="obInstTabs">
-          <div class="inst-tab active" onclick="selectObInst(this,'spot')">Spot</div>
-          <div class="inst-tab" onclick="selectObInst(this,'futures')">Futures</div>
-          <div class="inst-tab" onclick="selectObInst(this,'call')">Call</div>
-          <div class="inst-tab" onclick="selectObInst(this,'put')">Put</div>
-        </div>
-        <div class="view-toggle">
-          <button class="view-btn active" id="viewBtnOB" onclick="setObView('ob')">Order Book</button>
-          <button class="view-btn" id="viewBtnTL" onclick="setObView('tl')">Trade Log</button>
-        </div>
-        <div id="obView">
-          <div class="ob-last"><div class="ob-last-label">Last trade</div><div class="ob-last-price" id="instrClearing">—</div></div>
-          <div class="ob-split">
-            <div class="ob-col"><div class="ob-hdr bids">BIDS</div><div id="instrBids"></div></div>
-            <div class="ob-col"><div class="ob-hdr asks">ASKS</div><div id="instrAsks"></div></div>
+        <!-- Round control card -->
+        <div class="card">
+          <div class="card-title">Round control</div>
+          <!-- Progress -->
+          <div style="display:flex;gap:5px;margin-bottom:12px" id="cpProgress"></div>
+          <!-- Cue -->
+          <div style="background:rgba(245,166,35,0.05);border:1px solid rgba(245,166,35,0.15);border-radius:9px;padding:12px;margin-bottom:12px">
+            <div style="font-family:var(--mono);font-size:0.6rem;color:var(--amber);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px">Information cue — students see this</div>
+            <div style="font-size:0.86rem;color:var(--text);line-height:1.6" id="cpCue">—</div>
+          </div>
+          <!-- Action buttons -->
+          <div class="ctrl-actions">
+            <button class="btn btn-green" id="btnOpen" onclick="openRound()">▶ Open Round</button>
+            <button class="btn btn-red" id="btnClose" onclick="closeRound()" style="display:none">■ Close Round</button>
+            <button class="btn btn-ghost" onclick="pauseRound()" id="btnPause" style="display:none">⏸ Pause</button>
+            <button class="btn btn-red" onclick="endGame()" style="margin-left:auto">End Game</button>
+          </div>
+          <!-- Next round form -->
+          <div id="nextRoundForm" style="display:none;padding:12px;background:var(--bg3);border-radius:10px;border:1px solid var(--border)">
+            <div style="font-family:var(--mono);font-size:0.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">Next round cue</div>
+            <textarea id="nextCueInput" style="width:100%;padding:9px 12px;border-radius:8px;background:var(--bg4);border:1.5px solid var(--border2);color:var(--text);font-size:0.84rem;outline:none;resize:vertical;min-height:60px;line-height:1.5;font-family:var(--sans);margin-bottom:8px" placeholder="Information for the next round..."></textarea>
+            <button class="btn btn-amber" onclick="nextRound()">→ Start Next Round</button>
+          </div>
+          <!-- Settlement -->
+          <div class="settle-card" id="settleCard">
+            <div class="settle-title">Settle this round</div>
+            <div class="fi"><label>Settlement price (₹)</label><input id="settlePrice" type="number" placeholder="Enter settlement price"/></div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-amber" onclick="settleRound()">Settle →</button>
+              <button class="btn btn-ghost" onclick="document.getElementById('settleCard').style.display='none'">Cancel</button>
+            </div>
           </div>
         </div>
-        <div id="tlView" style="display:none"><div id="tradeLogList"></div></div>
+
+        <!-- Announcements card -->
+        <div class="card">
+          <div class="card-title">Announcements</div>
+          <div class="announce-presets">
+            <button class="preset-btn" onclick="sendAnn('📈 Fundamental value is HIGHER than current market price')">📈 Value higher</button>
+            <button class="preset-btn" onclick="sendAnn('📉 Fundamental value is LOWER than current market price')">📉 Value lower</button>
+            <button class="preset-btn" onclick="sendAnn('📰 No material news — current price reflects fundamentals')">😐 No news</button>
+          </div>
+          <div style="display:flex;gap:8px">
+            <input id="annInput" style="flex:1;padding:8px 12px;border-radius:8px;background:var(--bg3);border:1.5px solid var(--border2);color:var(--text);font-size:0.84rem;outline:none" placeholder="Custom announcement..."/>
+            <button class="btn btn-violet" onclick="sendCustomAnn()">Send 📢</button>
+          </div>
+        </div>
+
+        <!-- Order book -->
+        <div class="card">
+          <div class="card-title">Order book</div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px" id="obTabs">
+            <button class="preset-btn" style="border-color:rgba(245,166,35,0.3);color:var(--amber)" onclick="setOBInst('spot',this)">Spot</button>
+            <button class="preset-btn" onclick="setOBInst('futures',this)">Futures</button>
+            <button class="preset-btn" onclick="setOBInst('call',this)">Call</button>
+            <button class="preset-btn" onclick="setOBInst('put',this)">Put</button>
+          </div>
+          <div class="spread-bar" id="obSpread">No orders</div>
+          <div class="ob-split">
+            <div class="ob-col"><div class="ob-hdr bids">BIDS</div><div id="obBids"></div></div>
+            <div class="ob-col"><div class="ob-hdr asks">ASKS</div><div id="obAsks"></div></div>
+          </div>
+        </div>
       </div>
 
-      <div class="card">
-        <div class="card-title">Price discovery chart</div>
-        <canvas class="chart-canvas" id="instrChart" height="200"></canvas>
+      <!-- RIGHT: Students + capital + trades -->
+      <div style="display:flex;flex-direction:column;gap:14px">
+
+        <!-- Capital management -->
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <div class="card-title" style="margin-bottom:0">Student positions &amp; capital</div>
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-ghost" style="font-size:0.72rem;padding:5px 10px" onclick="equaliseCapital()">Equalise all</button>
+              <button class="btn btn-ghost" style="font-size:0.72rem;padding:5px 10px" onclick="carryForwardPnl()">Carry P&amp;L</button>
+            </div>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="stud-table" id="studentTable">
+              <thead><tr><th>Student</th><th>Role</th><th>Position</th><th>P&amp;L</th><th>Capital</th><th>Adjust</th></tr></thead>
+              <tbody id="studentBody"></tbody>
+            </table>
+          </div>
+          <div style="margin-top:10px;padding:10px 12px;background:var(--bg3);border-radius:9px;display:flex;align-items:center;gap:10px">
+            <span style="font-family:var(--mono);font-size:0.62rem;color:var(--text3)">ADD ₹ TO ALL:</span>
+            <input id="bulkCapInput" type="number" class="cap-input" style="width:110px" placeholder="e.g. 100000"/>
+            <button class="cap-btn" onclick="bulkAddCapital()">Apply to all</button>
+          </div>
+        </div>
+
+        <!-- Recent trades -->
+        <div class="card">
+          <div class="card-title">Recent trades</div>
+          <div id="tradeLog" style="max-height:200px;overflow-y:auto"></div>
+        </div>
+
+        <!-- Instrument status -->
+        <div class="card">
+          <div class="card-title">Instrument status</div>
+          <div class="inst-toggle">
+            <div class="inst-row">
+              <div><div class="inst-label">Spot &amp; Futures</div><div class="inst-sub">Always active</div></div>
+              <span class="inst-badge badge-always">ON</span>
+            </div>
+            <div class="inst-row" id="optionsStatusRow">
+              <div><div class="inst-label">Options</div><div class="inst-sub" id="optionsStatusSub">Disabled</div></div>
+              <span class="inst-badge" id="optionsStatusBadge" style="cursor:pointer" onclick="toggleOptionsLive()">OFF</span>
+            </div>
+          </div>
+          <div id="optionsLiveConfig" style="display:none;padding:10px;background:rgba(167,139,250,0.05);border:1px solid rgba(167,139,250,0.15);border-radius:8px;margin-top:8px">
+            <div style="display:flex;gap:8px">
+              <div class="fi" style="flex:1;margin-bottom:0"><label>Strike (₹)</label><input id="liveStrike" type="number" value="24800"/></div>
+              <div class="fi" style="flex:1;margin-bottom:0"><label>Expiry</label><input id="liveExpiry" value="Jun 2026"/></div>
+              <button class="btn btn-violet" style="margin-top:22px;padding:8px 12px;font-size:0.76rem" onclick="enableOptionsLive()">Enable</button>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
-
   </div>
+
 </main>
 </div>
 
@@ -319,191 +392,278 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px 64px}
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
-if (window.DLabConfig?.firebase?.apiKey) firebase.initializeApp(window.DLabConfig.firebase);
+if(window.DLabConfig?.firebase?.apiKey) firebase.initializeApp(window.DLabConfig.firebase);
 </script>
 <script src="pd-firebase.js"></script>
 <script>
-const INSTRUCTOR_SECRET = 'IMTFD26_INSTRUCTOR';
-let gameState = null;
+const SECRET = 'IMTFD26_INSTRUCTOR';
+let gs = null; // game state
 let obInst = 'spot';
-let userWantsSetup = false;
 
-function toast(msg,dur=2500){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),dur)}
-function fmt(n){if(!n&&n!==0)return'—';return new Intl.NumberFormat('en-IN',{minimumFractionDigits:0,maximumFractionDigits:2}).format(n)}
-function fmtP(n){return'₹'+fmt(n)}
+const fmt = n => n == null ? '—' : new Intl.NumberFormat('en-IN').format(Math.round(n));
+const fmtRs = n => '₹' + fmt(n);
+const fmtSign = n => (n >= 0 ? '+₹' : '−₹') + fmt(Math.abs(n));
+function toast(m, d=2500){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),d); }
 
-/* ── AUTH ── */
+// ── AUTH ──
 function doAuth(){
-  if(document.getElementById('secretInput').value.trim()===INSTRUCTOR_SECRET){
+  if(document.getElementById('pwInput').value.trim() === SECRET){
     document.getElementById('authScreen').style.display='none';
-    document.getElementById('mainConsole').style.display='block';
+    document.getElementById('console').style.display='block';
     PD.init(applyState);
     toast('Access granted ✓');
-  } else {
-    document.getElementById('secretInput').value='';
-    toast('Incorrect password');
-  }
+  } else { document.getElementById('pwInput').value=''; toast('Incorrect password'); }
 }
+document.getElementById('pwInput').addEventListener('keydown', e=>{ if(e.key==='Enter') doAuth(); });
 
-/* ── GAME CREATION ── */
+// ── SETUP ──
+function toggleOptionsConfig(){
+  document.getElementById('optionsConfig').style.display = document.getElementById('optionsEnabled').checked ? 'block' : 'none';
+}
+function showSetup(){ document.getElementById('setupPanel').style.display='block'; document.getElementById('controlPanel').style.display='none'; }
+
 async function createGame(){
-  const assetName=document.getElementById('assetName').value.trim();
-  const assetSymbol=document.getElementById('assetSymbol').value.trim();
-  const spotPrice=parseFloat(document.getElementById('spotPrice').value)||0;
-  const numRounds=parseInt(document.getElementById('numRounds').value)||3;
-  const lotSize=parseInt(document.getElementById('lotSize').value)||1;
-  const roundCue=document.getElementById('round1Cue').value.trim();
-  if(!assetName||!roundCue){toast('Enter asset name and Round 1 cue');return}
-  userWantsSetup=false;
-  const res=await PD.createGame({assetName,assetSymbol,spotPrice,numRounds,lotSize,roundCue});
-  if(res.error){toast('Error: '+res.error);return}
+  const d = {
+    assetName: document.getElementById('assetName').value.trim(),
+    assetSymbol: document.getElementById('assetSymbol').value.trim().toUpperCase(),
+    spotPrice: parseFloat(document.getElementById('spotPrice').value)||24800,
+    lotSize: parseInt(document.getElementById('lotSize').value)||50,
+    numRounds: parseInt(document.getElementById('numRounds').value)||3,
+    positionLimit: parseInt(document.getElementById('posLimit').value)||10,
+    defaultCapital: parseFloat(document.getElementById('defaultCapital').value)||500000,
+    optionsEnabled: document.getElementById('optionsEnabled').checked,
+    optionsStrike: parseFloat(document.getElementById('optionsStrike').value)||null,
+    optionsExpiry: document.getElementById('optionsExpiry').value.trim()||null,
+    roundCue: document.getElementById('round1Cue').value.trim()
+  };
+  if(!d.assetName||!d.roundCue){ toast('Fill in asset name and Round 1 cue'); return; }
+  const r = await PD.createGame(d);
+  if(r?.error){ toast('Error: '+r.error); return; }
   toast('Game created ✓');
 }
 
-/* ── ROUND CONTROLS ── */
-async function openRound(){const r=await PD.openRound();if(r.error)toast('Error: '+r.error);else toast('Round open — students can trade')}
-async function closeRound(){const r=await PD.closeRound();if(r.error)toast('Error: '+r.error);else toast('Round closed ✓')}
+// ── ROUND CONTROLS ──
+async function openRound(){ const r=await PD.openRound(); r?.error?toast('Error: '+r.error):toast('Round open — students can now trade'); }
+async function closeRound(){ const r=await PD.closeRound(); r?.error?toast('Error: '+r.error):toast('Round closed'); }
+async function pauseRound(){ const r=await PD.pauseRound(); r?.error?toast('Error: '+r.error):toast('Trading paused'); }
+async function endGame(){ if(!confirm('End game? Students will see final results.'))return; const r=await PD.endGame(); r?.error?toast(r.error):toast('Game ended'); }
 async function nextRound(){
   const cue=document.getElementById('nextCueInput').value.trim();
-  if(!cue){toast('Enter an information cue for the next round');return}
+  if(!cue){ toast('Enter an information cue'); return; }
   const r=await PD.nextRound({roundCue:cue});
-  if(r.error)toast('Error: '+r.error);
-  else{document.getElementById('nextCueInput').value='';toast('Next round started ✓')}
+  if(r?.error){ toast('Error: '+r.error); return; }
+  document.getElementById('nextCueInput').value='';
+  toast('Next round started ✓');
 }
-async function endGame(){
-  if(!confirm('End the game? Students will see final results.'))return;
-  const r=await PD.endGame();
-  if(r.error)toast('Error: '+r.error);else toast('Game ended')
+async function settleRound(){
+  const p=parseFloat(document.getElementById('settlePrice').value);
+  if(!p||p<=0){ toast('Enter a valid settlement price'); return; }
+  const r=await PD.settleRound({settlementPrice:p});
+  r?.error?toast(r.error):toast('Round settled at ₹'+fmt(p));
+  document.getElementById('settleCard').style.display='none';
 }
-function showSetup(){userWantsSetup=true;document.getElementById('setupPanel').style.display='block';document.getElementById('controlPanel').style.display='none'}
 
-/* ── APPLY STATE ── */
-function applyState(data){
-  if(data.status==='no_game'||!data.assetName){
-    if(!userWantsSetup){document.getElementById('setupPanel').style.display='block';document.getElementById('controlPanel').style.display='none'}
-    return;
+// ── ANNOUNCEMENTS ──
+async function sendAnn(msg){ const r=await PD.announce(msg); r?.error?toast(r.error):toast('Sent to all screens ✓'); }
+async function sendCustomAnn(){
+  const msg=document.getElementById('annInput').value.trim();
+  if(!msg)return;
+  await sendAnn(msg);
+  document.getElementById('annInput').value='';
+}
+
+// ── CAPITAL MANAGEMENT ──
+async function adjustCapital(studentId, studentName){
+  const inp = document.getElementById('cap-'+studentId);
+  const val = parseFloat(inp.value);
+  if(!val||val<1000){ toast('Minimum ₹1,000'); return; }
+  const r = await PD.adjustCapital(studentId, val, 'Instructor adjustment');
+  if(r?.error){ toast(r.error); return; }
+  toast(studentName+': capital set to '+fmtRs(val));
+  inp.value='';
+}
+
+async function equaliseCapital(){
+  if(!gs||!gs.defaultCapital){ toast('No active game'); return; }
+  if(!confirm('Reset all students to ₹'+fmt(gs.defaultCapital)+'?'))return;
+  const students = gs.students||[];
+  for(const s of students){ await PD.adjustCapital(s.id, gs.defaultCapital, 'Equalised by instructor'); }
+  toast('All capital equalised ✓');
+}
+
+async function carryForwardPnl(){
+  const students = gs?.students||[];
+  if(!students.length){ toast('No students in game'); return; }
+  if(!confirm('Carry forward P&L? Each student\'s new capital = current capital + unrealised P&L.'))return;
+  for(const s of students){
+    const newCap = (s.capitalRemaining||0) + (s.unrealisedPnl||0);
+    if(newCap >= 1000) await PD.adjustCapital(s.id, newCap, 'P&L carried forward');
   }
-  if(userWantsSetup)return;
-  gameState=data;
-  document.getElementById('setupPanel').style.display='none';
-  document.getElementById('controlPanel').style.display='block';
-
-  const r=parseInt(data.currentRound)||0, n=parseInt(data.numRounds)||0;
-  document.getElementById('ctrlAssetName').textContent=data.assetName+(data.assetSymbol?' ('+data.assetSymbol+')':'');
-  document.getElementById('ctrlMeta').textContent='Spot: '+fmtP(data.spotPrice||0)+' · Lot: '+(data.lotSize||1)+' shares · Round '+r+' of '+n;
-  document.getElementById('ctrlCueTxt').textContent=data.roundCue||'—';
-
-  const stMap={waiting:'status-waiting',open:'status-open',closed:'status-closed',ended:'status-ended'};
-  const stText={waiting:'Waiting',open:'Trading Open',closed:'Round Closed',ended:'Ended'};
-  document.getElementById('ctrlStatus').className='status-pill '+(stMap[data.status]||'status-waiting');
-  document.getElementById('ctrlStatusText').textContent=stText[data.status]||data.status;
-
-  // Progress
-  const prog=document.getElementById('rcProgress');
-  prog.innerHTML='';
-  for(let i=1;i<=n;i++){const d=document.createElement('div');d.className='rs-step'+(i<r?' done':i===r?' active':'');prog.appendChild(d)}
-
-  // Stats
-  const ob=data.orderBook||{bids:[],asks:[]};
-  const trades=data.trades||[];
-  document.getElementById('statOrders').textContent=(ob.bids.length+ob.asks.length);
-  document.getElementById('statTrades').textContent=trades.length;
-  document.getElementById('statRound').textContent=r+'/'+n;
-  const topBid=ob.bids.length?Math.max(...ob.bids.map(b=>b.price)):null;
-  const topAsk=ob.asks.length?Math.min(...ob.asks.map(a=>a.price)):null;
-  document.getElementById('statSpread').textContent=(topBid&&topAsk)?(topAsk-topBid>0?fmtP((topAsk-topBid).toFixed(1)):'Crossed'):'—';
-
-  // Buttons
-  document.getElementById('btnOpenRound').style.display=(data.status==='waiting'||data.status==='closed')?'inline-flex':'none';
-  document.getElementById('btnCloseRound').style.display=data.status==='open'?'inline-flex':'none';
-  document.getElementById('btnOpenRound').textContent=data.status==='closed'?'▶ Reopen Round':'▶ Open Round';
-  document.getElementById('nextRoundForm').style.display=(data.status==='closed'&&r<n)?'block':'none';
-  document.getElementById('endedMsg').style.display=data.status==='ended'?'block':'none';
-
-  // Discovery summary
-  const dp=(data.discoveryPrices||[]).filter(p=>p.round==r);
-  document.getElementById('clearingSummary').style.display=(dp.length&&data.status==='closed')?'block':'none';
-  const colors={spot:getComputedStyle(document.documentElement).getPropertyValue('--amber'),futures:getComputedStyle(document.documentElement).getPropertyValue('--teal'),call:getComputedStyle(document.documentElement).getPropertyValue('--green'),put:getComputedStyle(document.documentElement).getPropertyValue('--red')};
-  document.getElementById('clearingGrid').innerHTML=['spot','futures','call','put'].map(inst=>{
-    const f=dp.find(p=>p.instrument===inst||p.inst===inst);
-    return`<div class="dp-item"><div class="dp-inst" style="color:${colors[inst]}">${inst.toUpperCase()}</div><div class="dp-price" style="color:${colors[inst]}">${f?fmtP(parseFloat(f.price).toFixed(0)):'—'}</div></div>`
-  }).join('');
-
-  renderInstOrderBook(ob);
-  renderTradeLog(trades);
-  drawInstChart((data.discoveryPrices||[]).map(p=>({round:p.round,inst:p.instrument||p.inst,price:p.price})),n);
+  toast('P&L carried forward ✓');
 }
 
-/* ── ORDER BOOK ── */
-function selectObInst(el,inst){
+async function bulkAddCapital(){
+  const delta = parseFloat(document.getElementById('bulkCapInput').value);
+  if(!delta||delta<=0){ toast('Enter a positive amount'); return; }
+  const students = gs?.students||[];
+  for(const s of students){
+    const newCap = (s.capitalRemaining||0) + delta;
+    await PD.adjustCapital(s.id, newCap, 'Bulk top-up by instructor');
+  }
+  document.getElementById('bulkCapInput').value='';
+  toast('Added '+fmtRs(delta)+' to all students ✓');
+}
+
+// ── OPTIONS TOGGLE (LIVE) ──
+function toggleOptionsLive(){
+  const enabled = document.getElementById('optionsStatusBadge').textContent === 'OFF';
+  if(enabled){ document.getElementById('optionsLiveConfig').style.display='block'; }
+  else { disableOptionsLive(); }
+}
+async function enableOptionsLive(){
+  if(gs?.status==='open'){ toast('Close the round before changing instruments'); return; }
+  const strike=parseFloat(document.getElementById('liveStrike').value)||0;
+  const expiry=document.getElementById('liveExpiry').value.trim();
+  const r=await PD.setOptions(true,strike,expiry);
+  if(r?.error){ toast(r.error); return; }
+  toast('Options enabled ✓');
+  document.getElementById('optionsLiveConfig').style.display='none';
+}
+async function disableOptionsLive(){
+  if(gs?.status==='open'){ toast('Close the round before changing instruments'); return; }
+  const r=await PD.setOptions(false,null,null);
+  if(r?.error){ toast(r.error); return; }
+  toast('Options disabled');
+}
+
+// ── ORDER BOOK ──
+function setOBInst(inst,el){
   obInst=inst;
-  document.querySelectorAll('#obInstTabs .inst-tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  if(gameState)renderInstOrderBook(gameState.orderBook||{bids:[],asks:[]});
+  document.querySelectorAll('#obTabs button').forEach(b=>{ b.style.borderColor=''; b.style.color=''; });
+  el.style.borderColor='rgba(245,166,35,0.3)'; el.style.color='var(--amber)';
+  if(gs) renderOB(gs.orderBook||{bids:[],asks:[]});
 }
-function setObView(v){
-  document.getElementById('obView').style.display=v==='ob'?'block':'none';
-  document.getElementById('tlView').style.display=v==='tl'?'block':'none';
-  document.getElementById('viewBtnOB').classList.toggle('active',v==='ob');
-  document.getElementById('viewBtnTL').classList.toggle('active',v==='tl');
-}
-function renderInstOrderBook(ob){
-  const bids=(ob.bids||[]).filter(o=>o.instrument===obInst);
-  const asks=(ob.asks||[]).filter(o=>o.instrument===obInst);
-  const isSpot=obInst==='spot';
-  function agg(arr){const m={};arr.forEach(o=>{if(!m[o.price])m[o.price]={price:o.price,qty:0};m[o.price].qty+=o.qty});return Object.values(m)}
+function renderOB(ob){
+  const bids=(ob.bids||[]).filter(o=>o.instrument===obInst||(!o.instrument&&obInst==='spot'));
+  const asks=(ob.asks||[]).filter(o=>o.instrument===obInst||(!o.instrument&&obInst==='spot'));
+  function agg(arr){const m={};arr.forEach(o=>{if(!m[o.price])m[o.price]={price:o.price,qty:0,traders:[]};m[o.price].qty+=o.qty;if(o.trader)m[o.price].traders.push(o.trader)});return Object.values(m)}
   const aBids=agg(bids).sort((a,b)=>b.price-a.price).slice(0,8);
   const aAsks=agg(asks).sort((a,b)=>a.price-b.price).slice(0,8);
   const maxQ=Math.max(...aBids.map(b=>b.qty),...aAsks.map(a=>a.qty),1);
   function rows(arr,type){
-    if(!arr.length)return`<div class="ob-empty">No ${type==='bid'?'bids':'asks'}</div>`;
-    return arr.map(r=>{const w=Math.round((r.qty/maxQ)*70);const qLbl=isSpot?fmt(r.qty)+' sh':r.qty+(r.qty===1?' lot':' lots');
-      return`<div class="ob-row"><div class="${type==='bid'?'ob-bg-bid':'ob-bg-ask'}" style="width:${w}%"></div><span class="${type==='bid'?'ob-p-bid':'ob-p-ask'}">${fmtP(r.price)}</span><span class="ob-q">${qLbl}</span></div>`
-    }).join('')
+    if(!arr.length)return`<div class="ob-empty">No ${type}s</div>`;
+    return arr.map(r=>{
+      const w=Math.round(r.qty/maxQ*65);
+      return`<div class="ob-row"><div class="ob-bg ${type==='bid'?'ob-bid-bg':'ob-ask-bg'}" style="width:${w}%"></div><span class="${type==='bid'?'ob-p-b':'ob-p-a'}">${fmtRs(r.price)}</span><span class="ob-q">${r.qty} lot${r.qty!==1?'s':''}</span><span class="ob-who">${r.traders.slice(0,2).join(',')||''}</span></div>`
+    }).join('');
   }
-  document.getElementById('instrBids').innerHTML=rows(aBids,'bid');
-  document.getElementById('instrAsks').innerHTML=rows(aAsks,'ask');
-  const instTrades=(gameState?.trades||[]).filter(t=>t.instrument===obInst);
-  document.getElementById('instrClearing').textContent=instTrades[0]?fmtP(instTrades[0].price)+'  ('+instTrades.length+' trades)':'—';
-}
-function renderTradeLog(trades){
-  const el=document.getElementById('tradeLogList');
-  if(!trades?.length){el.innerHTML='<div class="ob-empty">No trades this round</div>';return}
-  el.innerHTML=trades.map(t=>{
-    const inst=t.instrument==='spot'?'Spot':t.instrument.toUpperCase()+(t.strike?' '+fmt(t.strike):'');
-    const qLbl=t.instrument==='spot'?fmt(t.qty)+' sh':t.qty+(t.qty===1?' lot':' lots');
-    const time=new Date(t.timestamp?.seconds?t.timestamp.seconds*1000:t.timestamp).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-    return`<div class="trade-row"><span class="trade-price">${fmtP(t.price)}</span><span class="trade-detail">${inst} · ${qLbl}</span><span class="trade-time">${time}</span></div>`
-  }).join('')
-}
-function drawInstChart(clearingPrices,numRounds){
-  const canvas=document.getElementById('instrChart');
-  const dpr=window.devicePixelRatio||1;
-  canvas.width=canvas.offsetWidth*dpr;canvas.height=200*dpr;
-  canvas.style.height='200px';
-  const ctx=canvas.getContext('2d');ctx.scale(dpr,dpr);
-  const W=canvas.offsetWidth,H=200;
-  if(!clearingPrices?.length){ctx.fillStyle='#555e78';ctx.font='11px DM Mono,monospace';ctx.textAlign='center';ctx.fillText('Clearing prices appear after each round closes',W/2,H/2);return}
-  const insts=[...new Set(clearingPrices.map(p=>p.inst))];
-  const rounds=[...new Set(clearingPrices.map(p=>parseInt(p.round)))].sort((a,b)=>a-b);
-  const colors={spot:'#f5a623',futures:'#2dd4bf',call:'#4ade80',put:'#f87171'};
-  const allP=clearingPrices.map(p=>parseFloat(p.price));
-  const minP=Math.min(...allP)*0.98,maxP=Math.max(...allP)*1.02,range=maxP-minP||1;
-  const pL=50,pR=16,pT=16,pB=24,cW=W-pL-pR,cH=H-pT-pB;
-  ctx.strokeStyle='rgba(255,255,255,0.05)';ctx.lineWidth=1;
-  for(let i=0;i<=4;i++){const y=pT+cH*(1-i/4);ctx.beginPath();ctx.moveTo(pL,y);ctx.lineTo(W-pR,y);ctx.stroke();ctx.fillStyle='#555e78';ctx.font='9px DM Mono,monospace';ctx.textAlign='right';ctx.fillText('₹'+fmt((minP+range*i/4).toFixed(0)),pL-4,y+3)}
-  ctx.fillStyle='#555e78';ctx.font='9px DM Mono,monospace';ctx.textAlign='center';
-  rounds.forEach((r,i)=>{const x=pL+(i/(rounds.length-1||1))*cW;ctx.fillText('R'+r,x,H-6)});
-  insts.forEach(inst=>{
-    const color=colors[inst]||'#8b91a8';
-    ctx.strokeStyle=color;ctx.lineWidth=2;ctx.beginPath();let started=false;
-    rounds.forEach((r,i)=>{const f=clearingPrices.find(p=>parseInt(p.round)===r&&p.inst===inst);if(!f)return;const x=pL+(i/(rounds.length-1||1))*cW,y=pT+cH*(1-(parseFloat(f.price)-minP)/range);if(!started){ctx.moveTo(x,y);started=true}else ctx.lineTo(x,y)});
-    ctx.stroke();
-    rounds.forEach((r,i)=>{const f=clearingPrices.find(p=>parseInt(p.round)===r&&p.inst===inst);if(!f)return;const x=pL+(i/(rounds.length-1||1))*cW,y=pT+cH*(1-(parseFloat(f.price)-minP)/range);ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill()});
-  });
+  document.getElementById('obBids').innerHTML=rows(aBids,'bid');
+  document.getElementById('obAsks').innerHTML=rows(aAsks,'ask');
+  const topBid=aBids[0]?.price, topAsk=aAsks[0]?.price;
+  if(topBid&&topAsk) document.getElementById('obSpread').textContent=`Best bid: ${fmtRs(topBid)}  ·  Best ask: ${fmtRs(topAsk)}  ·  Spread: ${fmtRs(topAsk-topBid)}`;
+  else document.getElementById('obSpread').textContent='No orders on this instrument';
 }
 
-document.getElementById('secretInput').addEventListener('keydown', e=>{ if(e.key==='Enter') doAuth() });
+// ── STUDENT TABLE ──
+function renderStudents(students){
+  const tbody=document.getElementById('studentBody');
+  if(!students?.length){ tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--text3)">No students joined yet</td></tr>`; return; }
+  tbody.innerHTML=students.map(s=>{
+    const pos=s.netPosition||0;
+    const posLabel=pos===0?`<span class="pos-flat">Flat</span>`:pos>0?`<span class="pos-long">Long ${fmt(pos)}</span>`:`<span class="pos-short">Short ${fmt(Math.abs(pos))}</span>`;
+    const pnl=(s.realisedPnl||0)+(s.unrealisedPnl||0);
+    const pnlLabel=`<span class="${pnl>=0?'pnl-pos':'pnl-neg'}">${fmtSign(pnl)}</span>`;
+    return`<tr>
+      <td style="font-weight:500">${s.name||s.id}</td>
+      <td style="font-size:0.74rem;color:var(--text3)">${s.role||'—'}</td>
+      <td>${posLabel}</td>
+      <td>${pnlLabel}</td>
+      <td style="font-family:var(--mono);font-size:0.78rem">${fmtRs(s.capitalRemaining||0)}</td>
+      <td>
+        <div class="cap-adjust-row">
+          <input class="cap-input" id="cap-${s.id}" type="number" placeholder="₹ new amount" min="1000"/>
+          <button class="cap-btn" onclick="adjustCapital('${s.id}','${s.name||s.id}')">Set</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ── TRADE LOG ──
+function renderTrades(trades){
+  const el=document.getElementById('tradeLog');
+  if(!trades?.length){ el.innerHTML='<div style="text-align:center;padding:16px;color:var(--text3);font-size:0.78rem;font-style:italic">No trades this round</div>'; return; }
+  el.innerHTML=trades.slice(0,20).map(t=>{
+    const time=t.timestamp?new Date(t.timestamp.seconds?t.timestamp.seconds*1000:t.timestamp).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'—';
+    return`<div class="trade-row"><span class="t-price">${fmtRs(t.price)}</span><span class="t-detail">${(t.instrument||'spot').toUpperCase()} · ${t.qty} lot${t.qty!==1?'s':''}</span><span class="t-time">${time}</span></div>`;
+  }).join('');
+}
+
+// ── APPLY STATE ──
+function applyState(data){
+  if(!data||data.status==='no_game'||!data.assetName){
+    document.getElementById('setupPanel').style.display='block';
+    document.getElementById('controlPanel').style.display='none';
+    return;
+  }
+  gs=data;
+  document.getElementById('setupPanel').style.display='none';
+  document.getElementById('controlPanel').style.display='block';
+
+  // Header
+  document.getElementById('cpAsset').textContent=data.assetName+(data.assetSymbol?' ('+data.assetSymbol+')':'');
+  document.getElementById('cpMeta').textContent='Spot: '+fmtRs(data.spotPrice||0)+' · Lot: '+(data.lotSize||1)+' sh · Round '+(data.currentRound||0)+' of '+(data.numRounds||0)+' · Pos limit: ±'+(data.positionLimit||10)+' lots · Default capital: '+fmtRs(data.defaultCapital||500000);
+
+  // Status
+  const stMap={waiting:'s-waiting',open:'s-open',closed:'s-closed',ended:'s-ended',paused:'s-waiting'};
+  const stTxt={waiting:'Waiting',open:'Trading Open',closed:'Round Closed',ended:'Ended',paused:'Paused'};
+  document.getElementById('cpStatus').className='status-pill '+(stMap[data.status]||'s-waiting');
+  document.getElementById('cpStatusTxt').textContent=stTxt[data.status]||data.status;
+
+  // Progress
+  const prog=document.getElementById('cpProgress');
+  prog.innerHTML='';
+  for(let i=1;i<=(data.numRounds||3);i++){
+    const d=document.createElement('div');
+    const r=data.currentRound||0;
+    d.style.cssText=`flex:1;height:4px;border-radius:3px;background:${i<r?'var(--green)':i===r?'var(--amber)':'var(--bg3)'}`;
+    prog.appendChild(d);
+  }
+
+  // Cue
+  document.getElementById('cpCue').textContent=data.roundCue||'—';
+
+  // Stats
+  const ob=data.orderBook||{bids:[],asks:[]};
+  const trades=data.trades||[];
+  const students=data.students||[];
+  document.getElementById('statStudents').textContent=students.length;
+  document.getElementById('statOrders').textContent=(ob.bids?.length||0)+(ob.asks?.length||0);
+  document.getElementById('statTrades').textContent=trades.length;
+  document.getElementById('statOI').textContent=fmt(data.openInterest||0);
+  const topBid=ob.bids?.length?Math.max(...ob.bids.map(b=>b.price)):null;
+  const topAsk=ob.asks?.length?Math.min(...ob.asks.map(a=>a.price)):null;
+  document.getElementById('statSpread').textContent=(topBid&&topAsk)?fmtRs(topAsk-topBid):'—';
+
+  // Buttons
+  const s=data.status;
+  document.getElementById('btnOpen').style.display=(s==='waiting'||s==='closed')?'inline-flex':'none';
+  document.getElementById('btnClose').style.display=s==='open'?'inline-flex':'none';
+  document.getElementById('btnPause').style.display=s==='open'?'inline-flex':'none';
+  document.getElementById('nextRoundForm').style.display=(s==='closed'&&(data.currentRound||0)<(data.numRounds||3))?'block':'none';
+  document.getElementById('settleCard').style.display=(s==='closed')?'block':'none';
+
+  // Options status
+  const optOn=data.optionsEnabled;
+  document.getElementById('optionsStatusBadge').textContent=optOn?'ON':'OFF';
+  document.getElementById('optionsStatusBadge').className='inst-badge '+(optOn?'badge-on':'badge-off');
+  document.getElementById('optionsStatusSub').textContent=optOn?('Strike ₹'+(data.optionsStrike||'—')+' · '+( data.optionsExpiry||'—')):'Disabled';
+
+  // Render
+  renderOB(ob);
+  renderStudents(students);
+  renderTrades(trades);
+}
 </script>
 </body>
 </html>

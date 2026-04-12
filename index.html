@@ -330,8 +330,8 @@ nav {
   <div class="nav-links">
     <a href="index.html" class="active">Home</a>
     <a href="module1.html">Module 1</a>
-    <a href="module1.html#trading-desk">Trading Desk</a>
-    <a href="module1.html#assessment">Assessment</a>
+    <a href="#price-discovery-game">Price Discovery</a>
+    <a href="#module-map">All Modules</a>
     
   </div>
   <div class="nav-badge">FIA 401 · 2026</div>
@@ -524,6 +524,54 @@ nav {
       </div>
     </a>
 
+  </div>
+
+  <!-- ══ PRICE DISCOVERY GAME — STANDALONE ══ -->
+  <div class="sec-head mb16" id="price-discovery-game" style="margin-top:32px">
+    <div class="sec-title">Price Discovery Game</div>
+    <div class="sec-line"></div>
+    <div class="sec-count">Marquee Event</div>
+  </div>
+
+  <div style="background:var(--bg2);border:1px solid rgba(167,139,250,0.25);border-radius:20px;padding:28px;position:relative;overflow:hidden;margin-bottom:24px">
+    <div style="position:absolute;top:-30px;right:-30px;width:160px;height:160px;background:radial-gradient(circle,rgba(167,139,250,0.1) 0%,transparent 70%);pointer-events:none"></div>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:24px;flex-wrap:wrap">
+      <div style="flex:1;min-width:280px">
+        <div style="font-family:var(--mono);font-size:0.65rem;color:var(--violet);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px">⬡ Live Classroom Event · Firebase Real-Time</div>
+        <h2 style="font-family:var(--serif);font-size:1.8rem;line-height:1.1;margin-bottom:8px">Price Discovery Game</h2>
+        <p style="font-size:0.88rem;color:var(--text2);max-width:480px;line-height:1.65;margin-bottom:16px">Students trade live against each other on their phones. Limit orders, market orders, a live order book on the projector. The price that emerges is genuinely discovered by the class — not predetermined.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px">
+          <span style="padding:3px 10px;border-radius:6px;font-size:0.7rem;background:rgba(167,139,250,0.1);color:var(--violet);border:1px solid rgba(167,139,250,0.2);font-family:var(--mono)">Limit + Market orders</span>
+          <span style="padding:3px 10px;border-radius:6px;font-size:0.7rem;background:rgba(167,139,250,0.1);color:var(--violet);border:1px solid rgba(167,139,250,0.2);font-family:var(--mono)">Live order book</span>
+          <span style="padding:3px 10px;border-radius:6px;font-size:0.7rem;background:rgba(167,139,250,0.1);color:var(--violet);border:1px solid rgba(167,139,250,0.2);font-family:var(--mono)">Price-time priority</span>
+          <span style="padding:3px 10px;border-radius:6px;font-size:0.7rem;background:rgba(167,139,250,0.1);color:var(--violet);border:1px solid rgba(167,139,250,0.2);font-family:var(--mono)">Nifty · Futures · Options</span>
+          <span style="padding:3px 10px;border-radius:6px;font-size:0.7rem;background:rgba(167,139,250,0.1);color:var(--violet);border:1px solid rgba(167,139,250,0.2);font-family:var(--mono)">8–40 students</span>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <a href="price-discovery.html" style="display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:12px;background:var(--violet);color:#0f1117;font-weight:700;font-size:0.88rem;text-decoration:none;transition:opacity .15s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">Student Join</a>
+          <a href="price-discovery-instructor.html" style="display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:12px;background:var(--amber);color:#0f1117;font-weight:700;font-size:0.88rem;text-decoration:none;transition:opacity .15s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">Instructor Panel</a>
+          <a href="price-discovery-projector.html" style="display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:12px;background:transparent;color:var(--text2);font-weight:600;font-size:0.88rem;text-decoration:none;border:1px solid var(--border2);transition:color .15s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--text2)'">Projector View</a>
+        </div>
+      </div>
+      <div style="flex-shrink:0;background:var(--bg3);border:1px solid var(--border2);border-radius:14px;padding:16px;min-width:200px">
+        <div style="font-family:var(--mono);font-size:0.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px">Three screens needed</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:center;gap:8px;font-size:0.82rem">
+            <span style="width:28px;height:28px;border-radius:7px;background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.2);display:flex;align-items:center;justify-content:center;font-size:0.65rem;flex-shrink:0">📱</span>
+            <div><strong style="color:var(--text)">Students</strong><br><span style="color:var(--text3);font-size:0.74rem">price-discovery.html</span></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:0.82rem">
+            <span style="width:28px;height:28px;border-radius:7px;background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.2);display:flex;align-items:center;justify-content:center;font-size:0.65rem;flex-shrink:0">💻</span>
+            <div><strong style="color:var(--text)">Instructor</strong><br><span style="color:var(--text3);font-size:0.74rem">price-discovery-instructor.html</span></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:0.82rem">
+            <span style="width:28px;height:28px;border-radius:7px;background:rgba(45,212,191,0.1);border:1px solid rgba(45,212,191,0.2);display:flex;align-items:center;justify-content:center;font-size:0.65rem;flex-shrink:0">📺</span>
+            <div><strong style="color:var(--text)">Projector</strong><br><span style="color:var(--text3);font-size:0.74rem">price-discovery-projector.html</span></div>
+          </div>
+        </div>
+        <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);font-family:var(--mono);font-size:0.64rem;color:var(--text3);line-height:1.6">Requires WiFi + Firebase<br>Instructor starts the game</div>
+      </div>
+    </div>
   </div>
 
   <!-- Bottom row -->
