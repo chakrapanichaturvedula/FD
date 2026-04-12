@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Margin &amp; Margin Call · DerivativesLab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0f1117;--bg2:#161b26;--bg3:#1e2535;--bg4:#252e42;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --amber:#f5a623;--amber2:#ffc75a;--teal:#2dd4bf;
+  --green:#4ade80;--red:#f87171;--blue:#60a5fa;
+  --text:#e8eaf0;--text2:#8b91a8;--text3:#555e78;
+  --serif:'DM Serif Display',Georgia,serif;
+  --mono:'DM Mono','Courier New',monospace;
+  --sans:'DM Sans',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+a{text-decoration:none;color:inherit}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:56px;background:rgba(15,17,23,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--mono);font-size:0.82rem;color:var(--amber)}
+.nav-logo span{color:var(--text2)}
+.nav-pill{display:flex;align-items:center;gap:8px}
+.nav-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;background:var(--bg3);border:1px solid var(--border2);font-size:0.78rem;font-weight:600;color:var(--text2);transition:color .15s,border-color .15s}
+.nav-btn:hover{color:var(--amber);border-color:rgba(245,166,35,0.3)}
+.shell{max-width:900px;margin:0 auto;padding:80px 24px 80px}
+.s-hero{padding:32px 36px;border-radius:24px;background:var(--bg2);border:1px solid var(--border2);margin-bottom:24px;position:relative;overflow:hidden}
+.crumb{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:0.68rem;color:var(--text3);margin-bottom:14px}
+.crumb a{color:var(--text3)}.crumb a:hover{color:var(--red)}
+.s-kicker{font-family:var(--mono);font-size:0.68rem;color:var(--red);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px}
+.s-hero h1{font-family:var(--serif);font-size:clamp(1.7rem,3vw,2.4rem);line-height:1.1;margin-bottom:8px}
+.s-hero p{color:var(--text2);font-size:0.9rem;max-width:500px}
+.s-outcomes{display:flex;flex-direction:column;gap:5px;margin-top:12px}
+.s-out{display:flex;align-items:flex-start;gap:8px;font-size:0.82rem;color:var(--text2)}
+.s-out::before{content:'→';color:var(--red);font-family:var(--mono);flex-shrink:0}
+.activity{background:var(--bg2);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-bottom:16px;transition:border-color .2s}
+.activity.done{border-color:rgba(74,222,128,0.25)}
+.activity-head{display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid var(--border)}
+.act-num{display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:9px;flex-shrink:0;background:var(--bg3);font-family:var(--mono);font-size:0.72rem;color:var(--text3);border:1px solid var(--border)}
+.activity.done .act-num{background:rgba(74,222,128,0.1);color:var(--green);border-color:rgba(74,222,128,0.25)}
+.act-meta{flex:1}
+.act-tag{font-family:var(--mono);font-size:0.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px}
+.act-title{font-size:0.92rem;font-weight:600}
+.act-check{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.6rem}
+.activity.done .act-check{background:var(--green);border-color:var(--green);color:#0f1117}
+.activity-body{padding:18px 20px}
+.prompt{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:0.86rem;color:var(--text);margin-bottom:14px;border-left:3px solid var(--red)}
+.prompt strong{color:var(--red)}
+.options{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.opt{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;border-radius:10px;background:var(--bg3);border:1px solid var(--border);cursor:pointer;font-size:0.86rem;color:var(--text2);transition:all .15s;text-align:left;width:100%;font-family:var(--sans)}
+.opt:hover{border-color:var(--border2);color:var(--text)}
+.opt-l{display:flex;align-items:center;justify-content:center;width:20px;height:20px;flex-shrink:0;border-radius:5px;background:var(--bg4);font-family:var(--mono);font-size:0.68rem;color:var(--text3);transition:all .15s;margin-top:1px}
+.opt.correct{border-color:rgba(74,222,128,0.4);background:rgba(74,222,128,0.07)}
+.opt.correct .opt-l{background:var(--green);color:#0f1117}
+.opt.wrong{border-color:rgba(248,113,113,0.4);background:rgba(248,113,113,0.07)}
+.opt.wrong .opt-l{background:var(--red);color:#0f1117}
+.opt:disabled{cursor:default}
+.feedback{display:none;padding:10px 14px;border-radius:10px;font-size:0.84rem;margin-top:6px}
+.feedback.show{display:block}
+.feedback.fb-correct{background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);color:var(--green)}
+.feedback.fb-wrong{background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:var(--red)}
+.explanation{display:none;margin-top:10px;padding:12px 14px;border-radius:10px;background:var(--bg3);border:1px solid var(--border);font-size:0.84rem;color:var(--text2);line-height:1.7}
+.explanation.show{display:block}
+.explanation strong{color:var(--text)}
+
+/* MATCH CARDS */
+.match-pair{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;margin-bottom:10px}
+.match-val{background:var(--bg3);border:1px solid var(--border2);border-radius:10px;padding:12px;text-align:center}
+.match-num{font-family:var(--mono);font-size:1.2rem;font-weight:500;color:var(--amber)}
+.match-lbl-opts{display:flex;flex-direction:column;gap:6px}
+.mlopt{padding:8px 12px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);font-size:0.8rem;color:var(--text2);cursor:pointer;transition:all .15s;text-align:left;width:100%;font-family:var(--sans)}
+.mlopt:hover{border-color:var(--border2);color:var(--text)}
+.mlopt.m-correct{border-color:rgba(74,222,128,0.4);background:rgba(74,222,128,0.07);color:var(--green);cursor:default}
+.mlopt.m-wrong{border-color:rgba(248,113,113,0.3);background:rgba(248,113,113,0.06);color:var(--red);opacity:.6;cursor:default}
+.match-arrow{font-family:var(--mono);color:var(--text3);text-align:center}
+
+/* BALANCE TRACKER */
+.balance-display{background:var(--bg3);border:1px solid var(--border2);border-radius:16px;padding:20px;margin-bottom:14px}
+.balance-bar-wrap{height:14px;background:var(--bg4);border-radius:8px;overflow:hidden;margin:12px 0;position:relative}
+.balance-bar{height:100%;border-radius:8px;transition:width .5s ease,background .3s}
+.balance-threshold{position:absolute;top:0;bottom:0;width:2px;background:rgba(248,113,113,0.7)}
+.balance-threshold-label{position:absolute;top:-18px;font-family:var(--mono);font-size:0.58rem;color:var(--red);transform:translateX(-50%)}
+.balance-numbers{display:flex;justify-content:space-between;align-items:baseline}
+.balance-main{font-family:var(--mono);font-size:1.6rem;font-weight:500;transition:color .3s}
+.balance-sub{font-family:var(--mono);font-size:0.7rem;color:var(--text3)}
+.balance-steps{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.bstep-btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:9px;font-size:0.78rem;font-weight:600;cursor:pointer;border:none;font-family:var(--sans);transition:all .15s}
+.bstep-btn.loss{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.25);color:var(--red)}
+.bstep-btn.loss:hover{background:rgba(248,113,113,0.18)}
+.bstep-btn.reset{background:var(--bg3);border:1px solid var(--border2);color:var(--text3)}
+.bstep-btn.reset:hover{color:var(--text2)}
+.margin-alert{display:none;margin-top:12px;padding:12px 14px;border-radius:10px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.3);color:var(--red);font-size:0.86rem;font-weight:600;animation:alertPulse .5s ease}
+.margin-alert.show{display:block}
+@keyframes alertPulse{from{opacity:0;transform:scale(0.98)}to{opacity:1;transform:scale(1)}}
+
+/* END-TO-END */
+.chain-steps{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;counter-reset:step}
+.chain-step{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-radius:12px;background:var(--bg3);border:1px solid var(--border)}
+.chain-step-num{display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:7px;background:var(--bg4);font-family:var(--mono);font-size:0.72rem;color:var(--text3);border:1px solid var(--border);flex-shrink:0;margin-top:2px}
+.chain-step-text{font-size:0.86rem;color:var(--text2);line-height:1.6}
+.chain-step-text strong{color:var(--text)}
+
+.takeaway{background:rgba(248,113,113,0.04);border:1px solid rgba(248,113,113,0.15);border-radius:20px;padding:20px 22px;margin-bottom:16px}
+.takeaway-title{font-family:var(--mono);font-size:0.68rem;color:var(--red);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px}
+.takeaway-list{display:flex;flex-direction:column;gap:7px}
+.takeaway-item{display:flex;align-items:flex-start;gap:10px;font-size:0.86rem;color:var(--text2)}
+.takeaway-item::before{content:'→';color:var(--red);font-family:var(--mono);flex-shrink:0}
+.next-section{display:flex;align-items:center;justify-content:space-between;padding:20px 22px;border-radius:20px;background:var(--bg2);border:1px solid var(--border);margin-top:16px}
+.next-info h3{font-family:var(--serif);font-size:1.05rem;margin-bottom:4px}
+.next-info p{font-size:0.8rem;color:var(--text2)}
+.btn-next{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:12px;background:var(--amber);color:#0f1117;font-weight:600;font-size:0.86rem;white-space:nowrap;transition:background .15s}
+.btn-next:hover{background:var(--amber2)}
+@media(max-width:600px){
+  .s-hero{padding:22px 18px}
+  .activity-body,.activity-head{padding:14px 16px}
+  .match-pair{grid-template-columns:1fr}
+  .match-arrow{display:none}
+}
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="index.html" style="text-decoration:none">DERIVATIVES<span>LAB</span></a>
+  <div class="nav-pill">
+    <a class="nav-btn" href="index.html">← Home</a>
+    <a class="nav-btn" href="mtm-pnl.html">← Track 3</a>
+    <a class="nav-btn" href="m1-quiz.html">Quiz →</a>
+  </div>
+</nav>
+
+<div class="shell">
+  <div class="s-hero">
+    <div class="crumb"><a href="index.html">Home</a><span style="color:var(--text3)">/</span><a href="module1.html">Module 1</a><span style="color:var(--text3)">/</span><span>Futures Track 4</span></div>
+    <div class="s-kicker">Futures Track · Track 4 of 4</div>
+    <h1>Margin &amp;<br>Margin Calls</h1>
+    <p>You do not pay the full contract value to enter a futures position. You post a <strong>margin deposit</strong>. Daily MTM losses erode that deposit — and when it falls too low, a margin call happens.</p>
+    <div class="s-outcomes">
+      <div class="s-out">Distinguish contract value from margin deposit</div>
+      <div class="s-out">Explain initial margin and maintenance margin</div>
+      <div class="s-out">Identify what triggers a margin call and why</div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY 1: Match exposure vs deposit -->
+  <div class="activity" id="act1">
+    <div class="activity-head">
+      <div class="act-num">1</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity 1 · Match the number</div>
+        <div class="act-title">Which number is total exposure — and which is the deposit?</div>
+      </div>
+      <div class="act-check" id="act1-check"></div>
+    </div>
+    <div class="activity-body">
+      <div class="prompt">A futures contract shows these two numbers. <strong>Match each to the correct meaning.</strong></div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div>
+          <div style="font-family:var(--mono);font-size:0.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">₹12,42,500</div>
+          <div class="options" id="m1-opts">
+            <button class="opt" onclick="matchOpt('m1',this,true,'Correct. Contract value = futures price × lot size. This is your total market exposure.')"><span class="opt-l">A</span>Total exposure — the notional value of the contract</button>
+            <button class="opt" onclick="matchOpt('m1',this,false,'Not this. ₹12,42,500 is far too large to be the margin deposit — it is the full notional exposure.')"><span class="opt-l">B</span>Margin deposit — the amount paid to open the position</button>
+          </div>
+          <div class="feedback" id="m1-feedback"></div>
+        </div>
+        <div>
+          <div style="font-family:var(--mono);font-size:0.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">₹1,20,000</div>
+          <div class="options" id="m2-opts">
+            <button class="opt" onclick="matchOpt('m2',this,false,'Not this. ₹1,20,000 is much smaller than the contract value — it is the deposit.')"><span class="opt-l">A</span>Total exposure — the notional value of the contract</button>
+            <button class="opt" onclick="matchOpt('m2',this,true,'Correct. Margin is the performance deposit. It is much smaller than total exposure — that is leverage.')"><span class="opt-l">B</span>Margin deposit — the amount paid to open the position</button>
+          </div>
+          <div class="feedback" id="m2-feedback"></div>
+        </div>
+      </div>
+      <div class="explanation" id="act1-expl" style="display:none">
+        <strong>Futures create leverage.</strong> You control ₹12,42,500 of exposure by posting only ₹1,20,000 — that is roughly 10× leverage. The margin is a <em>performance deposit</em>, not payment for the contract itself.
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY 2: Why is margin smaller? -->
+  <div class="activity" id="act2">
+    <div class="activity-head">
+      <div class="act-num">2</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity 2 · Concept</div>
+        <div class="act-title">Why is margin so much smaller than contract value?</div>
+      </div>
+      <div class="act-check" id="act2-check"></div>
+    </div>
+    <div class="activity-body">
+      <div class="options" id="a2-opts">
+        <button class="opt" onclick="checkQ('a2',this,false,'Not this. Futures are real financial instruments with genuine exposure.')"><span class="opt-l">A</span>Because futures contracts are not real and have no actual exposure</button>
+        <button class="opt" onclick="checkQ('a2',this,true,'Correct. Margin is a performance deposit that supports leveraged exposure — you pay a fraction but control the full contract value.')"><span class="opt-l">B</span>Because margin is a performance deposit that supports leveraged exposure</button>
+        <button class="opt" onclick="checkQ('a2',this,false,'Not this. Margin must be paid immediately when the position is opened.')"><span class="opt-l">C</span>Because the trader pays the rest only if the trade is profitable</button>
+        <button class="opt" onclick="checkQ('a2',this,false,'Not this. Lot size affects contract value but is not why margin is smaller.')"><span class="opt-l">D</span>Because lot size does not matter in futures pricing</button>
+      </div>
+      <div class="feedback" id="a2-feedback"></div>
+      <div class="explanation" id="a2-expl">
+        <strong>Futures are leveraged instruments.</strong> The margin is not a down-payment on the contract — it is a buffer that the exchange holds to cover potential daily losses. This is why the exchange runs daily MTM: to ensure the margin buffer stays adequate.
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY 3: Interactive balance tracker -->
+  <div class="activity" id="act3">
+    <div class="activity-head">
+      <div class="act-num">3</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity 3 · Balance tracker</div>
+        <div class="act-title">Watch daily losses erode the margin account</div>
+      </div>
+      <div class="act-check" id="act3-check"></div>
+    </div>
+    <div class="activity-body">
+      <div class="prompt">Initial margin = <strong>₹1,20,000</strong> · Maintenance margin = <strong>₹90,000</strong>. Apply each day's MTM loss to see what happens to the balance.</div>
+
+      <div class="balance-display">
+        <div class="balance-numbers">
+          <div>
+            <div style="font-family:var(--mono);font-size:0.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">Margin account balance</div>
+            <div class="balance-main" id="balanceVal" style="color:var(--green)">₹1,20,000</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-family:var(--mono);font-size:0.62rem;color:var(--text3);margin-bottom:4px">Maintenance threshold</div>
+            <div style="font-family:var(--mono);font-size:0.88rem;color:var(--red)">₹90,000</div>
+          </div>
+        </div>
+        <div class="balance-bar-wrap">
+          <div class="balance-bar" id="balanceBar" style="width:100%;background:var(--green)"></div>
+          <div class="balance-threshold" id="balanceThreshold" style="left:75%">
+            <div class="balance-threshold-label">Maint. ₹90k</div>
+          </div>
+        </div>
+        <div class="balance-steps">
+          <button class="bstep-btn loss" onclick="applyLoss(12000,'Day 1 loss: ₹12,000')">Day 1 −₹12,000</button>
+          <button class="bstep-btn loss" onclick="applyLoss(15000,'Day 2 loss: ₹15,000')">Day 2 −₹15,000</button>
+          <button class="bstep-btn loss" onclick="applyLoss(14000,'Day 3 loss: ₹14,000')">Day 3 −₹14,000</button>
+          <button class="bstep-btn reset" onclick="resetBalance()">Reset</button>
+        </div>
+        <div class="margin-alert" id="marginAlert">⚠ Margin call triggered — balance below maintenance threshold of ₹90,000. Add funds to restore margin.</div>
+      </div>
+      <div class="feedback" id="act3-feedback"></div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY 4: Margin call MCQ -->
+  <div class="activity" id="act4">
+    <div class="activity-head">
+      <div class="act-num">4</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity 4 · Margin call</div>
+        <div class="act-title">Balance falls below maintenance. What happens now?</div>
+      </div>
+      <div class="act-check" id="act4-check"></div>
+    </div>
+    <div class="activity-body">
+      <div class="prompt">Initial margin = ₹1,20,000 · Maintenance margin = ₹90,000 · After Day 3 losses, balance = <strong>₹84,000</strong></div>
+      <div class="options" id="a4-opts">
+        <button class="opt" onclick="checkQ('a4',this,false,'Not this. When margin falls below maintenance, action is required immediately.')"><span class="opt-l">A</span>Nothing happens — the balance will recover on its own</button>
+        <button class="opt" onclick="checkQ('a4',this,true,'Correct. A margin call requires the trader to deposit funds to restore the account.')"><span class="opt-l">B</span>The trader receives a margin call and must add funds to the margin account</button>
+        <button class="opt" onclick="checkQ('a4',this,false,'Not this. The exchange does not automatically increase lot size.')"><span class="opt-l">C</span>The exchange automatically increases the lot size</button>
+        <button class="opt" onclick="checkQ('a4',this,false,'Not this. Open interest is a separate market measure and is not affected by one trader\'s margin account.')"><span class="opt-l">D</span>Open interest automatically falls to zero</button>
+      </div>
+      <div class="feedback" id="a4-feedback"></div>
+      <div class="explanation" id="a4-expl">
+        <strong>A margin call is a risk control mechanism.</strong> When daily losses push the margin account below the maintenance margin threshold, the broker contacts the trader to top up the account. If the trader does not respond, the broker may square off the position to limit further losses.
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY 5: End-to-end chain -->
+  <div class="activity" id="act5">
+    <div class="activity-head">
+      <div class="act-num">5</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity 5 · Connect the whole chain</div>
+        <div class="act-title">Which statement connects everything correctly?</div>
+      </div>
+      <div class="act-check" id="act5-check"></div>
+    </div>
+    <div class="activity-body">
+      <div class="chain-steps">
+        <div class="chain-step"><div class="chain-step-num">1</div><div class="chain-step-text"><strong>Contract value</strong> = ₹12,42,500 — your total market exposure</div></div>
+        <div class="chain-step"><div class="chain-step-num">2</div><div class="chain-step-text"><strong>Initial margin</strong> = ₹1,20,000 — the deposit required to open the position</div></div>
+        <div class="chain-step"><div class="chain-step-num">3</div><div class="chain-step-text"><strong>Daily MTM losses</strong> reduce the margin account balance each day</div></div>
+        <div class="chain-step"><div class="chain-step-num">4</div><div class="chain-step-text"><strong>Maintenance margin</strong> = ₹90,000 — the floor below which a margin call may be triggered</div></div>
+      </div>
+      <div class="prompt">Which statement best describes this situation after three days of losses reduce the balance to ₹84,000?</div>
+      <div class="options" id="a5-opts">
+        <button class="opt" onclick="checkQ('a5',this,false,'Not this. The trader did not pay the full contract value — they posted margin.')"><span class="opt-l">A</span>The trader paid the full contract value so there is no issue</button>
+        <button class="opt" onclick="checkQ('a5',this,true,'Correct. This is the complete chain: exposure → margin → daily losses → threshold breach → margin call.')"><span class="opt-l">B</span>The trader posted margin, daily losses reduced it below the maintenance threshold, triggering a margin call</button>
+        <button class="opt" onclick="checkQ('a5',this,false,'Not this. MTM settlement is daily — not only at final expiry.')"><span class="opt-l">C</span>Mark-to-market only applies at expiry, so no margin call can happen before then</button>
+        <button class="opt" onclick="checkQ('a5',this,false,'Not this. Contract value and margin are very different numbers measuring different things.')"><span class="opt-l">D</span>Contract value and margin deposit mean the same thing</button>
+      </div>
+      <div class="feedback" id="a5-feedback"></div>
+      <div class="explanation" id="a5-expl">
+        <strong>The complete chain every student must know:</strong> Futures create leveraged exposure → you post a smaller margin deposit → daily MTM losses reduce the deposit → if it falls below maintenance margin, a margin call is triggered and you must add funds.
+      </div>
+    </div>
+  </div>
+
+  <div class="takeaway">
+    <div class="takeaway-title">Margin &amp; Margin Calls — remember this</div>
+    <div class="takeaway-list">
+      <div class="takeaway-item">Contract value = total exposure · Margin = the smaller deposit that supports that exposure</div>
+      <div class="takeaway-item">Initial margin is what you deposit at the start; maintenance margin is the floor</div>
+      <div class="takeaway-item">Daily MTM losses reduce the margin account balance</div>
+      <div class="takeaway-item">When the balance falls below maintenance margin, a margin call is triggered</div>
+      <div class="takeaway-item">A margin call requires you to add funds — or the position may be squared off</div>
+    </div>
+  </div>
+
+  <div class="next-section">
+    <div class="next-info">
+      <h3>Module 1 complete</h3>
+      <p>Take the formal Module 1 quiz — 10 questions, Practice or Quiz mode</p>
+    </div>
+    <a class="btn-next" href="m1-quiz.html">Module 1 Quiz →</a>
+  </div>
+</div>
+
+<script>
+/* MATCH */
+let m1done=false, m2done=false;
+function matchOpt(group, btn, isCorrect, msg){
+  document.querySelectorAll('#'+group+'-opts .opt').forEach(o=>o.disabled=true);
+  btn.classList.add(isCorrect?'correct':'wrong');
+  if(!isCorrect) document.querySelectorAll('#'+group+'-opts .opt').forEach(o=>{ if(o.onclick&&o.onclick.toString().includes('true,')) o.classList.add('correct') });
+  const fb=document.getElementById(group+'-feedback');
+  if(fb){fb.className='feedback show '+(isCorrect?'fb-correct':'fb-wrong');fb.innerHTML=(isCorrect?'✓ ':'✗ ')+msg}
+  if(group==='m1'&&isCorrect) m1done=true;
+  if(group==='m2'&&isCorrect) m2done=true;
+  if(m1done&&m2done){
+    document.getElementById('act1-expl').className='explanation show';
+    markDone('act1');
+  }
+}
+
+/* BALANCE TRACKER */
+let balance=120000;
+const INITIAL=120000, MAINTENANCE=90000;
+function fmt(n){return'₹'+new Intl.NumberFormat('en-IN').format(n)}
+function updateBar(){
+  const pct=Math.min(100,Math.max(0,(balance/INITIAL)*100));
+  const bar=document.getElementById('balanceBar');
+  bar.style.width=pct+'%';
+  bar.style.background=balance<MAINTENANCE?'var(--red)':balance<(MAINTENANCE*1.2)?'var(--amber)':'var(--green)';
+  document.getElementById('balanceVal').textContent=fmt(balance);
+  document.getElementById('balanceVal').style.color=balance<MAINTENANCE?'var(--red)':balance<(MAINTENANCE*1.2)?'var(--amber)':'var(--green)';
+  const alert=document.getElementById('marginAlert');
+  if(balance<MAINTENANCE){
+    alert.classList.add('show');
+    const fb=document.getElementById('act3-feedback');
+    fb.className='feedback show fb-correct';
+    fb.innerHTML='✓ Balance has fallen below maintenance margin (₹90,000). This triggers a margin call.';
+    markDone('act3');
+  } else {
+    alert.classList.remove('show');
+  }
+}
+function applyLoss(amount, label){
+  balance=Math.max(0, balance-amount);
+  updateBar();
+}
+function resetBalance(){
+  balance=INITIAL;
+  updateBar();
+  document.getElementById('act3-feedback').className='feedback';
+  document.getElementById('marginAlert').classList.remove('show');
+}
+
+/* MCQ */
+function checkQ(g,btn,ok,msg){
+  document.querySelectorAll('#'+g+'-opts .opt').forEach(o=>o.disabled=true);
+  btn.classList.add(ok?'correct':'wrong');
+  if(!ok) document.querySelectorAll('#'+g+'-opts .opt').forEach(o=>{ if(o.onclick&&o.onclick.toString().includes('true,')) o.classList.add('correct') });
+  const fb=document.getElementById(g+'-feedback');
+  if(fb){fb.className='feedback show '+(ok?'fb-correct':'fb-wrong');fb.innerHTML=(ok?'✓ ':'✗ ')+msg}
+  const ex=document.getElementById(g+'-expl');if(ex) ex.className='explanation show';
+  if(ok){const m={a2:'act2',a4:'act4',a5:'act5'};if(m[g]) markDone(m[g])}
+}
+function markDone(id){
+  const el=document.getElementById(id);
+  if(el){el.classList.add('done');const c=document.getElementById(id+'-check');if(c) c.innerHTML='✓'}
+}
+</script>
+</body>
+</html>

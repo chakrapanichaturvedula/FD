@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Mark-to-Market P&amp;L · DerivativesLab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0f1117;--bg2:#161b26;--bg3:#1e2535;--bg4:#252e42;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --amber:#f5a623;--amber2:#ffc75a;--teal:#2dd4bf;
+  --green:#4ade80;--red:#f87171;--blue:#60a5fa;
+  --text:#e8eaf0;--text2:#8b91a8;--text3:#555e78;
+  --serif:'DM Serif Display',Georgia,serif;
+  --mono:'DM Mono','Courier New',monospace;
+  --sans:'DM Sans',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+a{text-decoration:none;color:inherit}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:56px;background:rgba(15,17,23,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--mono);font-size:0.82rem;color:var(--amber)}
+.nav-logo span{color:var(--text2)}
+.nav-pill{display:flex;align-items:center;gap:8px}
+.nav-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;background:var(--bg3);border:1px solid var(--border2);font-size:0.78rem;font-weight:600;color:var(--text2);transition:color .15s,border-color .15s}
+.nav-btn:hover{color:var(--amber);border-color:rgba(245,166,35,0.3)}
+.shell{max-width:900px;margin:0 auto;padding:80px 24px 80px}
+.s-hero{padding:32px 36px;border-radius:24px;background:var(--bg2);border:1px solid var(--border2);margin-bottom:24px;position:relative;overflow:hidden}
+.crumb{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:0.68rem;color:var(--text3);margin-bottom:14px}
+.crumb a{color:var(--text3)}.crumb a:hover{color:var(--amber)}
+.s-kicker{font-family:var(--mono);font-size:0.68rem;color:var(--amber);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px}
+.s-hero h1{font-family:var(--serif);font-size:clamp(1.7rem,3vw,2.4rem);line-height:1.1;margin-bottom:8px}
+.s-hero p{color:var(--text2);font-size:0.9rem;max-width:500px}
+.s-outcomes{display:flex;flex-direction:column;gap:5px;margin-top:12px}
+.s-out{display:flex;align-items:flex-start;gap:8px;font-size:0.82rem;color:var(--text2)}
+.s-out::before{content:'→';color:var(--amber);font-family:var(--mono);flex-shrink:0}
+.activity{background:var(--bg2);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-bottom:16px;transition:border-color .2s}
+.activity.done{border-color:rgba(74,222,128,0.25)}
+.activity-head{display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid var(--border)}
+.act-num{display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:9px;flex-shrink:0;background:var(--bg3);font-family:var(--mono);font-size:0.72rem;color:var(--text3);border:1px solid var(--border)}
+.activity.done .act-num{background:rgba(74,222,128,0.1);color:var(--green);border-color:rgba(74,222,128,0.25)}
+.act-meta{flex:1}
+.act-tag{font-family:var(--mono);font-size:0.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px}
+.act-title{font-size:0.92rem;font-weight:600}
+.act-check{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.6rem}
+.activity.done .act-check{background:var(--green);border-color:var(--green);color:#0f1117}
+.activity-body{padding:18px 20px}
+.prompt{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:0.86rem;color:var(--text);margin-bottom:14px;border-left:3px solid var(--amber)}
+.prompt strong{color:var(--amber)}
+.options{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.opt{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;border-radius:10px;background:var(--bg3);border:1px solid var(--border);cursor:pointer;font-size:0.86rem;color:var(--text2);transition:all .15s;text-align:left;width:100%;font-family:var(--sans)}
+.opt:hover{border-color:var(--border2);color:var(--text)}
+.opt-l{display:flex;align-items:center;justify-content:center;width:20px;height:20px;flex-shrink:0;border-radius:5px;background:var(--bg4);font-family:var(--mono);font-size:0.68rem;color:var(--text3);transition:all .15s;margin-top:1px}
+.opt.correct{border-color:rgba(74,222,128,0.4);background:rgba(74,222,128,0.07)}
+.opt.correct .opt-l{background:var(--green);color:#0f1117}
+.opt.wrong{border-color:rgba(248,113,113,0.4);background:rgba(248,113,113,0.07)}
+.opt.wrong .opt-l{background:var(--red);color:#0f1117}
+.opt:disabled{cursor:default}
+.feedback{display:none;padding:10px 14px;border-radius:10px;font-size:0.84rem;margin-top:6px}
+.feedback.show{display:block}
+.feedback.fb-correct{background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);color:var(--green)}
+.feedback.fb-wrong{background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:var(--red)}
+.explanation{display:none;margin-top:10px;padding:12px 14px;border-radius:10px;background:var(--bg3);border:1px solid var(--border);font-size:0.84rem;color:var(--text2);line-height:1.7}
+.explanation.show{display:block}
+.explanation strong{color:var(--text)}
+
+/* DAY-BY-DAY TRACKER */
+.day-tracker{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.day-card{border-radius:14px;border:1px solid var(--border);overflow:hidden;cursor:pointer;transition:border-color .2s}
+.day-card.revealed{border-color:rgba(74,222,128,0.25)}
+.day-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg3)}
+.day-label{font-family:var(--mono);font-size:0.72rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em}
+.day-prices{display:flex;align-items:center;gap:16px}
+.day-price{text-align:right}
+.day-price-lbl{font-family:var(--mono);font-size:0.58rem;color:var(--text3);text-transform:uppercase}
+.day-price-val{font-family:var(--mono);font-size:0.95rem;font-weight:500;color:var(--text)}
+.day-reveal-btn{font-family:var(--mono);font-size:0.65rem;color:var(--text3);padding:5px 10px;border-radius:7px;border:1px solid var(--border2);background:none;cursor:pointer;transition:all .15s}
+.day-reveal-btn:hover{color:var(--amber);border-color:rgba(245,166,35,0.3)}
+.day-body{display:none;padding:12px 16px;background:var(--bg2);border-top:1px solid var(--border)}
+.day-card.revealed .day-body{display:block}
+.day-pnl-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.day-pnl-box{padding:10px 12px;border-radius:10px;text-align:center}
+.day-pnl-box.long-gain{background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2)}
+.day-pnl-box.long-loss{background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2)}
+.day-pnl-box.short-gain{background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2)}
+.day-pnl-box.short-loss{background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2)}
+.pnl-side{font-family:var(--mono);font-size:0.62rem;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px}
+.long-gain .pnl-side,.long-loss .pnl-side{color:var(--text3)}
+.short-gain .pnl-side,.short-loss .pnl-side{color:var(--text3)}
+.pnl-amount{font-family:var(--mono);font-size:1.1rem;font-weight:500}
+.long-gain .pnl-amount,.short-gain .pnl-amount{color:var(--green)}
+.long-loss .pnl-amount,.short-loss .pnl-amount{color:var(--red)}
+.pnl-formula{font-family:var(--mono);font-size:0.68rem;color:var(--text3);margin-top:3px}
+
+/* PRICE TIMELINE */
+.price-timeline{display:flex;align-items:flex-end;gap:8px;padding:16px;background:var(--bg3);border-radius:14px;margin-bottom:14px;overflow-x:auto}
+.pt-col{display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0}
+.pt-bar{width:48px;border-radius:6px 6px 0 0;transition:height .3s}
+.pt-price{font-family:var(--mono);font-size:0.72rem;font-weight:500}
+.pt-label{font-family:var(--mono);font-size:0.6rem;color:var(--text3);text-transform:uppercase}
+.pt-connector{display:flex;align-items:center;padding-bottom:24px;color:var(--text3);font-size:0.8rem}
+
+/* CALC */
+.calc-given{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.calc-field{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+.calc-lbl{font-family:var(--mono);font-size:0.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px}
+.calc-val{font-family:var(--mono);font-size:1rem;color:var(--amber);font-weight:500}
+.calc-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.answer-input{flex:1;min-width:160px;padding:10px 14px;border-radius:10px;background:var(--bg3);border:1.5px solid var(--border2);font-family:var(--mono);font-size:0.95rem;color:var(--text);outline:none;transition:border-color .15s}
+.answer-input:focus{border-color:var(--amber)}
+.check-btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:10px;background:var(--bg3);border:1px solid var(--border2);font-size:0.82rem;font-weight:600;color:var(--text2);cursor:pointer;font-family:var(--sans);transition:all .15s}
+.check-btn:hover{color:var(--amber);border-color:rgba(245,166,35,0.3)}
+
+.takeaway{background:rgba(245,166,35,0.04);border:1px solid rgba(245,166,35,0.15);border-radius:20px;padding:20px 22px;margin-bottom:16px}
+.takeaway-title{font-family:var(--mono);font-size:0.68rem;color:var(--amber);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px}
+.takeaway-list{display:flex;flex-direction:column;gap:7px}
+.takeaway-item{display:flex;align-items:flex-start;gap:10px;font-size:0.86rem;color:var(--text2)}
+.takeaway-item::before{content:'→';color:var(--amber);font-family:var(--mono);flex-shrink:0}
+.next-section{display:flex;align-items:center;justify-content:space-between;padding:20px 22px;border-radius:20px;background:var(--bg2);border:1px solid var(--border);margin-top:16px}
+.next-info h3{font-family:var(--serif);font-size:1.05rem;margin-bottom:4px}
+.next-info p{font-size:0.8rem;color:var(--text2)}
+.btn-next{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:12px;background:var(--amber);color:#0f1117;font-weight:600;font-size:0.86rem;white-space:nowrap;transition:background .15s}
+.btn-next:hover{background:var(--amber2)}
+@media(max-width:600px){
+  .s-hero{padding:22px 18px}
+  .activity-body,.activity-head{padding:14px 16px}
+  .calc-given{grid-template-columns:1fr}
+  .day-pnl-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="index.html" style="text-decoration:none">DERIVATIVES<span>LAB</span></a>
+  <div class="nav-pill">
+    <a class="nav-btn" href="index.html">← Home</a>
+    <a class="nav-btn" href="open-interest.html">← Track 2</a>
+    <a class="nav-btn" href="margin-call.html">Next →</a>
+  </div>
+</nav>
+
+<div class="shell">
+  <div class="s-hero">
+    <div class="crumb"><a href="index.html">Home</a><span style="color:var(--text3)">/</span><a href="module1.html">Module 1</a><span style="color:var(--text3)">/</span><span>Futures Track 3</span></div>
+    <div class="s-kicker">Futures Track · Track 3 of 4</div>
+    <h1>Mark-to-Market<br>Profit &amp; Loss</h1>
+    <p>In futures markets, profit and loss is not just a final outcome at expiry. It is settled <strong>every single day</strong>. Follow a position across three days and see exactly how it works.</p>
+    <div class="s-outcomes">
+      <div class="s-out">Explain mark-to-market in plain language</div>
+      <div class="s-out">Calculate daily P&L for long and short positions</div>
+      <div class="s-out">Understand that MTM compares daily settlements — not always back to entry</div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY 1: Who gains today -->
+  <div class="activity" id="act1">
+    <div class="activity-head">
+      <div class="act-num">1</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity 1 · First move</div>
+        <div class="act-title">Price rises. Who gains — long or short?</div>
+      </div>
+      <div class="act-check" id="act1-check"></div>
+    </div>
+    <div class="activity-body">
+      <div class="prompt">Entry price: <strong>₹24,800</strong>. Today's settlement: <strong>₹24,860</strong>. Which position gains from this move?</div>
+      <div class="options" id="a1-opts">
+        <button class="opt" onclick="checkQ('a1',this,true,'Correct. The long position gains ₹60 per unit because the price rose.')"><span class="opt-l">A</span>Long position gains · Short position loses</button>
+        <button class="opt" onclick="checkQ('a1',this,false,'Not this. A short position loses when price rises — it benefits from falling prices.')"><span class="opt-l">B</span>Short position gains · Long position loses</button>
+        <button class="opt" onclick="checkQ('a1',this,false,'Not this. MTM settlement happens every day — both positions are affected.')"><span class="opt-l">C</span>Neither is affected until expiry</button>
+      </div>
+      <div class="feedback" id="a1-feedback"></div>
+      <div class="explanation" id="a1-expl">
+        <strong>Daily MTM logic:</strong> Long gains when price rises. Short gains when price falls. The gain or loss is settled that day — not held until final expiry.
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY 2: Day-by-day tracker -->
+  <div class="activity" id="act2">
+    <div class="activity-head">
+      <div class="act-num">2</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity 2 · Day-by-day tracker</div>
+        <div class="act-title">Follow the position across 3 days — reveal each day</div>
+      </div>
+      <div class="act-check" id="act2-check"></div>
+    </div>
+    <div class="activity-body">
+      <div class="prompt">You are <strong>long one Nifty futures contract</strong>. Lot size = 50. Tap each day to reveal the MTM settlement.</div>
+
+      <!-- Price timeline visual -->
+      <div class="price-timeline">
+        <div class="pt-col">
+          <div class="pt-bar" style="height:60px;background:rgba(245,166,35,0.3)"></div>
+          <div class="pt-price" style="color:var(--amber)">₹24,800</div>
+          <div class="pt-label">Entry</div>
+        </div>
+        <div class="pt-connector">→</div>
+        <div class="pt-col">
+          <div class="pt-bar" style="height:70px;background:rgba(74,222,128,0.4)"></div>
+          <div class="pt-price" style="color:var(--green)">₹24,850</div>
+          <div class="pt-label">Day 1</div>
+        </div>
+        <div class="pt-connector">→</div>
+        <div class="pt-col">
+          <div class="pt-bar" style="height:50px;background:rgba(248,113,113,0.4)"></div>
+          <div class="pt-price" style="color:var(--red)">₹24,790</div>
+          <div class="pt-label">Day 2</div>
+        </div>
+        <div class="pt-connector">→</div>
+        <div class="pt-col">
+          <div class="pt-bar" style="height:90px;background:rgba(74,222,128,0.5)"></div>
+          <div class="pt-price" style="color:var(--green)">₹24,910</div>
+          <div class="pt-label">Day 3</div>
+        </div>
+      </div>
+
+      <div class="day-tracker">
+        <div class="day-card" id="day1-card">
+          <div class="day-head">
+            <div class="day-label">Day 1</div>
+            <div class="day-prices">
+              <div class="day-price"><div class="day-price-lbl">Previous</div><div class="day-price-val">₹24,800</div></div>
+              <div class="day-price"><div class="day-price-lbl">Settlement</div><div class="day-price-val" style="color:var(--green)">₹24,850 ↑</div></div>
+            </div>
+            <button class="day-reveal-btn" onclick="revealDay('day1')">Reveal →</button>
+          </div>
+          <div class="day-body">
+            <div class="day-pnl-grid">
+              <div class="day-pnl-box long-gain">
+                <div class="pnl-side">Long position</div>
+                <div class="pnl-amount">+₹2,500</div>
+                <div class="pnl-formula">(24,850−24,800)×50</div>
+              </div>
+              <div class="day-pnl-box short-loss">
+                <div class="pnl-side">Short position</div>
+                <div class="pnl-amount">−₹2,500</div>
+                <div class="pnl-formula">(24,800−24,850)×50</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="day-card" id="day2-card">
+          <div class="day-head">
+            <div class="day-label">Day 2</div>
+            <div class="day-prices">
+              <div class="day-price"><div class="day-price-lbl">Previous</div><div class="day-price-val">₹24,850</div></div>
+              <div class="day-price"><div class="day-price-lbl">Settlement</div><div class="day-price-val" style="color:var(--red)">₹24,790 ↓</div></div>
+            </div>
+            <button class="day-reveal-btn" onclick="revealDay('day2')">Reveal →</button>
+          </div>
+          <div class="day-body">
+            <div class="day-pnl-grid">
+              <div class="day-pnl-box long-loss">
+                <div class="pnl-side">Long position</div>
+                <div class="pnl-amount">−₹3,000</div>
+                <div class="pnl-formula">(24,790−24,850)×50</div>
+              </div>
+              <div class="day-pnl-box short-gain">
+                <div class="pnl-side">Short position</div>
+                <div class="pnl-amount">+₹3,000</div>
+                <div class="pnl-formula">(24,850−24,790)×50</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="day-card" id="day3-card">
+          <div class="day-head">
+            <div class="day-label">Day 3</div>
+            <div class="day-prices">
+              <div class="day-price"><div class="day-price-lbl">Previous</div><div class="day-price-val">₹24,790</div></div>
+              <div class="day-price"><div class="day-price-lbl">Settlement</div><div class="day-price-val" style="color:var(--green)">₹24,910 ↑</div></div>
+            </div>
+            <button class="day-reveal-btn" onclick="revealDay('day3')">Reveal →</button>
+          </div>
+          <div class="day-body">
+            <div class="day-pnl-grid">
+              <div class="day-pnl-box long-gain">
+                <div class="pnl-side">Long position</div>
+                <div class="pnl-amount">+₹6,000</div>
+                <div class="pnl-formula">(24,910−24,790)×50</div>
+              </div>
+              <div class="day-pnl-box short-loss">
+                <div class="pnl-side">Short position</div>
+                <div class="pnl-amount">−₹6,000</div>
+                <div class="pnl-formula">(24,790−24,910)×50</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="feedback" id="act2-feedback"></div>
+      <div class="explanation" id="act2-expl">
+        <strong>Key insight — Day 2 compares to Day 1, not Day 0.</strong> MTM compares each day's settlement to the <em>previous day's settlement</em>, not back to the original entry. The entry price only matters for Day 1's comparison.
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY 3: Calculate Day 2 loss -->
+  <div class="activity" id="act3">
+    <div class="activity-head">
+      <div class="act-num">3</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity 3 · Calculation</div>
+        <div class="act-title">Calculate a daily MTM loss</div>
+      </div>
+      <div class="act-check" id="act3-check"></div>
+    </div>
+    <div class="activity-body">
+      <div class="prompt">You are <strong>long one contract</strong>. Yesterday settled at ₹24,850. Today settled at ₹24,790. Lot size = 50. What is today's MTM P&L?</div>
+      <div class="calc-given">
+        <div class="calc-field"><div class="calc-lbl">Yesterday</div><div class="calc-val">₹24,850</div></div>
+        <div class="calc-field"><div class="calc-lbl">Today</div><div class="calc-val">₹24,790</div></div>
+        <div class="calc-field"><div class="calc-lbl">Lot size</div><div class="calc-val">50</div></div>
+      </div>
+      <div class="calc-row">
+        <input class="answer-input" id="mtm-input" type="number" placeholder="Enter P&L in ₹ (use − for loss)"/>
+        <button class="check-btn" onclick="checkMTM()">Check →</button>
+      </div>
+      <div class="feedback" id="mtm-fb"></div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY 4: MTM definition MCQ -->
+  <div class="activity" id="act4">
+    <div class="activity-head">
+      <div class="act-num">4</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity 4 · Concept</div>
+        <div class="act-title">What does mark-to-market actually mean?</div>
+      </div>
+      <div class="act-check" id="act4-check"></div>
+    </div>
+    <div class="activity-body">
+      <div class="options" id="a4-opts">
+        <button class="opt" onclick="checkQ('a4',this,false,'Not this. MTM settlement is daily — not deferred to expiry.')"><span class="opt-l">A</span>Profit and loss is recognised only at final contract expiry</button>
+        <button class="opt" onclick="checkQ('a4',this,true,'Correct. Futures positions are settled to the daily settlement price every trading day.')"><span class="opt-l">B</span>Profit and loss is settled daily based on the change in settlement price</button>
+        <button class="opt" onclick="checkQ('a4',this,false,'Not this. MTM applies to all futures positions, regardless of whether they move.')"><span class="opt-l">C</span>Only profitable positions are marked to market</button>
+        <button class="opt" onclick="checkQ('a4',this,false,'Not this. MTM is a daily settlement mechanism, not just a theoretical measure.')"><span class="opt-l">D</span>Mark-to-market is only a theoretical concept, not an actual cash settlement</button>
+      </div>
+      <div class="feedback" id="a4-feedback"></div>
+      <div class="explanation" id="a4-expl">
+        <strong>This is what makes futures different from many other instruments.</strong> Gains and losses are not held as unrealised positions until expiry — they are <em>actually settled</em> in your margin account every day. This is why the margin balance changes daily.
+      </div>
+    </div>
+  </div>
+
+  <div class="takeaway">
+    <div class="takeaway-title">Mark-to-Market — remember this</div>
+    <div class="takeaway-list">
+      <div class="takeaway-item">Futures P&L is settled daily through mark-to-market — not only at expiry</div>
+      <div class="takeaway-item">Daily MTM = (today's settlement − yesterday's settlement) × lot size</div>
+      <div class="takeaway-item">Long gains when price rises · Short gains when price falls — every single day</div>
+      <div class="takeaway-item">Day 2 compares to Day 1's settlement, not back to the original entry price</div>
+    </div>
+  </div>
+
+  <div class="next-section">
+    <div class="next-info">
+      <h3>Next: Margin &amp; Margin Calls</h3>
+      <p>How daily MTM losses erode the margin account — and what happens when it breaches the maintenance threshold</p>
+    </div>
+    <a class="btn-next" href="margin-call.html">Continue →</a>
+  </div>
+</div>
+
+<script>
+let daysRevealed=0;
+function revealDay(id){
+  const card=document.getElementById(id+'-card');
+  card.classList.add('revealed');
+  daysRevealed++;
+  if(daysRevealed>=2&&!document.getElementById('act2').classList.contains('done')){
+    document.getElementById('act2-feedback').className='feedback show fb-correct';
+    document.getElementById('act2-feedback').innerHTML='✓ Good — you can see how each day\'s P&L depends on that day\'s change, not the original entry.';
+    document.getElementById('act2-expl').className='explanation show';
+    markDone('act2');
+  }
+}
+function checkMTM(){
+  const val=parseFloat(document.getElementById('mtm-input').value);
+  const fb=document.getElementById('mtm-fb');
+  const ok=Math.abs(val-(-3000))<=10;
+  fb.className='feedback show '+(ok?'fb-correct':'fb-wrong');
+  fb.innerHTML=ok
+    ?'✓ Correct. (24,790 − 24,850) × 50 = <strong>−₹3,000</strong>. The long position loses ₹3,000 on Day 2.'
+    :'✗ Not quite. Formula: (Today − Yesterday) × Lot size = (24,790 − 24,850) × 50 = −3,000.';
+  if(ok) markDone('act3');
+}
+function checkQ(g,btn,ok,msg){
+  document.querySelectorAll('#'+g+'-opts .opt').forEach(o=>o.disabled=true);
+  btn.classList.add(ok?'correct':'wrong');
+  if(!ok) document.querySelectorAll('#'+g+'-opts .opt').forEach(o=>{ if(o.onclick&&o.onclick.toString().includes('true,')) o.classList.add('correct') });
+  const fb=document.getElementById(g+'-feedback');
+  if(fb){fb.className='feedback show '+(ok?'fb-correct':'fb-wrong');fb.innerHTML=(ok?'✓ ':'✗ ')+msg}
+  const ex=document.getElementById(g+'-expl');if(ex) ex.className='explanation show';
+  if(ok){const m={a1:'act1',a4:'act4'};if(m[g]) markDone(m[g])}
+}
+function markDone(id){
+  const el=document.getElementById(id);
+  if(el){el.classList.add('done');const c=document.getElementById(id+'-check');if(c) c.innerHTML='✓'}
+}
+</script>
+</body>
+</html>

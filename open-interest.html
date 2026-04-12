@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Open Interest &amp; Volume · DerivativesLab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0f1117;--bg2:#161b26;--bg3:#1e2535;--bg4:#252e42;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --amber:#f5a623;--amber2:#ffc75a;--teal:#2dd4bf;
+  --green:#4ade80;--red:#f87171;--blue:#60a5fa;
+  --text:#e8eaf0;--text2:#8b91a8;--text3:#555e78;
+  --serif:'DM Serif Display',Georgia,serif;
+  --mono:'DM Mono','Courier New',monospace;
+  --sans:'DM Sans',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+a{text-decoration:none;color:inherit}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:56px;background:rgba(15,17,23,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--mono);font-size:0.82rem;color:var(--amber)}
+.nav-logo span{color:var(--text2)}
+.nav-pill{display:flex;align-items:center;gap:8px}
+.nav-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;background:var(--bg3);border:1px solid var(--border2);font-size:0.78rem;font-weight:600;color:var(--text2);transition:color .15s,border-color .15s}
+.nav-btn:hover{color:var(--teal);border-color:rgba(45,212,191,0.3)}
+
+.shell{max-width:900px;margin:0 auto;padding:80px 24px 80px}
+
+.s-hero{padding:32px 36px;border-radius:24px;background:var(--bg2);border:1px solid var(--border2);margin-bottom:24px;position:relative;overflow:hidden}
+.s-hero::before{content:'';position:absolute;right:-30px;top:-30px;width:180px;height:180px;background:radial-gradient(circle,rgba(45,212,191,0.08) 0%,transparent 70%);pointer-events:none}
+.crumb{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:0.68rem;color:var(--text3);margin-bottom:14px}
+.crumb a{color:var(--text3)}.crumb a:hover{color:var(--teal)}
+.s-kicker{font-family:var(--mono);font-size:0.68rem;color:var(--teal);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px}
+.s-hero h1{font-family:var(--serif);font-size:clamp(1.7rem,3vw,2.4rem);line-height:1.1;margin-bottom:8px}
+.s-hero p{color:var(--text2);font-size:0.9rem;max-width:500px}
+.s-outcomes{display:flex;flex-direction:column;gap:5px;margin-top:12px}
+.s-out{display:flex;align-items:flex-start;gap:8px;font-size:0.82rem;color:var(--text2)}
+.s-out::before{content:'→';color:var(--teal);font-family:var(--mono);flex-shrink:0}
+
+.activity{background:var(--bg2);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-bottom:16px;transition:border-color .2s}
+.activity.done{border-color:rgba(74,222,128,0.25)}
+.activity-head{display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid var(--border)}
+.act-num{display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:9px;flex-shrink:0;background:var(--bg3);font-family:var(--mono);font-size:0.72rem;color:var(--text3);border:1px solid var(--border)}
+.activity.done .act-num{background:rgba(74,222,128,0.1);color:var(--green);border-color:rgba(74,222,128,0.25)}
+.act-meta{flex:1}
+.act-tag{font-family:var(--mono);font-size:0.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px}
+.act-title{font-size:0.92rem;font-weight:600}
+.act-check{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.6rem}
+.activity.done .act-check{background:var(--green);border-color:var(--green);color:#0f1117}
+.activity-body{padding:18px 20px}
+
+.prompt{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:0.86rem;color:var(--text);margin-bottom:14px;border-left:3px solid var(--teal)}
+.prompt strong{color:var(--teal)}
+
+.options{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.opt{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;border-radius:10px;background:var(--bg3);border:1px solid var(--border);cursor:pointer;font-size:0.86rem;color:var(--text2);transition:all .15s;text-align:left;width:100%;font-family:var(--sans)}
+.opt:hover{border-color:var(--border2);color:var(--text)}
+.opt-l{display:flex;align-items:center;justify-content:center;width:20px;height:20px;flex-shrink:0;border-radius:5px;background:var(--bg4);font-family:var(--mono);font-size:0.68rem;color:var(--text3);transition:all .15s;margin-top:1px}
+.opt.correct{border-color:rgba(74,222,128,0.4);background:rgba(74,222,128,0.07);color:var(--text)}
+.opt.correct .opt-l{background:var(--green);color:#0f1117}
+.opt.wrong{border-color:rgba(248,113,113,0.4);background:rgba(248,113,113,0.07)}
+.opt.wrong .opt-l{background:var(--red);color:#0f1117}
+.opt:disabled{cursor:default}
+.feedback{display:none;padding:10px 14px;border-radius:10px;font-size:0.84rem;margin-top:6px}
+.feedback.show{display:block}
+.feedback.fb-correct{background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);color:var(--green)}
+.feedback.fb-wrong{background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:var(--red)}
+.explanation{display:none;margin-top:10px;padding:12px 14px;border-radius:10px;background:var(--bg3);border:1px solid var(--border);font-size:0.84rem;color:var(--text2);line-height:1.7}
+.explanation.show{display:block}
+.explanation strong{color:var(--text)}
+
+/* OI VISUALISER */
+.oi-visual{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center;margin:16px 0}
+.trader-box{background:var(--bg3);border:1px solid var(--border2);border-radius:14px;padding:16px;text-align:center}
+.trader-icon{font-size:1.4rem;margin-bottom:6px}
+.trader-name{font-family:var(--mono);font-size:0.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em}
+.trader-side{font-size:0.82rem;color:var(--text2);margin-top:4px}
+.oi-arrow{text-align:center}
+.oi-badge{display:inline-flex;flex-direction:column;align-items:center;gap:4px;padding:10px 14px;border-radius:12px;min-width:80px}
+.oi-badge.create{background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.25)}
+.oi-badge.close{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.25)}
+.oi-badge-label{font-family:var(--mono);font-size:0.6rem;text-transform:uppercase;letter-spacing:0.06em}
+.oi-badge.create .oi-badge-label{color:var(--green)}
+.oi-badge.close .oi-badge-label{color:var(--red)}
+.oi-badge-val{font-family:var(--mono);font-size:1.1rem;font-weight:500}
+.oi-badge.create .oi-badge-val{color:var(--green)}
+.oi-badge.close .oi-badge-val{color:var(--red)}
+
+/* OI COUNTER */
+.oi-counter-wrap{background:var(--bg3);border:1px solid var(--border2);border-radius:16px;padding:20px;margin-bottom:14px;text-align:center}
+.oi-counter-label{font-family:var(--mono);font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px}
+.oi-counter{font-family:var(--mono);font-size:2.8rem;font-weight:500;color:var(--teal);transition:all .3s;line-height:1}
+.oi-counter-sub{font-family:var(--mono);font-size:0.72rem;color:var(--text3);margin-top:6px}
+.oi-step-btns{display:flex;gap:10px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.oi-btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:10px;font-size:0.82rem;font-weight:600;cursor:pointer;border:none;font-family:var(--sans);transition:all .15s}
+.oi-btn-create{background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.3);color:var(--green)}
+.oi-btn-create:hover{background:rgba(74,222,128,0.2)}
+.oi-btn-close{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.25);color:var(--red)}
+.oi-btn-close:hover{background:rgba(248,113,113,0.18)}
+.oi-btn-reset{background:var(--bg3);border:1px solid var(--border2);color:var(--text3)}
+.oi-btn-reset:hover{color:var(--text2)}
+.oi-history{display:flex;flex-direction:column;gap:5px;margin-top:12px;max-height:120px;overflow-y:auto}
+.oi-hist-row{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:0.72rem;color:var(--text3);padding:4px 0;border-bottom:1px solid var(--border)}
+.oi-hist-row:last-child{border-bottom:none}
+.oi-hist-event{flex:1}
+.oi-hist-new{font-weight:500}
+.oi-hist-new.up{color:var(--green)}
+.oi-hist-new.dn{color:var(--red)}
+
+/* SCENARIO BOX */
+.scenario-box{background:var(--bg3);border:1px solid var(--border2);border-radius:14px;padding:16px;margin-bottom:14px}
+.scenario-title{font-family:var(--mono);font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px}
+.scenario-text{font-size:0.88rem;color:var(--text);line-height:1.6}
+.scenario-data{display:flex;gap:16px;margin-top:10px;flex-wrap:wrap}
+.scen-stat{text-align:center}
+.scen-stat-val{font-family:var(--mono);font-size:1.2rem;font-weight:500}
+.scen-stat-lbl{font-family:var(--mono);font-size:0.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-top:3px}
+
+.takeaway{background:rgba(45,212,191,0.04);border:1px solid rgba(45,212,191,0.15);border-radius:20px;padding:20px 22px;margin-bottom:16px}
+.takeaway-title{font-family:var(--mono);font-size:0.68rem;color:var(--teal);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px}
+.takeaway-list{display:flex;flex-direction:column;gap:7px}
+.takeaway-item{display:flex;align-items:flex-start;gap:10px;font-size:0.86rem;color:var(--text2)}
+.takeaway-item::before{content:'→';color:var(--teal);font-family:var(--mono);flex-shrink:0}
+.next-section{display:flex;align-items:center;justify-content:space-between;padding:20px 22px;border-radius:20px;background:var(--bg2);border:1px solid var(--border);margin-top:16px}
+.next-info h3{font-family:var(--serif);font-size:1.05rem;margin-bottom:4px}
+.next-info p{font-size:0.8rem;color:var(--text2)}
+.btn-next{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:12px;background:var(--amber);color:#0f1117;font-weight:600;font-size:0.86rem;white-space:nowrap;transition:background .15s}
+.btn-next:hover{background:var(--amber2)}
+
+@media(max-width:600px){
+  .s-hero{padding:22px 18px}
+  .activity-body,.activity-head{padding:14px 16px}
+  .oi-visual{grid-template-columns:1fr;gap:8px}
+  .oi-arrow{order:-1}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html" style="text-decoration:none">DERIVATIVES<span>LAB</span></a>
+  <div class="nav-pill">
+    <a class="nav-btn" href="index.html">← Home</a>
+    <a class="nav-btn" href="nse-contract.html">← Track 1</a>
+    <a class="nav-btn" href="mtm-pnl.html">Next →</a>
+  </div>
+</nav>
+
+<div class="shell">
+
+  <div class="s-hero">
+    <div class="crumb"><a href="index.html">Home</a><span style="color:var(--text3)">/</span><a href="module1.html">Module 1</a><span style="color:var(--text3)">/</span><span>Futures Track 2</span></div>
+    <div class="s-kicker">Futures Track · Track 2 of 4</div>
+    <h1>Open Interest<br>&amp; Volume</h1>
+    <p>See contracts being created and closed — then understand why open interest and volume are completely different measures.</p>
+    <div class="s-outcomes">
+      <div class="s-out">Define open interest in plain language</div>
+      <div class="s-out">Explain when OI rises, and when it falls</div>
+      <div class="s-out">Distinguish open interest from volume decisively</div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY 1: New contract created -->
+  <div class="activity" id="act1">
+    <div class="activity-head">
+      <div class="act-num">1</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity 1 · New contract</div>
+        <div class="act-title">A new contract is created. What happens to OI?</div>
+      </div>
+      <div class="act-check" id="act1-check"></div>
+    </div>
+    <div class="activity-body">
+      <div class="oi-visual">
+        <div class="trader-box">
+          <div class="trader-icon">👤</div>
+          <div class="trader-name">Buyer A</div>
+          <div class="trader-side" style="color:var(--green)">New · Long 1 contract</div>
+        </div>
+        <div class="oi-arrow">
+          <div style="font-family:var(--mono);font-size:0.65rem;color:var(--text3);margin-bottom:6px">new contract</div>
+          <div style="font-size:1.4rem;color:var(--border2)">⟷</div>
+          <div style="font-family:var(--mono);font-size:0.65rem;color:var(--text3);margin-top:6px">opened</div>
+        </div>
+        <div class="trader-box">
+          <div class="trader-icon">👤</div>
+          <div class="trader-name">Seller B</div>
+          <div class="trader-side" style="color:var(--red)">New · Short 1 contract</div>
+        </div>
+      </div>
+      <div class="prompt">Buyer A and Seller B are both new — neither held a position before. They just created one futures contract. <strong>What happens to open interest?</strong></div>
+      <div class="options" id="a1-opts">
+        <button class="opt" onclick="checkQ('a1',this,true,'Correct. A new open contract has been created, so open interest rises by 1.')"><span class="opt-l">A</span>Open interest rises</button>
+        <button class="opt" onclick="checkQ('a1',this,false,'Not this. OI rises when new contracts are created — it never falls from a new creation.')"><span class="opt-l">B</span>Open interest falls</button>
+        <button class="opt" onclick="checkQ('a1',this,false,'Not this. A brand new contract has just been added to the market — OI must change.')"><span class="opt-l">C</span>Open interest stays the same</button>
+      </div>
+      <div class="feedback" id="a1-feedback"></div>
+      <div class="explanation" id="a1-expl">
+        Open interest counts <strong>contracts that are still alive</strong>. When two new traders create a contract, one new open position has been added — OI rises. Think of OI as a count of open contracts in the system.
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY 2: Contract closed -->
+  <div class="activity" id="act2">
+    <div class="activity-head">
+      <div class="act-num">2</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity 2 · Contract closed</div>
+        <div class="act-title">An existing contract is squared off. What happens to OI?</div>
+      </div>
+      <div class="act-check" id="act2-check"></div>
+    </div>
+    <div class="activity-body">
+      <div class="oi-visual">
+        <div class="trader-box">
+          <div class="trader-icon">👤</div>
+          <div class="trader-name">Existing Buyer</div>
+          <div class="trader-side" style="color:var(--text3)">Sells to close long</div>
+        </div>
+        <div class="oi-arrow">
+          <div style="font-family:var(--mono);font-size:0.65rem;color:var(--text3);margin-bottom:6px">squaring off</div>
+          <div style="font-size:1.4rem;color:var(--border2)">⟷</div>
+          <div style="font-family:var(--mono);font-size:0.65rem;color:var(--text3);margin-top:6px">contract closed</div>
+        </div>
+        <div class="trader-box">
+          <div class="trader-icon">👤</div>
+          <div class="trader-name">Existing Seller</div>
+          <div class="trader-side" style="color:var(--text3)">Buys to close short</div>
+        </div>
+      </div>
+      <div class="prompt">Both traders already held positions. They trade with each other to <strong>close</strong> their existing positions. What happens to open interest?</div>
+      <div class="options" id="a2-opts">
+        <button class="opt" onclick="checkQ('a2',this,false,'Not this. Closing a position removes it from the count — OI falls.')"><span class="opt-l">A</span>Open interest rises</button>
+        <button class="opt" onclick="checkQ('a2',this,true,'Correct. One open contract has been removed — OI falls by 1.')"><span class="opt-l">B</span>Open interest falls</button>
+        <button class="opt" onclick="checkQ('a2',this,false,'Not this. When both sides close, the contract ceases to exist and OI decreases.')"><span class="opt-l">C</span>Open interest stays the same</button>
+      </div>
+      <div class="feedback" id="a2-feedback"></div>
+      <div class="explanation" id="a2-expl">
+        When two <strong>existing</strong> position-holders trade with each other to close, the contract is no longer open. OI falls. OI is the live count of open contracts — when one closes, the count drops.
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY 3: Interactive OI Counter -->
+  <div class="activity" id="act3">
+    <div class="activity-head">
+      <div class="act-num">3</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity 3 · Interactive simulator</div>
+        <div class="act-title">Watch the OI counter — create and close contracts</div>
+      </div>
+      <div class="act-check" id="act3-check"></div>
+    </div>
+    <div class="activity-body">
+      <div class="prompt">Use the buttons to create and close contracts. <strong>Watch what happens to OI</strong>. Try to get it to zero.</div>
+      <div class="oi-counter-wrap">
+        <div class="oi-counter-label">Open Interest</div>
+        <div class="oi-counter" id="oiCounter">0</div>
+        <div class="oi-counter-sub" id="oiSub">No open contracts</div>
+      </div>
+      <div class="oi-step-btns">
+        <button class="oi-btn oi-btn-create" onclick="oiChange(+1,'New buyer + new seller create a contract')">+ Create contract</button>
+        <button class="oi-btn oi-btn-close" onclick="oiChange(-1,'Existing buyer + existing seller close a contract')">− Close contract</button>
+        <button class="oi-btn oi-btn-reset" onclick="oiReset()">Reset</button>
+      </div>
+      <div class="oi-history" id="oiHistory"></div>
+      <div class="feedback" id="act3-feedback" style="margin-top:10px"></div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY 4: Volume vs OI scenario -->
+  <div class="activity" id="act4">
+    <div class="activity-head">
+      <div class="act-num">4</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity 4 · The key distinction</div>
+        <div class="act-title">100 contracts opened and closed the same day</div>
+      </div>
+      <div class="act-check" id="act4-check"></div>
+    </div>
+    <div class="activity-body">
+      <div class="scenario-box">
+        <div class="scenario-title">Scenario</div>
+        <div class="scenario-text">100 futures contracts are opened in the morning. All 100 are squared off by close of trading. What are volume and open interest at end of day?</div>
+      </div>
+      <div class="prompt">Think carefully. Volume counts <strong>all trades during the day</strong>. OI counts <strong>contracts still open at end of day</strong>.</div>
+      <div class="options" id="a4-opts">
+        <button class="opt" onclick="checkQ('a4',this,false,'Not this. Volume counts all trades — at least 100 trades happened (the openings alone). And if all were closed, OI ends at zero or near it.')"><span class="opt-l">A</span>Volume = 0 and Open Interest = 100</button>
+        <button class="opt" onclick="checkQ('a4',this,true,'Correct. Volume is high (at least 100 trades happened today). OI returns to zero because all positions were closed before end of day.')"><span class="opt-l">B</span>Volume is high and Open Interest returns to near zero</button>
+        <button class="opt" onclick="checkQ('a4',this,false,'Not this. They measure different things and do not have to be equal.')"><span class="opt-l">C</span>Volume and Open Interest are always equal</button>
+        <button class="opt" onclick="checkQ('a4',this,false,'Not this. Volume resets daily but measures activity, not remaining open positions.')"><span class="opt-l">D</span>Volume = 0 because nothing was held overnight</button>
+      </div>
+      <div class="feedback" id="a4-feedback"></div>
+      <div class="explanation" id="a4-expl">
+        <strong>This is the most important distinction.</strong> You can have very high volume with near-zero OI. All 100 contracts traded (so volume ≥ 100) but since all were closed before market close, no open contracts remain — OI = 0. Volume and OI are entirely separate measures.
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY 5: Quick MCQ on rising OI -->
+  <div class="activity" id="act5">
+    <div class="activity-head">
+      <div class="act-num">5</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity 5 · Interpretation</div>
+        <div class="act-title">What does rising open interest suggest?</div>
+      </div>
+      <div class="act-check" id="act5-check"></div>
+    </div>
+    <div class="activity-body">
+      <div class="prompt">Open interest in Nifty futures has been rising steadily for three days. What is the safest basic interpretation?</div>
+      <div class="options" id="a5-opts">
+        <button class="opt" onclick="checkQ('a5',this,false,'Not this. Rising OI means more open positions — it does not guarantee a price rise.')"><span class="opt-l">A</span>Price must definitely rise tomorrow</button>
+        <button class="opt" onclick="checkQ('a5',this,true,'Correct. Rising OI means more open positions are being built — fresh participation is entering the market.')"><span class="opt-l">B</span>More open positions are being created — fresh participation is building</button>
+        <button class="opt" onclick="checkQ('a5',this,false,'Not this. Rising OI means positions are being opened, not closed.')"><span class="opt-l">C</span>Positions are being squared off rapidly</button>
+        <button class="opt" onclick="checkQ('a5',this,false,'Not this. Volume is a separate measure that does not determine OI direction.')"><span class="opt-l">D</span>Volume must be falling</button>
+      </div>
+      <div class="feedback" id="a5-feedback"></div>
+      <div class="explanation" id="a5-expl">
+        At this stage, keep the interpretation simple: <strong>rising OI = more open positions in the system</strong>. Price direction implications from OI come later (as part of market analysis). For now, just understand what OI counts.
+      </div>
+    </div>
+  </div>
+
+  <div class="takeaway">
+    <div class="takeaway-title">Open Interest &amp; Volume — remember this</div>
+    <div class="takeaway-list">
+      <div class="takeaway-item">Open interest = contracts still open; rises when new positions are created, falls when they are closed</div>
+      <div class="takeaway-item">Volume = contracts traded during the session; resets to zero each day</div>
+      <div class="takeaway-item">High volume + zero OI is possible if all positions opened and closed the same day</div>
+      <div class="takeaway-item">Rising OI means more positions are being built in the market</div>
+    </div>
+  </div>
+
+  <div class="next-section">
+    <div class="next-info">
+      <h3>Next: Mark-to-Market P&amp;L</h3>
+      <p>Follow a futures position across three days and see how profit and loss is settled daily</p>
+    </div>
+    <a class="btn-next" href="mtm-pnl.html">Continue →</a>
+  </div>
+
+</div>
+
+<script>
+/* OI SIMULATOR */
+let oiCount = 0;
+const histEl = () => document.getElementById('oiHistory');
+function oiChange(delta, event){
+  if(oiCount + delta < 0){ 
+    const fb=document.getElementById('act3-feedback');
+    fb.className='feedback show fb-wrong';fb.innerHTML='✗ Cannot close — there are no open contracts to close.';
+    return;
+  }
+  oiCount += delta;
+  document.getElementById('oiCounter').textContent = oiCount;
+  document.getElementById('oiSub').textContent = oiCount===0?'No open contracts':`${oiCount} contract${oiCount!==1?'s':''} still open`;
+  document.getElementById('act3-feedback').className='feedback';
+  const row = document.createElement('div');
+  row.className='oi-hist-row';
+  row.innerHTML=`<span class="oi-hist-event">${event}</span><span class="oi-hist-new ${delta>0?'up':'dn'}">${delta>0?'+'+delta:delta} → ${oiCount}</span>`;
+  histEl().prepend(row);
+  if(oiCount>=3 && !document.getElementById('act3').classList.contains('done')){
+    const fb=document.getElementById('act3-feedback');
+    fb.className='feedback show fb-correct';
+    fb.innerHTML='✓ You can see it now — OI rises with each new contract and falls when positions close.';
+    markDone('act3');
+  }
+}
+function oiReset(){
+  oiCount=0;
+  document.getElementById('oiCounter').textContent='0';
+  document.getElementById('oiSub').textContent='No open contracts';
+  histEl().innerHTML='';
+  document.getElementById('act3-feedback').className='feedback';
+}
+
+/* MCQ */
+function checkQ(groupId, btn, isCorrect, msg){
+  const opts = document.querySelectorAll('#'+groupId+'-opts .opt');
+  opts.forEach(o=>o.disabled=true);
+  btn.classList.add(isCorrect?'correct':'wrong');
+  if(!isCorrect) opts.forEach(o=>{ if(o.onclick&&o.onclick.toString().includes('true,')) o.classList.add('correct') });
+  const fb = document.getElementById(groupId+'-feedback');
+  if(fb){ fb.className='feedback show '+(isCorrect?'fb-correct':'fb-wrong'); fb.innerHTML=(isCorrect?'✓ ':'✗ ')+msg }
+  const expl = document.getElementById(groupId+'-expl');
+  if(expl) expl.className='explanation show';
+  if(isCorrect){
+    const actMap={a1:'act1',a2:'act2',a4:'act4',a5:'act5'};
+    if(actMap[groupId]) markDone(actMap[groupId]);
+  }
+}
+function markDone(id){
+  const el=document.getElementById(id);
+  if(el){ el.classList.add('done'); const c=document.getElementById(id+'-check'); if(c) c.innerHTML='✓' }
+}
+</script>
+</body>
+</html>

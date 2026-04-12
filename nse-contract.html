@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Reading a Live NSE Futures Contract · DerivativesLab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0f1117;--bg2:#161b26;--bg3:#1e2535;--bg4:#252e42;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --amber:#f5a623;--amber2:#ffc75a;--teal:#2dd4bf;
+  --green:#4ade80;--red:#f87171;--blue:#60a5fa;
+  --text:#e8eaf0;--text2:#8b91a8;--text3:#555e78;
+  --serif:'DM Serif Display',Georgia,serif;
+  --mono:'DM Mono','Courier New',monospace;
+  --sans:'DM Sans',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+a{text-decoration:none;color:inherit}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:56px;background:rgba(15,17,23,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--mono);font-size:0.82rem;color:var(--amber)}
+.nav-logo span{color:var(--text2)}
+.nav-pill{display:flex;align-items:center;gap:8px}
+.nav-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;background:var(--bg3);border:1px solid var(--border2);font-size:0.78rem;font-weight:600;color:var(--text2);transition:color .15s,border-color .15s}
+.nav-btn:hover{color:var(--amber);border-color:rgba(245,166,35,0.3)}
+
+.shell{max-width:960px;margin:0 auto;padding:80px 24px 80px}
+
+/* HERO */
+.s-hero{padding:32px 36px;border-radius:24px;background:var(--bg2);border:1px solid var(--border2);margin-bottom:24px;position:relative;overflow:hidden}
+.s-hero::before{content:'';position:absolute;right:-40px;bottom:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(245,166,35,0.08) 0%,transparent 70%);pointer-events:none}
+.crumb{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:0.68rem;color:var(--text3);margin-bottom:14px}
+.crumb a{color:var(--text3)}.crumb a:hover{color:var(--amber)}
+.s-kicker{font-family:var(--mono);font-size:0.68rem;color:var(--teal);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px}
+.s-hero h1{font-family:var(--serif);font-size:clamp(1.7rem,3vw,2.4rem);line-height:1.1;margin-bottom:8px}
+.s-hero p{color:var(--text2);font-size:0.9rem;max-width:520px}
+
+/* SECTION HEADER */
+.sec-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.sec-title{font-family:var(--mono);font-size:0.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em}
+.sec-line{flex:1;height:1px;background:var(--border)}
+.mb20{margin-bottom:20px}
+
+/* TERMINAL CARD */
+.terminal{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;overflow:hidden;margin-bottom:20px}
+.terminal-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;background:var(--bg3);border-bottom:1px solid var(--border)}
+.terminal-title{font-family:var(--mono);font-size:0.72rem;color:var(--amber);letter-spacing:0.06em}
+.terminal-hint{font-family:var(--mono);font-size:0.65rem;color:var(--text3)}
+.terminal-body{padding:0}
+
+/* CONTRACT ROWS */
+.contract-row{display:flex;align-items:center;padding:13px 20px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;position:relative}
+.contract-row:last-child{border-bottom:none}
+.contract-row:hover,.contract-row.active{background:rgba(245,166,35,0.06)}
+.contract-row.active{border-left:3px solid var(--amber)}
+.cr-label{font-family:var(--mono);font-size:0.7rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;width:200px;flex-shrink:0}
+.cr-value{font-family:var(--mono);font-size:1rem;font-weight:500;color:var(--text);flex:1}
+.cr-value.highlight{color:var(--amber)}
+.cr-value.green{color:var(--green)}
+.cr-value.red{color:var(--red)}
+.cr-tap{font-family:var(--mono);font-size:0.6rem;color:var(--text3);opacity:.6}
+.contract-row.active .cr-tap{opacity:0}
+.cr-divider{height:1px;background:rgba(255,255,255,0.04);margin:4px 20px}
+
+/* EXPLANATION PANEL */
+.explain-panel{display:none;background:rgba(245,166,35,0.04);border-top:1px solid rgba(245,166,35,0.15);padding:16px 20px}
+.contract-row.active + .explain-panel{display:block}
+.ep-label{font-family:var(--mono);font-size:0.62rem;color:var(--amber);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px}
+.ep-text{font-size:0.88rem;color:var(--text2);line-height:1.7;margin-bottom:8px}
+.ep-example{font-family:var(--mono);font-size:0.8rem;color:var(--teal);padding:8px 12px;background:rgba(45,212,191,0.06);border:1px solid rgba(45,212,191,0.15);border-radius:8px}
+
+/* ACTIVITY CARD */
+.activity{background:var(--bg2);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-bottom:16px;transition:border-color .2s}
+.activity.done{border-color:rgba(74,222,128,0.25)}
+.activity-head{display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid var(--border)}
+.act-num{display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:9px;flex-shrink:0;background:var(--bg3);font-family:var(--mono);font-size:0.72rem;color:var(--text3);border:1px solid var(--border)}
+.activity.done .act-num{background:rgba(74,222,128,0.1);color:var(--green);border-color:rgba(74,222,128,0.25)}
+.act-meta{flex:1}
+.act-tag{font-family:var(--mono);font-size:0.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px}
+.act-title{font-size:0.92rem;font-weight:600}
+.act-check{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.6rem}
+.activity.done .act-check{background:var(--green);border-color:var(--green);color:#0f1117}
+.activity-body{padding:18px 20px}
+
+.prompt{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:0.86rem;color:var(--text);margin-bottom:14px;border-left:3px solid var(--teal)}
+.prompt strong{color:var(--teal)}
+
+/* CALC */
+.calc-given{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.calc-field{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+.calc-lbl{font-family:var(--mono);font-size:0.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px}
+.calc-val{font-family:var(--mono);font-size:1rem;color:var(--amber);font-weight:500}
+.calc-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.answer-input{flex:1;min-width:160px;padding:10px 14px;border-radius:10px;background:var(--bg3);border:1.5px solid var(--border2);font-family:var(--mono);font-size:0.95rem;color:var(--text);outline:none;transition:border-color .15s}
+.answer-input:focus{border-color:var(--teal)}
+.answer-input::placeholder{color:var(--text3)}
+.check-btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:10px;background:var(--bg3);border:1px solid var(--border2);font-size:0.82rem;font-weight:600;color:var(--text2);cursor:pointer;font-family:var(--sans);transition:all .15s}
+.check-btn:hover{color:var(--teal);border-color:rgba(45,212,191,0.3)}
+
+/* OPTIONS + FEEDBACK */
+.options{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.opt{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;border-radius:10px;background:var(--bg3);border:1px solid var(--border);cursor:pointer;font-size:0.86rem;color:var(--text2);transition:all .15s;text-align:left;width:100%;font-family:var(--sans)}
+.opt:hover{border-color:var(--border2);color:var(--text)}
+.opt-l{display:flex;align-items:center;justify-content:center;width:20px;height:20px;flex-shrink:0;border-radius:5px;background:var(--bg4);font-family:var(--mono);font-size:0.68rem;color:var(--text3);transition:all .15s;margin-top:1px}
+.opt.correct{border-color:rgba(74,222,128,0.4);background:rgba(74,222,128,0.07);color:var(--text)}
+.opt.correct .opt-l{background:var(--green);color:#0f1117}
+.opt.wrong{border-color:rgba(248,113,113,0.4);background:rgba(248,113,113,0.07)}
+.opt.wrong .opt-l{background:var(--red);color:#0f1117}
+.opt:disabled{cursor:default}
+.feedback{display:none;padding:10px 14px;border-radius:10px;font-size:0.84rem;margin-top:4px}
+.feedback.show{display:block}
+.feedback.fb-correct{background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);color:var(--green)}
+.feedback.fb-wrong{background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:var(--red)}
+.explanation{display:none;margin-top:10px;padding:12px 14px;border-radius:10px;background:var(--bg3);border:1px solid var(--border);font-size:0.84rem;color:var(--text2);line-height:1.7}
+.explanation.show{display:block}
+.explanation strong{color:var(--text)}
+
+/* BUCKET SORT */
+.drag-cards{display:flex;flex-wrap:wrap;gap:8px;padding:12px;background:var(--bg3);border:1px dashed var(--border2);border-radius:12px;min-height:52px;margin-bottom:12px}
+.drag-card{padding:7px 12px;border-radius:8px;background:var(--bg4);border:1px solid var(--border2);font-size:0.8rem;color:var(--text2);cursor:grab;user-select:none;transition:all .15s}
+.drag-card:hover{border-color:var(--teal);color:var(--text)}
+.bucket-zone{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.bucket{border-radius:12px;border:1.5px dashed var(--border2);padding:12px;min-height:80px;transition:all .15s}
+.bucket.drag-over{border-color:var(--teal);background:rgba(45,212,191,0.04)}
+.bucket-title{font-family:var(--mono);font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px}
+.vol-bucket .bucket-title{color:var(--amber)}
+.oi-bucket .bucket-title{color:var(--teal)}
+.bucket-items{display:flex;flex-wrap:wrap;gap:6px;min-height:32px}
+.vol-bucket .bucket-item{background:rgba(245,166,35,0.08);border:1px solid rgba(245,166,35,0.2);color:var(--amber);padding:5px 10px;border-radius:7px;font-size:0.76rem}
+.oi-bucket .bucket-item{background:rgba(45,212,191,0.08);border:1px solid rgba(45,212,191,0.2);color:var(--teal);padding:5px 10px;border-radius:7px;font-size:0.76rem}
+
+/* TAKEAWAY */
+.takeaway{background:rgba(45,212,191,0.04);border:1px solid rgba(45,212,191,0.15);border-radius:20px;padding:20px 22px;margin-bottom:16px}
+.takeaway-title{font-family:var(--mono);font-size:0.68rem;color:var(--teal);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px}
+.takeaway-list{display:flex;flex-direction:column;gap:7px}
+.takeaway-item{display:flex;align-items:flex-start;gap:10px;font-size:0.86rem;color:var(--text2)}
+.takeaway-item::before{content:'→';color:var(--teal);font-family:var(--mono);flex-shrink:0}
+
+.next-section{display:flex;align-items:center;justify-content:space-between;padding:20px 22px;border-radius:20px;background:var(--bg2);border:1px solid var(--border);margin-top:16px}
+.next-info h3{font-family:var(--serif);font-size:1.05rem;margin-bottom:4px}
+.next-info p{font-size:0.8rem;color:var(--text2)}
+.btn-next{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:12px;background:var(--amber);color:#0f1117;font-weight:600;font-size:0.86rem;white-space:nowrap;transition:background .15s}
+.btn-next:hover{background:var(--amber2)}
+
+@media(max-width:600px){
+  .s-hero{padding:22px 18px}
+  .activity-body,.activity-head{padding:14px 16px}
+  .calc-given{grid-template-columns:1fr}
+  .bucket-zone{grid-template-columns:1fr}
+  .cr-label{width:140px;font-size:0.62rem}
+  .cr-value{font-size:0.88rem}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html" style="text-decoration:none">DERIVATIVES<span>LAB</span></a>
+  <div class="nav-pill">
+    <a class="nav-btn" href="index.html">← Home</a>
+    <a class="nav-btn" href="module1.html">Module 1</a>
+    <a class="nav-btn" href="open-interest.html">Next →</a>
+  </div>
+</nav>
+
+<div class="shell">
+
+  <div class="s-hero">
+    <div class="crumb"><a href="index.html">Home</a><span style="color:var(--text3)">/</span><a href="module1.html">Module 1</a><span style="color:var(--text3)">/</span><span>Futures Track 1</span></div>
+    <div class="s-kicker">Futures Track · Track 1 of 4</div>
+    <h1>Reading a Live NSE<br>Futures Contract</h1>
+    <p>Hover over or tap each field on the simulated contract screen below. Learn what it means, why it matters, and how it connects to everything you will study next.</p>
+  </div>
+
+  <!-- INTERACTIVE TERMINAL -->
+  <div class="sec-head mb20">
+    <div class="sec-title">Simulated NSE contract screen</div>
+    <div class="sec-line"></div>
+    <div style="font-family:var(--mono);font-size:0.65rem;color:var(--text3)">Tap any row</div>
+  </div>
+
+  <div class="terminal mb20">
+    <div class="terminal-bar">
+      <div class="terminal-title">NIFTY FUTURES · NSE · Live simulation</div>
+      <div class="terminal-hint">Tap a row to learn what it means</div>
+    </div>
+    <div class="terminal-body" id="contractTerminal">
+
+      <div class="contract-row" onclick="toggleRow(this)">
+        <div class="cr-label">Underlying</div>
+        <div class="cr-value highlight">NIFTY</div>
+        <div class="cr-tap">tap ↓</div>
+      </div>
+      <div class="explain-panel">
+        <div class="ep-label">Underlying</div>
+        <div class="ep-text">The asset or index on which this futures contract is based. You are not buying Nifty shares directly — you are taking <strong>price exposure</strong> to the Nifty index through a standardised contract.</div>
+        <div class="ep-example">NIFTY futures track the Nifty 50 index. If Nifty rises, a long futures position gains.</div>
+      </div>
+
+      <div class="contract-row" onclick="toggleRow(this)">
+        <div class="cr-label">Expiry</div>
+        <div class="cr-value">27-Jun-2026</div>
+        <div class="cr-tap">tap ↓</div>
+      </div>
+      <div class="explain-panel">
+        <div class="ep-label">Expiry date</div>
+        <div class="ep-text">The date on which this futures contract stops existing and settles. NSE typically has three active contracts: <strong>near month</strong>, <strong>next month</strong>, and <strong>far month</strong>. The nearer the expiry, the higher the trading activity usually.</div>
+        <div class="ep-example">This is the June contract. A July contract and August contract also trade simultaneously on NSE.</div>
+      </div>
+
+      <div class="contract-row" onclick="toggleRow(this)">
+        <div class="cr-label">Last Traded Price</div>
+        <div class="cr-value highlight">₹24,850</div>
+        <div class="cr-tap">tap ↓</div>
+      </div>
+      <div class="explain-panel">
+        <div class="ep-label">Last traded price (LTP)</div>
+        <div class="ep-text">The price at which the <strong>most recent trade</strong> was executed. This is the current market reference price — not necessarily where the next trade will happen. Do not confuse LTP with settlement price.</div>
+        <div class="ep-example">If two traders just agreed at ₹24,850, that becomes the LTP. The next trade could be higher or lower.</div>
+      </div>
+
+      <div class="contract-row" onclick="toggleRow(this)">
+        <div class="cr-label">Lot Size</div>
+        <div class="cr-value">50 shares</div>
+        <div class="cr-tap">tap ↓</div>
+      </div>
+      <div class="explain-panel">
+        <div class="ep-label">Lot size</div>
+        <div class="ep-text">The <strong>minimum quantity</strong> in one futures contract. NSE standardises this — you cannot buy "half a contract." Lot size is set by the exchange and revised periodically.</div>
+        <div class="ep-example">Lot size = 50 means one contract controls 50 units of the underlying index. You cannot trade 30 units — only multiples of 50.</div>
+      </div>
+
+      <div class="contract-row" onclick="toggleRow(this)">
+        <div class="cr-label">Contract Value</div>
+        <div class="cr-value">₹12,42,500</div>
+        <div class="cr-tap">tap ↓</div>
+      </div>
+      <div class="explain-panel">
+        <div class="ep-label">Contract value (notional)</div>
+        <div class="ep-text">The total <strong>notional exposure</strong> of one futures contract. Formula: <strong>Futures price × Lot size</strong>. This is NOT the amount you pay upfront — it is the total market exposure you control.</div>
+        <div class="ep-example">₹24,850 × 50 = <strong>₹12,42,500</strong>. You do not pay ₹12,42,500 — you post only a margin deposit to hold this exposure.</div>
+      </div>
+
+      <div class="cr-divider"></div>
+
+      <div class="contract-row" onclick="toggleRow(this)">
+        <div class="cr-label">Open Interest</div>
+        <div class="cr-value green">1,82,450 contracts</div>
+        <div class="cr-tap">tap ↓</div>
+      </div>
+      <div class="explain-panel">
+        <div class="ep-label">Open interest (OI)</div>
+        <div class="ep-text">The number of futures contracts that are <strong>still open and have not been closed</strong>. Rising OI means more positions are being created. Falling OI means positions are being closed. This is <strong>not the same as volume</strong>.</div>
+        <div class="ep-example">1,82,450 contracts are currently open in this expiry. Each contract has one buyer and one seller who have not yet squared off.</div>
+      </div>
+
+      <div class="contract-row" onclick="toggleRow(this)">
+        <div class="cr-label">Change in OI</div>
+        <div class="cr-value green">+4.8%</div>
+        <div class="cr-tap">tap ↓</div>
+      </div>
+      <div class="explain-panel">
+        <div class="ep-label">Change in open interest</div>
+        <div class="ep-text">The percentage change in open interest since the previous session. <strong>Rising OI</strong> indicates fresh positions being built. <strong>Falling OI</strong> means existing positions are being closed or squared off.</div>
+        <div class="ep-example">+4.8% means 4.8% more contracts are open today than yesterday — new participants are entering, not closing positions.</div>
+      </div>
+
+      <div class="contract-row" onclick="toggleRow(this)">
+        <div class="cr-label">Volume</div>
+        <div class="cr-value">3,26,000 contracts</div>
+        <div class="cr-tap">tap ↓</div>
+      </div>
+      <div class="explain-panel">
+        <div class="ep-label">Volume</div>
+        <div class="ep-text">The number of contracts <strong>traded during the current session</strong>. Volume tells you how active trading has been today. It is very different from open interest — volume resets to zero every day, while OI accumulates.</div>
+        <div class="ep-example">3,26,000 contracts changed hands today. But at end of day, OI depends on how many of those were new positions vs closures.</div>
+      </div>
+
+      <div class="cr-divider"></div>
+
+      <div class="contract-row" onclick="toggleRow(this)">
+        <div class="cr-label">Bid</div>
+        <div class="cr-value green">₹24,848</div>
+        <div class="cr-tap">tap ↓</div>
+      </div>
+      <div class="explain-panel">
+        <div class="ep-label">Bid price</div>
+        <div class="ep-text">The <strong>highest price a buyer is currently willing to pay</strong>. If you want to sell immediately, you can sell at the bid price — that is the best available buyer right now.</div>
+        <div class="ep-example">₹24,848 is the highest price any buyer has placed in the order book right now.</div>
+      </div>
+
+      <div class="contract-row" onclick="toggleRow(this)">
+        <div class="cr-label">Ask</div>
+        <div class="cr-value red">₹24,851</div>
+        <div class="cr-tap">tap ↓</div>
+      </div>
+      <div class="explain-panel">
+        <div class="ep-label">Ask price</div>
+        <div class="ep-text">The <strong>lowest price a seller is currently willing to accept</strong>. If you want to buy immediately, you pay the ask price. The difference between bid and ask is the <strong>bid-ask spread</strong> — a measure of transaction cost.</div>
+        <div class="ep-example">Spread = ₹24,851 − ₹24,848 = <strong>₹3</strong>. Tighter spreads mean lower transaction costs and higher liquidity.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ACTIVITY 1: Contract Value Calculation -->
+  <div class="activity" id="act1">
+    <div class="activity-head">
+      <div class="act-num">1</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity · Calculation</div>
+        <div class="act-title">Calculate the contract value</div>
+      </div>
+      <div class="act-check" id="act1-check"></div>
+    </div>
+    <div class="activity-body">
+      <div class="prompt">Use the formula: <strong>Contract value = Futures price × Lot size</strong></div>
+      <div class="calc-given">
+        <div class="calc-field"><div class="calc-lbl">Futures price</div><div class="calc-val">₹24,850</div></div>
+        <div class="calc-field"><div class="calc-lbl">Lot size</div><div class="calc-val">50</div></div>
+        <div class="calc-field"><div class="calc-lbl">Contract value</div><div class="calc-val">?</div></div>
+      </div>
+      <div class="calc-row">
+        <input class="answer-input" id="cv-input" type="number" placeholder="Enter contract value in ₹"/>
+        <button class="check-btn" onclick="checkCV()">Check →</button>
+      </div>
+      <div class="feedback" id="cv-fb"></div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY 2: OI vs Volume sort -->
+  <div class="activity" id="act2">
+    <div class="activity-head">
+      <div class="act-num">2</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity · Sort</div>
+        <div class="act-title">Volume or Open Interest — which is which?</div>
+      </div>
+      <div class="act-check" id="act2-check"></div>
+    </div>
+    <div class="activity-body">
+      <div class="prompt">These are the two most commonly confused metrics on an NSE screen. <strong>Drag</strong> each statement into the correct bucket.</div>
+
+      <div class="drag-cards" id="oi-vol-source">
+        <div class="drag-card" draggable="true" data-id="v1" data-correct="vol">How many contracts were traded today?</div>
+        <div class="drag-card" draggable="true" data-id="v2" data-correct="oi">How many contracts are still open right now?</div>
+        <div class="drag-card" draggable="true" data-id="v3" data-correct="vol">Resets to zero each day</div>
+        <div class="drag-card" draggable="true" data-id="v4" data-correct="oi">Rises when new positions are created</div>
+        <div class="drag-card" draggable="true" data-id="v5" data-correct="vol">Measures trading activity during the session</div>
+        <div class="drag-card" draggable="true" data-id="v6" data-correct="oi">Falls when positions are squared off</div>
+      </div>
+
+      <div class="bucket-zone">
+        <div class="bucket vol-bucket" id="bvol" data-bucket="vol">
+          <div class="bucket-title">Volume</div>
+          <div class="bucket-items" id="bvol-items"></div>
+        </div>
+        <div class="bucket oi-bucket" id="boi" data-bucket="oi">
+          <div class="bucket-title">Open Interest</div>
+          <div class="bucket-items" id="boi-items"></div>
+        </div>
+      </div>
+      <button class="check-btn" onclick="checkOIVol()">Check →</button>
+      <div class="feedback" id="oivol-fb"></div>
+      <div class="explanation" id="oivol-expl">
+        <strong>Volume</strong> counts contracts traded during the session — it resets to zero each day. <strong>Open interest</strong> counts contracts that are still alive — it rises with new positions and falls when they are closed. You can have very high volume with near-zero OI if all trades were opened and closed the same day.
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY 3: MCQ -->
+  <div class="activity" id="act3">
+    <div class="activity-head">
+      <div class="act-num">3</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity · Quick check</div>
+        <div class="act-title">Which field tells you how many contracts are still open?</div>
+      </div>
+      <div class="act-check" id="act3-check"></div>
+    </div>
+    <div class="activity-body">
+      <div class="options" id="a3-opts">
+        <button class="opt" onclick="checkQ('a3',this,false,'Not this. Lot size is the minimum quantity per contract — it does not tell you how many contracts are open.')"><span class="opt-l">A</span>Lot size</button>
+        <button class="opt" onclick="checkQ('a3',this,true,'Correct. Open interest is the count of contracts that have not yet been closed or settled.')"><span class="opt-l">B</span>Open interest</button>
+        <button class="opt" onclick="checkQ('a3',this,false,'Not this. Last traded price tells you the most recent execution price, not participation.')"><span class="opt-l">C</span>Last traded price</button>
+        <button class="opt" onclick="checkQ('a3',this,false,'Not this. Expiry tells you when the contract ends, not how many are outstanding.')"><span class="opt-l">D</span>Expiry</button>
+      </div>
+      <div class="feedback" id="a3-feedback"></div>
+    </div>
+  </div>
+
+  <div class="takeaway">
+    <div class="takeaway-title">Key fields — remember this</div>
+    <div class="takeaway-list">
+      <div class="takeaway-item"><strong>Lot size</strong> — minimum quantity per contract; set by the exchange</div>
+      <div class="takeaway-item"><strong>Contract value</strong> = futures price × lot size; your total exposure, not what you pay</div>
+      <div class="takeaway-item"><strong>Open interest</strong> — contracts still open; rises with new positions, falls when closed</div>
+      <div class="takeaway-item"><strong>Volume</strong> — contracts traded today; resets daily; not the same as OI</div>
+      <div class="takeaway-item"><strong>Bid / Ask spread</strong> — measures liquidity; narrower is better for traders</div>
+    </div>
+  </div>
+
+  <div class="next-section">
+    <div class="next-info">
+      <h3>Next: Open Interest &amp; Volume</h3>
+      <p>See contracts created and closed — and understand what rising or falling OI actually tells you</p>
+    </div>
+    <a class="btn-next" href="open-interest.html">Continue →</a>
+  </div>
+
+</div>
+
+<script>
+/* TERMINAL TOGGLE */
+function toggleRow(row){
+  const wasActive = row.classList.contains('active');
+  document.querySelectorAll('.contract-row.active').forEach(r=>r.classList.remove('active'));
+  if(!wasActive) row.classList.add('active');
+}
+
+/* CV CALC */
+function checkCV(){
+  const val = parseFloat(document.getElementById('cv-input').value);
+  const fb = document.getElementById('cv-fb');
+  const ok = Math.abs(val - 1242500) <= 100;
+  fb.className = 'feedback show ' + (ok?'fb-correct':'fb-wrong');
+  fb.innerHTML = ok
+    ? '✓ Correct. ₹24,850 × 50 = <strong>₹12,42,500</strong>. This is your total market exposure — not the cash you deposit.'
+    : '✗ Not quite. Multiply futures price × lot size: 24,850 × 50 = 12,42,500.';
+  if(ok){ markDone('act1'); }
+}
+
+/* OI vs VOL DRAG */
+let dragTarget = null;
+document.addEventListener('DOMContentLoaded', ()=>{
+  document.querySelectorAll('#oi-vol-source .drag-card').forEach(card=>{
+    card.addEventListener('dragstart', e=>{ dragTarget=card; card.classList.add('dragging'); e.dataTransfer.effectAllowed='move' });
+    card.addEventListener('dragend', ()=>card.classList.remove('dragging'));
+    card.addEventListener('click', ()=>{
+      if(card.classList.contains('in-bucket')) return;
+      document.querySelectorAll('.drag-card.tap-active').forEach(c=>c.classList.remove('tap-active'));
+      card.classList.toggle('tap-active');
+    });
+  });
+  document.querySelectorAll('.bucket').forEach(bucket=>{
+    bucket.addEventListener('dragover', e=>{ e.preventDefault(); bucket.classList.add('drag-over') });
+    bucket.addEventListener('dragleave', ()=>bucket.classList.remove('drag-over'));
+    bucket.addEventListener('drop', e=>{ e.preventDefault(); bucket.classList.remove('drag-over'); if(dragTarget) dropCard(dragTarget, bucket) });
+    bucket.addEventListener('click', ()=>{ const a=document.querySelector('.drag-card.tap-active'); if(a) dropCard(a, bucket) });
+  });
+});
+function dropCard(card, bucket){
+  const itemsEl = bucket.querySelector('.bucket-items');
+  if(!itemsEl) return;
+  const item = document.createElement('div');
+  item.className = 'bucket-item';
+  item.textContent = card.textContent.trim();
+  item.dataset.id = card.dataset.id;
+  item.dataset.correct = card.dataset.correct;
+  itemsEl.appendChild(item);
+  card.style.display = 'none';
+  card.classList.remove('tap-active');
+  card.classList.add('in-bucket');
+}
+function checkOIVol(){
+  let allCorrect = true;
+  const expected = { vol:['v1','v3','v5'], oi:['v2','v4','v6'] };
+  for(const [bucket, ids] of Object.entries(expected)){
+    const itemsEl = document.getElementById('b'+bucket+'-items');
+    if(!itemsEl) continue;
+    itemsEl.querySelectorAll('.bucket-item').forEach(item=>{
+      if(!ids.includes(item.dataset.id)){
+        allCorrect=false;
+        item.style.background='rgba(248,113,113,0.1)';item.style.borderColor='rgba(248,113,113,0.25)';item.style.color='var(--red)';
+      }
+    });
+  }
+  const placed = [];
+  document.querySelectorAll('.bucket-item').forEach(i=>placed.push(i.dataset.id));
+  if(placed.length < 6) allCorrect = false;
+  const fb = document.getElementById('oivol-fb');
+  const expl = document.getElementById('oivol-expl');
+  if(allCorrect){
+    fb.className='feedback show fb-correct';fb.innerHTML='✓ Correct. Volume = traded today. Open interest = still open.';
+    expl.className='explanation show';
+    markDone('act2');
+  } else {
+    fb.className='feedback show fb-wrong';fb.innerHTML='✗ Some items are in the wrong bucket. Red items need to move.';
+  }
+}
+
+/* MCQ */
+function checkQ(groupId, btn, isCorrect, msg){
+  const opts = document.querySelectorAll('#'+groupId+'-opts .opt');
+  opts.forEach(o=>o.disabled=true);
+  btn.classList.add(isCorrect?'correct':'wrong');
+  if(!isCorrect) opts.forEach(o=>{ if(o.onclick&&o.onclick.toString().includes('true,')) o.classList.add('correct') });
+  const fb = document.getElementById(groupId+'-feedback');
+  if(fb){ fb.className='feedback show '+(isCorrect?'fb-correct':'fb-wrong'); fb.innerHTML=(isCorrect?'✓ ':'✗ ')+msg }
+  if(isCorrect) markDone('act3');
+}
+
+/* MARK DONE */
+function markDone(id){
+  const el = document.getElementById(id);
+  if(el){ el.classList.add('done'); const c=document.getElementById(id+'-check'); if(c) c.innerHTML='✓' }
+}
+</script>
+</body>
+</html>
