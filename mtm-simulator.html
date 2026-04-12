@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MTM &amp; Margin Simulator · DerivativesLab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0f1117;--bg2:#161b26;--bg3:#1e2535;--bg4:#252e42;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --amber:#f5a623;--amber2:#ffc75a;--teal:#2dd4bf;
+  --green:#4ade80;--red:#f87171;--blue:#60a5fa;--violet:#a78bfa;
+  --text:#e8eaf0;--text2:#8b91a8;--text3:#555e78;
+  --serif:'DM Serif Display',Georgia,serif;
+  --mono:'DM Mono','Courier New',monospace;
+  --sans:'DM Sans',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+a{text-decoration:none;color:inherit}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:56px;background:rgba(15,17,23,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--mono);font-size:0.82rem;color:var(--amber)}
+.nav-logo span{color:var(--text2)}
+.nav-pill{display:flex;align-items:center;gap:8px}
+.nav-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;background:var(--bg3);border:1px solid var(--border2);font-size:0.78rem;font-weight:600;color:var(--text2);transition:color .15s,border-color .15s}
+.nav-btn:hover{color:var(--amber);border-color:rgba(245,166,35,0.3)}
+
+.shell{max-width:960px;margin:0 auto;padding:80px 24px 80px}
+
+.s-hero{padding:28px 32px;border-radius:20px;background:var(--bg2);border:1px solid var(--border2);margin-bottom:20px}
+.s-kicker{font-family:var(--mono);font-size:0.66rem;color:var(--amber);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px}
+.s-hero h1{font-family:var(--serif);font-size:clamp(1.6rem,3vw,2.2rem);line-height:1.1;margin-bottom:6px}
+.s-hero p{color:var(--text2);font-size:0.88rem;max-width:560px}
+
+/* SETUP PANEL */
+.setup-panel{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:24px;margin-bottom:20px}
+.setup-title{font-family:var(--mono);font-size:0.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:18px}
+.setup-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
+.setup-field{display:flex;flex-direction:column;gap:6px}
+.setup-label{font-family:var(--mono);font-size:0.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em}
+.setup-input{padding:10px 12px;border-radius:10px;background:var(--bg3);border:1.5px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:0.95rem;outline:none;transition:border-color .15s;width:100%}
+.setup-input:focus{border-color:var(--amber)}
+.setup-row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+.side-toggle{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.st-btn{padding:10px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg3);font-size:0.86rem;font-weight:600;cursor:pointer;text-align:center;transition:all .15s;font-family:var(--sans);color:var(--text3)}
+.st-btn.long.active{border-color:rgba(74,222,128,0.5);background:rgba(74,222,128,0.1);color:var(--green)}
+.st-btn.short.active{border-color:rgba(248,113,113,0.5);background:rgba(248,113,113,0.1);color:var(--red)}
+.start-btn{width:100%;padding:13px;border-radius:14px;background:var(--amber);color:#0f1117;font-size:0.95rem;font-weight:700;border:none;cursor:pointer;font-family:var(--sans);transition:all .15s}
+.start-btn:hover{background:var(--amber2);transform:translateY(-1px)}
+
+/* SIMULATION AREA */
+#simArea{display:none}
+
+/* SUMMARY BAR */
+.summary-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px}
+.sum-box{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;text-align:center}
+.sum-val{font-family:var(--mono);font-size:1.1rem;font-weight:500;transition:color .3s}
+.sum-lbl{font-family:var(--mono);font-size:0.58rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-top:4px}
+
+/* DAY INPUT CARD */
+.day-input-card{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:20px;margin-bottom:16px}
+.dic-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.dic-label{font-family:var(--serif);font-size:1.1rem}
+.dic-subtitle{font-family:var(--mono);font-size:0.65rem;color:var(--text3)}
+.price-input-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;align-items:end}
+.pir-field{display:flex;flex-direction:column;gap:6px}
+.pir-label{font-family:var(--mono);font-size:0.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em}
+.pir-ref{font-family:var(--mono);font-size:0.72rem;color:var(--text2);padding:8px 12px;background:var(--bg3);border-radius:8px;border:1px solid var(--border)}
+.pir-input{padding:10px 12px;border-radius:10px;background:var(--bg3);border:1.5px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:1rem;outline:none;transition:border-color .15s;width:100%}
+.pir-input:focus{border-color:var(--amber)}
+.dir-btns{display:flex;gap:8px;margin-bottom:14px}
+.dir-btn{flex:1;padding:10px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg3);font-size:0.84rem;font-weight:600;cursor:pointer;transition:all .15s;font-family:var(--sans);color:var(--text3)}
+.dir-btn.up.active{border-color:rgba(74,222,128,0.5);background:rgba(74,222,128,0.1);color:var(--green)}
+.dir-btn.dn.active{border-color:rgba(248,113,113,0.5);background:rgba(248,113,113,0.1);color:var(--red)}
+.apply-btn{width:100%;padding:11px;border-radius:12px;background:var(--amber);color:#0f1117;font-size:0.9rem;font-weight:700;border:none;cursor:pointer;font-family:var(--sans);transition:all .15s}
+.apply-btn:hover{background:var(--amber2)}
+.apply-btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* DAY RESULT CARD */
+.day-result{background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-top:12px;display:none;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.dr-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;font-size:0.85rem}
+.dr-row:last-child{margin-bottom:0}
+.dr-label{color:var(--text2)}
+.dr-val{font-family:var(--mono);font-weight:500}
+.dr-divider{height:1px;background:var(--border);margin:8px 0}
+
+/* MARGIN CALL ALERT */
+.mc-alert{margin-top:10px;padding:12px 16px;border-radius:12px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.3);color:var(--red);font-size:0.86rem;font-weight:600;display:none;animation:alertPulse .4s ease}
+@keyframes alertPulse{from{opacity:0;transform:scale(0.98)}to{opacity:1;transform:scale(1)}}
+.mc-alert.show{display:block}
+
+/* LEDGER TABLE */
+.ledger-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:16px;display:none}
+.ledger-head{padding:14px 18px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:0.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em}
+.ledger-table{width:100%;border-collapse:collapse}
+.ledger-table th{font-family:var(--mono);font-size:0.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;padding:8px 14px;text-align:right;border-bottom:1px solid var(--border)}
+.ledger-table th:first-child{text-align:left}
+.ledger-table td{padding:10px 14px;border-bottom:1px solid var(--border);font-size:0.84rem;text-align:right;font-family:var(--mono)}
+.ledger-table td:first-child{text-align:left;font-family:var(--sans);color:var(--text)}
+.ledger-table tr:last-child td{border-bottom:none}
+.ledger-table tr.mc-row{background:rgba(248,113,113,0.05)}
+.cell-gain{color:var(--green)}
+.cell-loss{color:var(--red)}
+.cell-neutral{color:var(--text3)}
+
+/* CHART */
+.chart-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:16px;display:none}
+.chart-title{font-family:var(--mono);font-size:0.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px}
+.chart-canvas{width:100%;display:block}
+
+/* RESET */
+.reset-row{display:flex;gap:10px;justify-content:center;margin-top:4px}
+.reset-btn{padding:9px 20px;border-radius:10px;background:var(--bg3);border:1px solid var(--border2);font-size:0.8rem;color:var(--text3);cursor:pointer;font-family:var(--sans);transition:all .15s}
+.reset-btn:hover{color:var(--text2)}
+
+@media(max-width:700px){
+  .setup-grid{grid-template-columns:1fr}
+  .setup-row2{grid-template-columns:1fr}
+  .summary-bar{grid-template-columns:repeat(3,1fr)}
+  .price-input-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html" style="text-decoration:none">DERIVATIVES<span>LAB</span></a>
+  <div class="nav-pill">
+    <a class="nav-btn" href="index.html">← Home</a>
+    <a class="nav-btn" href="oi-simulator.html">← OI Sim</a>
+    <a class="nav-btn" href="mtm-pnl.html">MTM Lesson</a>
+  </div>
+</nav>
+
+<div class="shell">
+
+  <div class="s-hero">
+    <div class="s-kicker">Simulation · MTM &amp; Margin</div>
+    <h1>MTM &amp; Margin Call Simulator</h1>
+    <p>Set your position, margins, and entry price. Then decide which way the price moves each day. Watch your margin account absorb daily MTM gains and losses — and see a margin call triggered when the balance breaches the maintenance threshold.</p>
+  </div>
+
+  <!-- SETUP -->
+  <div class="setup-panel" id="setupPanel">
+    <div class="setup-title">Step 1 — Set up your trade</div>
+    <div class="setup-grid">
+      <div class="setup-field">
+        <div class="setup-label">Asset name</div>
+        <input class="setup-input" id="assetName" type="text" value="Nifty Futures" placeholder="e.g. Nifty Futures"/>
+      </div>
+      <div class="setup-field">
+        <div class="setup-label">Entry price (₹)</div>
+        <input class="setup-input" id="entryPrice" type="number" value="24800" min="1"/>
+      </div>
+      <div class="setup-field">
+        <div class="setup-label">Lot size</div>
+        <input class="setup-input" id="lotSize" type="number" value="50" min="1"/>
+      </div>
+    </div>
+    <div class="setup-row2">
+      <div class="setup-field">
+        <div class="setup-label">Initial margin (₹)</div>
+        <input class="setup-input" id="initMargin" type="number" value="120000" min="1"/>
+      </div>
+      <div class="setup-field">
+        <div class="setup-label">Maintenance margin (₹)</div>
+        <input class="setup-input" id="maintMargin" type="number" value="90000" min="1"/>
+      </div>
+    </div>
+    <div class="setup-field" style="margin-bottom:18px">
+      <div class="setup-label" style="margin-bottom:6px">Your position</div>
+      <div class="side-toggle" style="max-width:300px">
+        <button class="st-btn long active" id="sideL" onclick="setPositionSide('long')">Long (Buy)</button>
+        <button class="st-btn short" id="sideS" onclick="setPositionSide('short')">Short (Sell)</button>
+      </div>
+    </div>
+    <button class="start-btn" onclick="startSim()">Start 5-Day Simulation →</button>
+  </div>
+
+  <!-- SIMULATION -->
+  <div id="simArea">
+
+    <!-- SUMMARY BAR -->
+    <div class="summary-bar">
+      <div class="sum-box">
+        <div class="sum-val" id="sumEntry">—</div>
+        <div class="sum-lbl">Entry price</div>
+      </div>
+      <div class="sum-box">
+        <div class="sum-val" id="sumPos">—</div>
+        <div class="sum-lbl">Position</div>
+      </div>
+      <div class="sum-box">
+        <div class="sum-val" id="sumBalance" style="color:var(--green)">—</div>
+        <div class="sum-lbl">Margin balance</div>
+      </div>
+      <div class="sum-box">
+        <div class="sum-val" id="sumCumPnL">—</div>
+        <div class="sum-lbl">Cumulative P&amp;L</div>
+      </div>
+      <div class="sum-box">
+        <div class="sum-val" id="sumDay">Day 0</div>
+        <div class="sum-lbl">Simulation day</div>
+      </div>
+    </div>
+
+    <!-- DAY CARDS 1–5 -->
+    <div id="dayCards"></div>
+
+    <!-- LEDGER -->
+    <div class="ledger-wrap" id="ledgerWrap">
+      <div class="ledger-head">Daily MTM Ledger</div>
+      <table class="ledger-table">
+        <thead>
+          <tr>
+            <th style="text-align:left">Day</th>
+            <th>Prev Settlement</th>
+            <th>Settlement</th>
+            <th>Change</th>
+            <th>Daily P&amp;L</th>
+            <th>Margin Balance</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="ledgerBody"></tbody>
+      </table>
+    </div>
+
+    <!-- PRICE CHART -->
+    <div class="chart-card" id="chartCard">
+      <div class="chart-title">Settlement price path</div>
+      <canvas class="chart-canvas" id="priceChart" height="160"></canvas>
+    </div>
+
+    <div class="reset-row">
+      <button class="reset-btn" onclick="resetSim()">← Change Setup</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ── STATE ── */
+let sim = {};
+
+function fmt(n){ return new Intl.NumberFormat('en-IN').format(Math.round(n)) }
+function fmtP(n){ return (n>=0?'₹':'−₹') + fmt(Math.abs(n)) }
+function fmtSign(n){ return (n>0?'+₹':n<0?'−₹':'₹') + fmt(Math.abs(n)) }
+
+/* ── POSITION SIDE ── */
+let positionSide = 'long';
+function setPositionSide(s){
+  positionSide=s;
+  document.getElementById('sideL').classList.toggle('active',s==='long');
+  document.getElementById('sideS').classList.toggle('active',s==='short');
+}
+
+/* ── START ── */
+function startSim(){
+  const entry = parseFloat(document.getElementById('entryPrice').value)||0;
+  const lot = parseInt(document.getElementById('lotSize').value)||1;
+  const init = parseFloat(document.getElementById('initMargin').value)||0;
+  const maint = parseFloat(document.getElementById('maintMargin').value)||0;
+  const asset = document.getElementById('assetName').value||'Futures';
+  if(!entry||!lot||!init||!maint){ alert('Please fill in all fields.'); return; }
+  if(maint>=init){ alert('Maintenance margin must be less than initial margin.'); return; }
+
+  sim = { entry, lot, init, maint, asset, side:positionSide,
+    balance:init, cumPnL:0, currentDay:0, prices:[entry], daysComplete:0 };
+
+  document.getElementById('setupPanel').style.display='none';
+  document.getElementById('simArea').style.display='block';
+  updateSummary();
+  buildDayCards();
+}
+
+/* ── SUMMARY ── */
+function updateSummary(){
+  document.getElementById('sumEntry').textContent='₹'+fmt(sim.entry);
+  document.getElementById('sumPos').textContent=sim.side.charAt(0).toUpperCase()+sim.side.slice(1);
+  document.getElementById('sumPos').style.color=sim.side==='long'?'var(--green)':'var(--red)';
+  const bal=sim.balance;
+  document.getElementById('sumBalance').textContent='₹'+fmt(bal);
+  document.getElementById('sumBalance').style.color=bal<sim.maint?'var(--red)':bal<sim.maint*1.2?'var(--amber)':'var(--green)';
+  const pnl=sim.cumPnL;
+  document.getElementById('sumCumPnL').textContent=fmtSign(pnl);
+  document.getElementById('sumCumPnL').style.color=pnl>0?'var(--green)':pnl<0?'var(--red)':'var(--text3)';
+  document.getElementById('sumDay').textContent='Day '+sim.daysComplete;
+}
+
+/* ── BUILD DAY CARDS ── */
+function buildDayCards(){
+  const container=document.getElementById('dayCards');
+  container.innerHTML='';
+  for(let d=1;d<=5;d++){
+    const card=document.createElement('div');
+    card.className='day-input-card';
+    card.id='day-card-'+d;
+    if(d>1) card.style.opacity='0.45';
+    card.innerHTML=`
+      <div class="dic-title">
+        <div>
+          <div class="dic-label">Day ${d}</div>
+          <div class="dic-subtitle">Set today's settlement price</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:var(--mono);font-size:0.62rem;color:var(--text3)">Previous settlement</div>
+          <div style="font-family:var(--mono);font-size:0.9rem;color:var(--amber)" id="prev-${d}">₹${fmt(sim.entry)}</div>
+        </div>
+      </div>
+      <div class="price-input-row">
+        <div class="pir-field">
+          <div class="pir-label">Today's settlement price (₹)</div>
+          <input class="pir-input" id="price-${d}" type="number" min="1" placeholder="Enter settlement price" ${d>1?'disabled':''}/>
+        </div>
+        <div class="pir-field">
+          <div class="pir-label">Quick direction</div>
+          <div class="dir-btns">
+            <button class="dir-btn up" id="dir-up-${d}" onclick="quickDir(${d},'up')" ${d>1?'disabled':''}>↑ Up</button>
+            <button class="dir-btn dn" id="dir-dn-${d}" onclick="quickDir(${d},'dn')" ${d>1?'disabled':''}>↓ Down</button>
+          </div>
+        </div>
+      </div>
+      <button class="apply-btn" id="apply-${d}" onclick="applyDay(${d})" ${d>1?'disabled':''}>Apply Day ${d} →</button>
+      <div class="day-result" id="result-${d}"></div>
+      <div class="mc-alert" id="mc-${d}"></div>
+    `;
+    container.appendChild(card);
+  }
+}
+
+/* ── QUICK DIRECTION ── */
+function quickDir(d, dir){
+  const prev = sim.prices[sim.prices.length-1];
+  const step = Math.round(prev * 0.006 / 5) * 5 || 50;
+  document.getElementById('price-'+d).value = dir==='up'
+    ? Math.round((prev+step)/5)*5
+    : Math.round((prev-step)/5)*5;
+  document.getElementById('dir-up-'+d).classList.toggle('active', dir==='up');
+  document.getElementById('dir-dn-'+d).classList.toggle('active', dir==='dn');
+}
+
+/* ── APPLY DAY ── */
+function applyDay(d){
+  const prev = sim.prices[sim.prices.length-1];
+  const today = parseFloat(document.getElementById('price-'+d).value);
+  if(!today||today<=0){ alert('Enter a valid settlement price.'); return; }
+
+  const change = today - prev;
+  const sign = sim.side==='long' ? 1 : -1;
+  const pnl = change * sign * sim.lot;
+  sim.balance += pnl;
+  sim.cumPnL += pnl;
+  sim.prices.push(today);
+  sim.daysComplete = d;
+
+  // Lock this day
+  document.getElementById('price-'+d).disabled=true;
+  document.getElementById('apply-'+d).disabled=true;
+  document.getElementById('dir-up-'+d).disabled=true;
+  document.getElementById('dir-dn-'+d).disabled=true;
+  document.getElementById('day-card-'+d).style.opacity='1';
+
+  // Show result
+  const resultEl=document.getElementById('result-'+d);
+  resultEl.style.display='block';
+  const pnlColor = pnl>=0?'var(--green)':'var(--red)';
+  const balColor = sim.balance<sim.maint?'var(--red)':sim.balance<sim.maint*1.2?'var(--amber)':'var(--green)';
+  resultEl.innerHTML=`
+    <div class="dr-row"><span class="dr-label">Settlement price</span><span class="dr-val" style="color:var(--amber)">₹${fmt(today)}</span></div>
+    <div class="dr-row"><span class="dr-label">Price change</span><span class="dr-val" style="color:${change>=0?'var(--green)':'var(--red)'}">${fmtSign(change)}</span></div>
+    <div class="dr-divider"></div>
+    <div class="dr-row"><span class="dr-label">Daily MTM formula</span><span class="dr-val" style="font-size:0.78rem;color:var(--text3)">(${fmt(today)}−${fmt(prev)}) × ${sim.side==='long'?'+':'-'}1 × ${fmt(sim.lot)}</span></div>
+    <div class="dr-row"><span class="dr-label">Daily P&amp;L</span><span class="dr-val" style="color:${pnlColor};font-size:1rem">${fmtSign(pnl)}</span></div>
+    <div class="dr-divider"></div>
+    <div class="dr-row"><span class="dr-label">Margin balance</span><span class="dr-val" style="color:${balColor}">₹${fmt(sim.balance)}</span></div>
+    <div class="dr-row"><span class="dr-label">Maintenance threshold</span><span class="dr-val" style="color:var(--text3)">₹${fmt(sim.maint)}</span></div>`;
+
+  // Margin call?
+  const mcEl=document.getElementById('mc-'+d);
+  if(sim.balance < sim.maint){
+    mcEl.className='mc-alert show';
+    const topUp = sim.init - sim.balance;
+    mcEl.innerHTML=`⚠ MARGIN CALL — Balance ₹${fmt(sim.balance)} is below maintenance threshold ₹${fmt(sim.maint)}. You must deposit ₹${fmt(topUp)} to restore margin to initial level (₹${fmt(sim.init)}).`;
+  }
+
+  addLedgerRow(d, prev, today, change, pnl, sim.balance, sim.balance<sim.maint);
+  updateSummary();
+  drawChart();
+
+  // Unlock next day
+  if(d<5){
+    const next=d+1;
+    document.getElementById('day-card-'+next).style.opacity='1';
+    document.getElementById('price-'+next).disabled=false;
+    document.getElementById('apply-'+next).disabled=false;
+    document.getElementById('dir-up-'+next).disabled=false;
+    document.getElementById('dir-dn-'+next).disabled=false;
+    document.getElementById('prev-'+next).textContent='₹'+fmt(today);
+  }
+
+  document.getElementById('ledgerWrap').style.display='block';
+  document.getElementById('chartCard').style.display='block';
+
+  // Final summary after day 5
+  if(d===5) showFinalSummary();
+}
+
+/* ── LEDGER ── */
+function addLedgerRow(d, prev, today, change, pnl, balance, isMC){
+  const tbody=document.getElementById('ledgerBody');
+  const row=document.createElement('tr');
+  if(isMC) row.className='mc-row';
+  row.innerHTML=`
+    <td>Day ${d}</td>
+    <td>₹${fmt(prev)}</td>
+    <td style="color:var(--amber)">₹${fmt(today)}</td>
+    <td style="color:${change>=0?'var(--green)':'var(--red)'};font-family:var(--mono)">${fmtSign(change)}</td>
+    <td class="${pnl>=0?'cell-gain':'cell-loss'}">${fmtSign(pnl)}</td>
+    <td style="color:${balance<sim.maint?'var(--red)':balance<sim.maint*1.2?'var(--amber)':'var(--green)'}">₹${fmt(balance)}</td>
+    <td style="color:${isMC?'var(--red)':'var(--green)';font-size:0.78rem">${isMC?'⚠ Margin Call':'✓ OK'}</td>`;
+  tbody.appendChild(row);
+}
+
+/* ── CHART ── */
+function drawChart(){
+  const canvas=document.getElementById('priceChart');
+  const dpr=window.devicePixelRatio||1;
+  const W=canvas.offsetWidth||800, H=160;
+  canvas.width=W*dpr; canvas.height=H*dpr;
+  canvas.style.height=H+'px';
+  const ctx=canvas.getContext('2d'); ctx.scale(dpr,dpr);
+  const prices=sim.prices;
+  const minP=Math.min(...prices)*0.997, maxP=Math.max(...prices)*1.003, range=maxP-minP||1;
+  const pL=60,pR=20,pT=20,pB=30,cW=W-pL-pR,cH=H-pT-pB;
+  ctx.strokeStyle='rgba(255,255,255,0.04)';ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){const y=pT+cH*(1-i/4);ctx.beginPath();ctx.moveTo(pL,y);ctx.lineTo(W-pR,y);ctx.stroke();ctx.fillStyle='#555e78';ctx.font='9px DM Mono,monospace';ctx.textAlign='right';ctx.fillText('₹'+fmt(minP+range*i/4),pL-5,y+4)}
+  const xLabels=['Entry','D1','D2','D3','D4','D5'];
+  ctx.fillStyle='#555e78';ctx.font='9px DM Mono,monospace';ctx.textAlign='center';
+  prices.forEach((_,i)=>{const x=pL+(i/(prices.length-1||1))*cW;ctx.fillText(xLabels[i]||'',x,H-8)});
+  // Area fill
+  ctx.beginPath();
+  prices.forEach((p,i)=>{const x=pL+(i/(prices.length-1||1))*cW,y=pT+cH*(1-(p-minP)/range);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)});
+  ctx.lineTo(pL+(prices.length-1/(prices.length-1||1))*cW,H-pB);
+  ctx.lineTo(pL,H-pB);ctx.closePath();
+  ctx.fillStyle='rgba(245,166,35,0.06)';ctx.fill();
+  // Line
+  ctx.beginPath();ctx.strokeStyle='var(--amber)';ctx.lineWidth=2;
+  prices.forEach((p,i)=>{const x=pL+(i/(prices.length-1||1))*cW,y=pT+cH*(1-(p-minP)/range);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)});
+  ctx.stroke();
+  // Dots
+  prices.forEach((p,i)=>{
+    const x=pL+(i/(prices.length-1||1))*cW,y=pT+cH*(1-(p-minP)/range);
+    ctx.fillStyle='var(--amber)';ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#0f1117';ctx.beginPath();ctx.arc(x,y,2,0,Math.PI*2);ctx.fill();
+  });
+}
+
+/* ── FINAL SUMMARY ── */
+function showFinalSummary(){
+  const pnl=sim.cumPnL;
+  const mcCount=Array.from(document.querySelectorAll('.mc-alert.show')).length;
+  const msg=document.createElement('div');
+  msg.style.cssText='background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:20px 22px;margin-top:16px;text-align:center';
+  const pnlColor=pnl>0?'var(--green)':pnl<0?'var(--red)':'var(--text3)';
+  msg.innerHTML=`<div style="font-family:var(--serif);font-size:1.3rem;margin-bottom:10px">5-Day Summary</div>
+    <div style="font-family:var(--mono);font-size:2rem;font-weight:500;color:${pnlColor};margin-bottom:6px">${fmtSign(pnl)}</div>
+    <div style="font-family:var(--mono);font-size:0.72rem;color:var(--text3);margin-bottom:12px">Total cumulative P&L · ${sim.side} · ${sim.asset}</div>
+    <div style="font-size:0.86rem;color:var(--text2)">
+      ${mcCount>0?`<span style="color:var(--red)">⚠ ${mcCount} margin call${mcCount>1?'s':''} triggered during simulation</span>`:'<span style="color:var(--green)">✓ No margin calls — balance stayed above maintenance throughout</span>'}
+    </div>`;
+  document.getElementById('dayCards').appendChild(msg);
+}
+
+/* ── RESET ── */
+function resetSim(){
+  sim={};
+  document.getElementById('setupPanel').style.display='block';
+  document.getElementById('simArea').style.display='none';
+  document.getElementById('ledgerWrap').style.display='none';
+  document.getElementById('chartCard').style.display='none';
+  document.getElementById('ledgerBody').innerHTML='';
+  document.getElementById('dayCards').innerHTML='';
+}
+
+window.addEventListener('resize', ()=>{ if(sim.prices&&sim.prices.length>1) drawChart() });
+</script>
+</body>
+</html>

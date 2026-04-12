@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Open Interest Simulator · DerivativesLab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0f1117;--bg2:#161b26;--bg3:#1e2535;--bg4:#252e42;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --amber:#f5a623;--amber2:#ffc75a;--teal:#2dd4bf;
+  --green:#4ade80;--red:#f87171;--blue:#60a5fa;--violet:#a78bfa;
+  --text:#e8eaf0;--text2:#8b91a8;--text3:#555e78;
+  --serif:'DM Serif Display',Georgia,serif;
+  --mono:'DM Mono','Courier New',monospace;
+  --sans:'DM Sans',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+a{text-decoration:none;color:inherit}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:56px;background:rgba(15,17,23,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--mono);font-size:0.82rem;color:var(--amber)}
+.nav-logo span{color:var(--text2)}
+.nav-pill{display:flex;align-items:center;gap:8px}
+.nav-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;background:var(--bg3);border:1px solid var(--border2);font-size:0.78rem;font-weight:600;color:var(--text2);transition:color .15s,border-color .15s}
+.nav-btn:hover{color:var(--teal);border-color:rgba(45,212,191,0.3)}
+
+.shell{max-width:960px;margin:0 auto;padding:80px 24px 80px}
+
+.s-hero{padding:28px 32px;border-radius:20px;background:var(--bg2);border:1px solid var(--border2);margin-bottom:20px}
+.s-kicker{font-family:var(--mono);font-size:0.66rem;color:var(--teal);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px}
+.s-hero h1{font-family:var(--serif);font-size:clamp(1.6rem,3vw,2.2rem);line-height:1.1;margin-bottom:6px}
+.s-hero p{color:var(--text2);font-size:0.88rem;max-width:560px}
+
+/* RULE CARD */
+.rule-card{background:rgba(45,212,191,0.04);border:1px solid rgba(45,212,191,0.15);border-radius:14px;padding:14px 18px;margin-bottom:20px;font-size:0.84rem;color:var(--text2);line-height:1.8}
+.rule-card strong{color:var(--teal)}
+
+/* TRADER INPUT AREA */
+.trader-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}
+.trader-card{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:18px;transition:border-color .2s}
+.trader-card.active-long{border-color:rgba(74,222,128,0.4)}
+.trader-card.active-short{border-color:rgba(248,113,113,0.4)}
+.trader-name{font-family:var(--serif);font-size:1.15rem;margin-bottom:4px}
+.trader-subtitle{font-family:var(--mono);font-size:0.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:14px}
+.trader-pos-display{font-family:var(--mono);font-size:0.78rem;color:var(--text3);margin-bottom:10px;min-height:20px}
+
+/* SIDE TOGGLE */
+.side-toggle{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:12px}
+.st-btn{padding:8px 4px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg3);font-size:0.76rem;font-weight:600;cursor:pointer;text-align:center;transition:all .15s;font-family:var(--sans);color:var(--text3)}
+.st-btn.long.active{border-color:rgba(74,222,128,0.5);background:rgba(74,222,128,0.1);color:var(--green)}
+.st-btn.flat.active{border-color:rgba(245,166,35,0.4);background:rgba(245,166,35,0.07);color:var(--amber)}
+.st-btn.short.active{border-color:rgba(248,113,113,0.5);background:rgba(248,113,113,0.1);color:var(--red)}
+
+/* QTY STEPPER */
+.qty-row{display:flex;align-items:center;gap:8px}
+.qty-lbl{font-family:var(--mono);font-size:0.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;width:60px}
+.qty-stepper{display:flex;align-items:center;gap:0;border:1px solid var(--border2);border-radius:10px;overflow:hidden}
+.qty-step-btn{width:32px;height:32px;background:var(--bg3);border:none;color:var(--text2);font-size:1.1rem;cursor:pointer;transition:background .15s;flex-shrink:0}
+.qty-step-btn:hover{background:var(--bg4);color:var(--text)}
+.qty-val{width:40px;text-align:center;font-family:var(--mono);font-size:0.9rem;color:var(--text);background:transparent;border:none;border-left:1px solid var(--border);border-right:1px solid var(--border);padding:0 4px;height:32px;outline:none}
+
+/* TRADE BUTTON */
+.trade-btn{width:100%;margin-top:14px;padding:10px;border-radius:10px;border:none;font-size:0.86rem;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .15s}
+.trade-btn:hover{transform:translateY(-1px)}
+.trade-btn.go-long{background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.35);color:var(--green)}
+.trade-btn.go-short{background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:var(--red)}
+.trade-btn.go-flat{background:var(--bg3);border:1px solid var(--border2);color:var(--text3)}
+
+/* COMPUTE BUTTON */
+.compute-btn{width:100%;padding:13px;border-radius:14px;background:var(--amber);color:#0f1117;font-size:0.95rem;font-weight:700;border:none;cursor:pointer;font-family:var(--sans);transition:all .15s;margin-bottom:20px}
+.compute-btn:hover{background:var(--amber2);transform:translateY(-1px)}
+
+/* RESULTS PANEL */
+.result-panel{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;overflow:hidden;margin-bottom:16px}
+.result-panel-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.result-panel-title{font-family:var(--mono);font-size:0.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em}
+.oi-number{font-family:var(--mono);font-size:2.2rem;font-weight:500;color:var(--teal);transition:color .3s}
+.result-body{padding:16px 20px}
+
+/* POSITION TABLE */
+.pos-table{width:100%;border-collapse:collapse;margin-bottom:14px}
+.pos-table th{font-family:var(--mono);font-size:0.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;padding:6px 10px;text-align:left;border-bottom:1px solid var(--border)}
+.pos-table td{padding:9px 10px;border-bottom:1px solid var(--border);font-size:0.85rem}
+.pos-table tr:last-child td{border-bottom:none}
+.pos-long{color:var(--green);font-weight:600;font-family:var(--mono)}
+.pos-short{color:var(--red);font-weight:600;font-family:var(--mono)}
+.pos-flat{color:var(--text3);font-family:var(--mono)}
+.pos-name{font-weight:500}
+
+/* OI FORMULA BREAKDOWN */
+.oi-breakdown{background:var(--bg3);border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.oi-bd-title{font-family:var(--mono);font-size:0.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px}
+.oi-bd-rows{display:flex;flex-direction:column;gap:6px}
+.oi-bd-row{display:flex;align-items:center;justify-content:space-between;font-size:0.84rem}
+.oi-bd-label{color:var(--text2)}
+.oi-bd-val{font-family:var(--mono);font-weight:500}
+.oi-bd-divider{height:1px;background:var(--border);margin:4px 0}
+.oi-bd-total{font-weight:700;font-size:0.95rem}
+.oi-bd-total .oi-bd-label{color:var(--text)}
+.oi-bd-total .oi-bd-val{color:var(--teal)}
+
+/* EXPLANATION BOX */
+.explain-box{background:rgba(45,212,191,0.05);border:1px solid rgba(45,212,191,0.15);border-radius:12px;padding:12px 16px;font-size:0.84rem;color:var(--text2);line-height:1.7}
+.explain-box strong{color:var(--teal)}
+
+/* HISTORY */
+.history-section{margin-top:16px}
+.history-head{font-family:var(--mono);font-size:0.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px}
+.history-rows{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto}
+.hist-row{display:flex;align-items:center;gap:12px;padding:8px 12px;border-radius:10px;background:var(--bg3);border:1px solid var(--border);font-size:0.8rem}
+.hist-round{font-family:var(--mono);font-size:0.62rem;color:var(--text3);width:50px;flex-shrink:0}
+.hist-trades{flex:1;color:var(--text2)}
+.hist-oi{font-family:var(--mono);font-weight:500;color:var(--teal);width:60px;text-align:right;flex-shrink:0}
+.hist-delta{font-family:var(--mono);font-size:0.72rem;width:50px;text-align:right;flex-shrink:0}
+.hist-delta.up{color:var(--green)}
+.hist-delta.dn{color:var(--red)}
+.hist-delta.same{color:var(--text3)}
+
+/* RESET */
+.reset-row{display:flex;gap:10px;justify-content:flex-end;margin-top:10px}
+.reset-btn{padding:8px 16px;border-radius:10px;background:var(--bg3);border:1px solid var(--border2);font-size:0.78rem;color:var(--text3);cursor:pointer;font-family:var(--sans);transition:all .15s}
+.reset-btn:hover{color:var(--text2);border-color:var(--border2)}
+
+@media(max-width:700px){
+  .trader-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html" style="text-decoration:none">DERIVATIVES<span>LAB</span></a>
+  <div class="nav-pill">
+    <a class="nav-btn" href="index.html">← Home</a>
+    <a class="nav-btn" href="open-interest.html">← OI Lesson</a>
+    <a class="nav-btn" href="mtm-simulator.html">MTM Sim →</a>
+  </div>
+</nav>
+
+<div class="shell">
+
+  <div class="s-hero">
+    <div class="s-kicker">Simulation · Open Interest</div>
+    <h1>Open Interest Simulator</h1>
+    <p>Three traders — A, B, and C. Each round you decide who goes long, short, or flat and in how many contracts. Watch open interest update after every round and understand <em>exactly</em> why it moves.</p>
+  </div>
+
+  <div class="rule-card">
+    <strong>How OI is computed:</strong> Open interest = total open long positions = total open short positions (they always match). When a new buyer and new seller enter → OI rises. When an existing holder closes their position → OI falls. A new buyer trading with an existing seller who is closing = OI stays the same.
+  </div>
+
+  <!-- TRADER INPUTS -->
+  <div class="trader-grid" id="traderGrid">
+
+    <div class="trader-card" id="card-A">
+      <div class="trader-name">Trader A</div>
+      <div class="trader-subtitle">Current net position</div>
+      <div class="trader-pos-display" id="pos-A">No open position</div>
+      <div class="side-toggle">
+        <button class="st-btn long" onclick="setSide('A','long')">Long</button>
+        <button class="st-btn flat active" onclick="setSide('A','flat')">Flat</button>
+        <button class="st-btn short" onclick="setSide('A','short')">Short</button>
+      </div>
+      <div class="qty-row">
+        <div class="qty-lbl">Contracts</div>
+        <div class="qty-stepper">
+          <button class="qty-step-btn" onclick="stepQty('A',-1)">−</button>
+          <input class="qty-val" id="qty-A" type="number" min="0" max="20" value="1"/>
+          <button class="qty-step-btn" onclick="stepQty('A',+1)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="trader-card" id="card-B">
+      <div class="trader-name">Trader B</div>
+      <div class="trader-subtitle">Current net position</div>
+      <div class="trader-pos-display" id="pos-B">No open position</div>
+      <div class="side-toggle">
+        <button class="st-btn long" onclick="setSide('B','long')">Long</button>
+        <button class="st-btn flat active" onclick="setSide('B','flat')">Flat</button>
+        <button class="st-btn short" onclick="setSide('B','short')">Short</button>
+      </div>
+      <div class="qty-row">
+        <div class="qty-lbl">Contracts</div>
+        <div class="qty-stepper">
+          <button class="qty-step-btn" onclick="stepQty('B',-1)">−</button>
+          <input class="qty-val" id="qty-B" type="number" min="0" max="20" value="1"/>
+          <button class="qty-step-btn" onclick="stepQty('B',+1)">+</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="trader-card" id="card-C">
+      <div class="trader-name">Trader C</div>
+      <div class="trader-subtitle">Current net position</div>
+      <div class="trader-pos-display" id="pos-C">No open position</div>
+      <div class="side-toggle">
+        <button class="st-btn long" onclick="setSide('C','long')">Long</button>
+        <button class="st-btn flat active" onclick="setSide('C','flat')">Flat</button>
+        <button class="st-btn short" onclick="setSide('C','short')">Short</button>
+      </div>
+      <div class="qty-row">
+        <div class="qty-lbl">Contracts</div>
+        <div class="qty-stepper">
+          <button class="qty-step-btn" onclick="stepQty('C',-1)">−</button>
+          <input class="qty-val" id="qty-C" type="number" min="0" max="20" value="1"/>
+          <button class="qty-step-btn" onclick="stepQty('C',+1)">+</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <button class="compute-btn" onclick="computeRound()">Compute Open Interest →</button>
+
+  <!-- RESULT PANEL -->
+  <div class="result-panel" id="resultPanel" style="display:none">
+    <div class="result-panel-head">
+      <div class="result-panel-title">Open Interest after this round</div>
+      <div class="oi-number" id="oiResult">0</div>
+    </div>
+    <div class="result-body">
+      <table class="pos-table">
+        <thead>
+          <tr>
+            <th>Trader</th>
+            <th>Action this round</th>
+            <th>Net position</th>
+            <th>Contributes to OI</th>
+          </tr>
+        </thead>
+        <tbody id="posTableBody"></tbody>
+      </table>
+      <div class="oi-breakdown">
+        <div class="oi-bd-title">OI calculation</div>
+        <div class="oi-bd-rows" id="oiBreakdown"></div>
+      </div>
+      <div class="explain-box" id="explainBox"></div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="history-section" id="historySection" style="display:none">
+    <div class="history-head">Round history</div>
+    <div class="history-rows" id="historyRows"></div>
+    <div class="reset-row">
+      <button class="reset-btn" onclick="resetAll()">Reset all positions</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ── STATE ── */
+const TRADERS = ['A','B','C'];
+// net position per trader: positive = long, negative = short, 0 = flat
+let netPos = {A:0, B:0, C:0};
+// current round inputs
+let sides = {A:'flat', B:'flat', C:'flat'};
+let roundNum = 0;
+let history = [];
+
+/* ── UI HELPERS ── */
+function setSide(t, side){
+  sides[t] = side;
+  const card = document.getElementById('card-'+t);
+  card.className = 'trader-card' + (side==='long'?' active-long':side==='short'?' active-short':'');
+  const btns = card.querySelectorAll('.st-btn');
+  btns.forEach(b=>{
+    b.classList.remove('active');
+    if(b.classList.contains(side)) b.classList.add('active');
+  });
+}
+
+function stepQty(t, delta){
+  const el = document.getElementById('qty-'+t);
+  const val = parseInt(el.value)||1;
+  el.value = Math.max(0, Math.min(20, val+delta));
+}
+
+function fmt(n){ return new Intl.NumberFormat('en-IN').format(n) }
+
+function posLabel(n){
+  if(n===0) return '<span class="pos-flat">Flat (0)</span>';
+  if(n>0) return `<span class="pos-long">Long ${fmt(n)}</span>`;
+  return `<span class="pos-short">Short ${fmt(Math.abs(n))}</span>`;
+}
+
+function updatePosDisplays(){
+  TRADERS.forEach(t=>{
+    const el = document.getElementById('pos-'+t);
+    const n = netPos[t];
+    if(n===0) el.style.color='var(--text3)', el.textContent='No open position';
+    else if(n>0) el.style.color='var(--green)', el.textContent=`Long ${fmt(n)} contract${Math.abs(n)!==1?'s':''}`;
+    else el.style.color='var(--red)', el.textContent=`Short ${fmt(Math.abs(n))} contract${Math.abs(n)!==1?'s':''}`;
+  });
+}
+
+/* ── COMPUTE ── */
+function computeRound(){
+  roundNum++;
+  const actions = {};
+  const prevPos = {...netPos};
+
+  TRADERS.forEach(t=>{
+    const side = sides[t];
+    const qty = parseInt(document.getElementById('qty-'+t).value)||0;
+    const delta = side==='flat' ? 0 : side==='long' ? qty : -qty;
+    actions[t] = { side, qty: side==='flat'?0:qty, delta };
+    netPos[t] += delta;
+  });
+
+  // OI = total open long positions (same as total open short positions — they always balance in a closed system)
+  // But in a simplified 3-trader model, we track net long and net short separately
+  let totalLong = 0, totalShort = 0;
+  TRADERS.forEach(t=>{
+    if(netPos[t]>0) totalLong += netPos[t];
+    else if(netPos[t]<0) totalShort += Math.abs(netPos[t]);
+  });
+  const oi = Math.max(totalLong, totalShort); // OI = open long = open short (simplified)
+
+  updatePosDisplays();
+  renderResult(actions, prevPos, oi, totalLong, totalShort);
+  addHistory(roundNum, actions, oi);
+  document.getElementById('resultPanel').style.display='block';
+  document.getElementById('historySection').style.display='block';
+}
+
+function renderResult(actions, prevPos, oi, totalLong, totalShort){
+  document.getElementById('oiResult').textContent = fmt(oi);
+
+  // Table
+  const tbody = document.getElementById('posTableBody');
+  tbody.innerHTML = TRADERS.map(t=>{
+    const a = actions[t];
+    let actionText = a.side==='flat'?'Flat / No trade':`${a.side.charAt(0).toUpperCase()+a.side.slice(1)} ${fmt(a.qty)} contract${a.qty!==1?'s':''}`;
+    let contributes = netPos[t]===0 ? '0 (closed/flat)' : `${fmt(Math.abs(netPos[t]))} contracts`;
+    return `<tr>
+      <td class="pos-name">${t}</td>
+      <td>${actionText}</td>
+      <td>${posLabel(netPos[t])}</td>
+      <td style="font-family:var(--mono);color:${Math.abs(netPos[t])>0?'var(--teal)':'var(--text3)'}">${contributes}</td>
+    </tr>`;
+  }).join('');
+
+  // Breakdown
+  const bd = document.getElementById('oiBreakdown');
+  const rows = TRADERS.map(t=>{
+    const n = netPos[t];
+    const abs = Math.abs(n);
+    const side = n>0?'Long':n<0?'Short':'Flat';
+    const col = n>0?'var(--green)':n<0?'var(--red)':'var(--text3)';
+    return `<div class="oi-bd-row">
+      <span class="oi-bd-label">Trader ${t} net position</span>
+      <span class="oi-bd-val" style="color:${col}">${side} ${fmt(abs)}</span>
+    </div>`;
+  }).join('');
+  bd.innerHTML = rows
+    + `<div class="oi-bd-divider"></div>
+       <div class="oi-bd-row">
+         <span class="oi-bd-label">Total open long contracts</span>
+         <span class="oi-bd-val" style="color:var(--green)">${fmt(totalLong)}</span>
+       </div>
+       <div class="oi-bd-row">
+         <span class="oi-bd-label">Total open short contracts</span>
+         <span class="oi-bd-val" style="color:var(--red)">${fmt(totalShort)}</span>
+       </div>
+       <div class="oi-bd-divider"></div>
+       <div class="oi-bd-row oi-bd-total">
+         <span class="oi-bd-label">Open Interest</span>
+         <span class="oi-bd-val">${fmt(oi)}</span>
+       </div>`;
+
+  // Explanation
+  const eb = document.getElementById('explainBox');
+  let explanation = generateExplanation(actions, prevPos, oi);
+  eb.innerHTML = explanation;
+}
+
+function generateExplanation(actions, prev, oi){
+  const parts = [];
+  TRADERS.forEach(t=>{
+    const a = actions[t];
+    const wasFlat = prev[t]===0;
+    const nowFlat = netPos[t]===0;
+    if(a.delta===0) return;
+    if(wasFlat && netPos[t]!==0){
+      parts.push(`<strong>Trader ${t}</strong> opened a new ${a.side} position → OI rises`);
+    } else if(!wasFlat && nowFlat){
+      parts.push(`<strong>Trader ${t}</strong> squared off and closed their position → OI falls`);
+    } else if(wasFlat || Math.sign(a.delta)===Math.sign(netPos[t]-a.delta)){
+      parts.push(`<strong>Trader ${t}</strong> added to an existing ${a.side} position → OI rises`);
+    } else {
+      parts.push(`<strong>Trader ${t}</strong> partially reduced their position → OI falls`);
+    }
+  });
+  if(!parts.length) return `No trades this round. Open interest is unchanged at <strong style="color:var(--teal)">${fmt(oi)}</strong>.`;
+  return parts.join(' · ') + `<br><br>Current OI = <strong style="color:var(--teal)">${fmt(oi)}</strong> open contracts (long = short = ${fmt(oi)}).`;
+}
+
+function addHistory(round, actions, oi){
+  const prev = history.length ? history[history.length-1].oi : 0;
+  const delta = oi - prev;
+  const tradeDesc = TRADERS
+    .filter(t=>actions[t].delta!==0)
+    .map(t=>`${t}: ${actions[t].side==='long'?'+':'-'}${fmt(actions[t].qty)}`)
+    .join(', ') || 'No trades';
+  history.push({round, oi, delta, tradeDesc});
+
+  const el = document.getElementById('historyRows');
+  const deltaClass = delta>0?'up':delta<0?'dn':'same';
+  const deltaText = delta>0?'+'+fmt(delta):delta<0?fmt(delta):'—';
+  const row = document.createElement('div');
+  row.className='hist-row';
+  row.innerHTML=`
+    <div class="hist-round">Rnd ${round}</div>
+    <div class="hist-trades">${tradeDesc}</div>
+    <div class="hist-oi">${fmt(oi)}</div>
+    <div class="hist-delta ${deltaClass}">${deltaText}</div>`;
+  el.prepend(row);
+}
+
+function resetAll(){
+  netPos = {A:0,B:0,C:0};
+  sides = {A:'flat',B:'flat',C:'flat'};
+  roundNum = 0;
+  history = [];
+  TRADERS.forEach(t=>{
+    setSide(t,'flat');
+    document.getElementById('qty-'+t).value=1;
+  });
+  updatePosDisplays();
+  document.getElementById('resultPanel').style.display='none';
+  document.getElementById('historySection').style.display='none';
+  document.getElementById('historyRows').innerHTML='';
+}
+</script>
+</body>
+</html>
