@@ -7,52 +7,35 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
-:root {
-  --bg:#0f1117;--bg2:#161b26;--bg3:#1e2535;
+:root{
+  --bg:#0f1117;--bg2:#161b26;--bg3:#1e2535;--bg4:#252e42;
   --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
-  --amber:#f5a623;--amber2:#ffc75a;--teal:#2dd4bf;--red:#f87171;--green:#4ade80;
+  --amber:#f5a623;--amber2:#ffc75a;--teal:#2dd4bf;
+  --green:#4ade80;--red:#f87171;--blue:#60a5fa;--violet:#a78bfa;--coral:#fb923c;
   --text:#e8eaf0;--text2:#8b91a8;--text3:#555e78;
   --serif:'DM Serif Display',Georgia,serif;
   --mono:'DM Mono','Courier New',monospace;
   --sans:'DM Sans',system-ui,sans-serif;
-  --r:14px;--r2:20px;--r3:28px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
 a{text-decoration:none;color:inherit}
-
-nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:56px;background:rgba(15,17,23,0.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:56px;background:rgba(15,17,23,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
 .nav-logo{font-family:var(--mono);font-size:0.82rem;color:var(--amber);letter-spacing:0.04em}
 .nav-logo span{color:var(--text2)}
 .nav-links{display:flex;gap:4px}
-.nav-links a{padding:6px 12px;border-radius:8px;font-size:0.82rem;font-weight:500;color:var(--text2);transition:color .15s,background .15s}
+.nav-links a{padding:6px 12px;border-radius:8px;font-size:0.8rem;font-weight:500;color:var(--text2);transition:color .15s,background .15s}
 .nav-links a:hover{color:var(--text);background:var(--bg3)}
 .nav-links a.active{color:var(--amber)}
-.nav-back{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:0.72rem;color:var(--text3);padding:6px 10px;border-radius:8px;border:1px solid var(--border);transition:color .15s,border-color .15s}
-.nav-back:hover{color:var(--text2);border-color:var(--border2)}
+.nav-back{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;background:var(--bg3);border:1px solid var(--border2);font-size:0.78rem;font-weight:600;color:var(--text2);transition:color .15s}
+.nav-back:hover{color:var(--text)}
+.shell{max-width:1100px;margin:0 auto;padding:80px 24px 80px}
 
-.shell{max-width:1100px;margin:0 auto;padding:80px 24px 64px}
-
-/* hero */
-.mod-hero{
-  padding:44px 44px 36px;
-  border-radius:var(--r3);
-  background:var(--bg2);
-  border:1px solid var(--border2);
-  margin-bottom:24px;
-  position:relative;overflow:hidden;
-}
-.mod-hero::after{
-  content:'01';
-  position:absolute;right:32px;top:16px;
-  font-family:var(--serif);font-size:9rem;
-  color:rgba(245,166,35,0.05);
-  line-height:1;pointer-events:none;
-  user-select:none;
-}
-.crumb{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:0.7rem;color:var(--text3);margin-bottom:16px}
-.crumb a{color:var(--text3);transition:color .15s}.crumb a:hover{color:var(--amber)}
-.crumb-sep{color:var(--text3)}
+/* HERO */
+.mod-hero{padding:44px 48px;border-radius:28px;background:var(--bg2);border:1px solid var(--border2);margin-bottom:32px;position:relative;overflow:hidden}
+.mod-hero::after{content:'01';position:absolute;right:32px;top:8px;font-family:var(--serif);font-size:9rem;color:rgba(245,166,35,0.05);line-height:1;pointer-events:none;user-select:none}
+.crumb{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:0.68rem;color:var(--text3);margin-bottom:16px}
+.crumb a{color:var(--text3)}.crumb a:hover{color:var(--amber)}
 .mod-label{font-family:var(--mono);font-size:0.68rem;color:var(--amber);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px}
 .mod-hero h1{font-family:var(--serif);font-size:clamp(2rem,3.5vw,3rem);line-height:1.1;margin-bottom:10px}
 .mod-hero h1 em{color:var(--amber);font-style:italic}
@@ -61,97 +44,91 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .outcome-item{display:flex;align-items:flex-start;gap:10px;font-size:0.85rem;color:var(--text2)}
 .outcome-item::before{content:'→';color:var(--amber);font-family:var(--mono);flex-shrink:0;margin-top:1px}
 .hero-btns{display:flex;gap:10px;flex-wrap:wrap}
-.btn-primary{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:var(--r);background:var(--amber);color:#0f1117;font-weight:600;font-size:0.88rem;border:none;cursor:pointer;transition:background .15s,transform .1s}
+.btn-primary{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:12px;background:var(--amber);color:#0f1117;font-weight:600;font-size:0.88rem;transition:background .15s,transform .1s}
 .btn-primary:hover{background:var(--amber2);transform:translateY(-1px)}
-.btn-ghost{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:var(--r);background:transparent;color:var(--text2);font-weight:500;font-size:0.88rem;border:1px solid var(--border2);cursor:pointer;transition:color .15s}
+.btn-ghost{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:12px;background:transparent;color:var(--text2);font-weight:500;font-size:0.88rem;border:1px solid var(--border2);transition:color .15s}
 .btn-ghost:hover{color:var(--text)}
 
-/* section head */
-.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-.sec-title{font-family:var(--mono);font-size:0.7rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em}
-.sec-line{flex:1;height:1px;background:var(--border);margin:0 14px}
-.sec-count{font-family:var(--mono);font-size:0.7rem;color:var(--text3)}
-.mb24{margin-bottom:24px}
+/* LAYER HEADERS */
+.layer-head{display:flex;align-items:center;gap:14px;margin-bottom:16px;margin-top:36px}
+.layer-badge{display:inline-flex;align-items:center;gap:8px;padding:7px 16px;border-radius:9px;font-family:var(--mono);font-size:0.72rem;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;white-space:nowrap}
+.layer-line{flex:1;height:1px;background:var(--border)}
+.layer-meta{font-size:0.78rem;color:var(--text3);white-space:nowrap}
+.badge-concepts{background:rgba(45,212,191,0.1);border:1px solid rgba(45,212,191,0.25);color:var(--teal)}
+.badge-markets{background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.25);color:var(--amber)}
+.badge-desk{background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.25);color:var(--violet)}
+.badge-assess{background:rgba(251,146,60,0.1);border:1px solid rgba(251,146,60,0.25);color:var(--coral)}
 
-/* session cards */
-.session-list{display:flex;flex-direction:column;gap:12px;margin-bottom:24px}
-.session-card{
-  display:flex;align-items:stretch;
-  background:var(--bg2);border:1px solid var(--border);
-  border-radius:var(--r2);
-  overflow:hidden;
-  cursor:pointer;
-  transition:border-color .2s,transform .15s;
-  text-decoration:none;
-}
-.session-card:hover{border-color:var(--border2);transform:translateX(3px)}
-.session-card.active{border-color:rgba(245,166,35,0.35)}
-.session-card.locked{opacity:0.4;pointer-events:none}
-.s-num{
-  display:flex;align-items:center;justify-content:center;
-  width:64px;flex-shrink:0;
-  background:var(--bg3);
-  font-family:var(--mono);font-size:0.72rem;color:var(--text3);
-  border-right:1px solid var(--border);
-  writing-mode:vertical-lr;transform:rotate(180deg);
-  letter-spacing:0.08em;
-}
-.session-card.active .s-num{color:var(--amber);background:rgba(245,166,35,0.07)}
-.s-body{flex:1;padding:18px 20px}
-.s-tag{font-family:var(--mono);font-size:0.65rem;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px}
-.s-title{font-size:1rem;font-weight:600;color:var(--text);margin-bottom:4px}
-.s-desc{font-size:0.82rem;color:var(--text2)}
-.s-topics{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
-.topic{padding:3px 8px;border-radius:6px;font-size:0.67rem;background:var(--bg3);color:var(--text3);border:1px solid var(--border)}
-.s-action{
-  display:flex;align-items:center;padding:0 20px;
-  flex-shrink:0;border-left:1px solid var(--border);
-}
-.s-btn{
-  padding:8px 16px;border-radius:10px;
-  font-size:0.8rem;font-weight:600;
-  background:var(--amber);color:#0f1117;
-  white-space:nowrap;
-}
-.session-card.locked .s-btn{background:var(--bg3);color:var(--text3)}
+/* SESSION CARDS */
+.session-list{display:flex;flex-direction:column;gap:10px}
+.session-card{display:flex;align-items:stretch;background:var(--bg2);border:1px solid var(--border);border-radius:18px;overflow:hidden;transition:border-color .2s,transform .15s}
+.session-card:hover{border-color:rgba(45,212,191,0.3);transform:translateX(3px)}
+.s-num{display:flex;align-items:center;justify-content:center;width:64px;flex-shrink:0;background:var(--bg3);border-right:1px solid var(--border);font-family:var(--mono);font-size:0.7rem;color:var(--text3);writing-mode:vertical-lr;transform:rotate(180deg);letter-spacing:0.1em;transition:color .15s}
+.session-card:hover .s-num{color:var(--teal)}
+.s-body{flex:1;padding:16px 20px}
+.s-tag{font-family:var(--mono);font-size:0.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px}
+.s-title{font-size:0.95rem;font-weight:600;color:var(--text);margin-bottom:4px}
+.s-desc{font-size:0.8rem;color:var(--text2);line-height:1.5}
+.s-topics{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}
+.topic{padding:3px 8px;border-radius:5px;font-size:0.65rem;background:var(--bg3);color:var(--text3);border:1px solid var(--border)}
+.s-action{display:flex;align-items:center;padding:0 18px;flex-shrink:0;border-left:1px solid var(--border)}
+.s-btn{padding:8px 14px;border-radius:9px;font-size:0.78rem;font-weight:600;background:var(--teal);color:#0f1117;white-space:nowrap}
 
-/* futures track */
-.track-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:24px}
-.track-card{
-  background:var(--bg2);border:1px solid var(--border);
-  border-radius:var(--r2);padding:20px;
-  display:flex;flex-direction:column;gap:8px;
-  cursor:pointer;transition:border-color .2s,transform .15s;
-}
-.track-card:hover{border-color:rgba(45,212,191,0.3);transform:translateY(-2px)}
-.track-num{font-family:var(--mono);font-size:0.65rem;color:var(--teal);letter-spacing:0.08em;text-transform:uppercase}
-.track-title{font-size:0.95rem;font-weight:600}
-.track-desc{font-size:0.8rem;color:var(--text2)}
-.track-tag{display:inline-flex;padding:3px 8px;border-radius:6px;font-size:0.67rem;background:rgba(45,212,191,0.08);color:var(--teal);border:1px solid rgba(45,212,191,0.15);width:fit-content}
+/* MARKETS GRID */
+.markets-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.market-card{background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:8px;transition:border-color .2s,transform .15s}
+.market-card:hover{border-color:rgba(245,166,35,0.35);transform:translateY(-2px)}
+.mc-track{font-family:var(--mono);font-size:0.62rem;color:var(--amber);text-transform:uppercase;letter-spacing:0.08em}
+.mc-title{font-size:0.95rem;font-weight:600}
+.mc-desc{font-size:0.8rem;color:var(--text2);line-height:1.5;flex:1}
+.mc-tag{display:inline-flex;padding:3px 8px;border-radius:6px;font-size:0.65rem;background:rgba(245,166,35,0.08);color:var(--amber);border:1px solid rgba(245,166,35,0.18);width:fit-content;font-family:var(--mono)}
 
-/* assessment row */
+/* TRADING DESK */
+.desk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.desk-card{background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:8px;transition:border-color .2s,transform .15s;position:relative;overflow:hidden}
+.desk-card::before{content:'';position:absolute;bottom:-20px;right:-20px;width:80px;height:80px;background:radial-gradient(circle,rgba(167,139,250,0.1) 0%,transparent 70%);pointer-events:none}
+.desk-card:hover{border-color:rgba(167,139,250,0.35);transform:translateY(-2px)}
+.dc-label{font-family:var(--mono);font-size:0.62rem;color:var(--violet);text-transform:uppercase;letter-spacing:0.08em}
+.dc-title{font-size:0.95rem;font-weight:600}
+.dc-desc{font-size:0.8rem;color:var(--text2);line-height:1.5;flex:1}
+.dc-tag{display:inline-flex;padding:3px 8px;border-radius:6px;font-size:0.65rem;background:rgba(167,139,250,0.08);color:var(--violet);border:1px solid rgba(167,139,250,0.18);width:fit-content;font-family:var(--mono)}
+
+/* ASSESSMENT */
 .assess-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-.assess-card{
-  background:var(--bg2);border:1px solid var(--border);
-  border-radius:var(--r2);padding:22px;
-  display:flex;justify-content:space-between;align-items:center;gap:16px;
-  cursor:pointer;transition:border-color .2s;
-}
-.assess-card:hover{border-color:var(--border2)}
-.assess-title{font-size:0.95rem;font-weight:600;margin-bottom:4px}
-.assess-meta{font-size:0.8rem;color:var(--text2)}
-.assess-badge{
-  padding:8px 14px;border-radius:var(--r);
-  font-size:0.78rem;font-weight:600;white-space:nowrap;
-}
-.badge-amber{background:rgba(245,166,35,0.12);color:var(--amber);border:1px solid rgba(245,166,35,0.2)}
-.badge-ghost{background:var(--bg3);color:var(--text3);border:1px solid var(--border)}
+.assess-card{background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:22px;display:flex;justify-content:space-between;align-items:center;gap:16px;transition:border-color .2s}
+.assess-card:hover{border-color:rgba(251,146,60,0.35)}
+.ac-title{font-size:0.95rem;font-weight:600;margin-bottom:4px}
+.ac-meta{font-size:0.8rem;color:var(--text2)}
+.ac-badge{padding:8px 14px;border-radius:10px;font-size:0.78rem;font-weight:600;white-space:nowrap;font-family:var(--mono)}
+.badge-open{background:rgba(251,146,60,0.12);color:var(--coral);border:1px solid rgba(251,146,60,0.25)}
 
-@media(max-width:700px){
-  .mod-hero{padding:28px 22px 24px}
-  .track-grid,.assess-grid{grid-template-columns:1fr}
-  .s-action{display:none}
-  .mod-hero::after{display:none}
+/* PATH GUIDE */
+.path-guide{margin-top:32px;background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:20px 24px}
+.pg-label{font-family:var(--mono);font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px}
+.pg-steps{display:flex;align-items:center;gap:0;overflow-x:auto;padding-bottom:4px}
+.pg-step{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;min-width:120px;padding:12px 8px;border-radius:12px;border:1px solid var(--border);background:var(--bg3);margin:0 4px}
+.pg-step-num{font-family:var(--mono);font-size:0.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em}
+.pg-step-label{font-family:var(--mono);font-size:0.72rem;font-weight:500;text-align:center}
+.pg-step-sub{font-size:0.68rem;color:var(--text3);text-align:center}
+.pg-step.s-teal{border-color:rgba(45,212,191,0.25);background:rgba(45,212,191,0.05)}
+.pg-step.s-teal .pg-step-label{color:var(--teal)}
+.pg-step.s-amber{border-color:rgba(245,166,35,0.25);background:rgba(245,166,35,0.05)}
+.pg-step.s-amber .pg-step-label{color:var(--amber)}
+.pg-step.s-violet{border-color:rgba(167,139,250,0.25);background:rgba(167,139,250,0.05)}
+.pg-step.s-violet .pg-step-label{color:var(--violet)}
+.pg-step.s-coral{border-color:rgba(251,146,60,0.25);background:rgba(251,146,60,0.05)}
+.pg-step.s-coral .pg-step-label{color:var(--coral)}
+.pg-arrow{font-family:var(--mono);color:var(--text3);font-size:0.9rem;flex-shrink:0;margin:0 2px}
+
+@media(max-width:900px){
+  .mod-hero{padding:28px 22px}.mod-hero::after{display:none}
+  .markets-grid,.assess-grid{grid-template-columns:1fr}
+  .desk-grid{grid-template-columns:1fr}
+  .session-card{flex-direction:column}
+  .s-num{writing-mode:horizontal-tb;transform:none;width:100%;height:34px;border-right:none;border-bottom:1px solid var(--border)}
+  .s-action{border-left:none;border-top:1px solid var(--border);padding:12px 20px}
+  .pg-steps{gap:4px}
+  .pg-arrow{display:none}
 }
 </style>
 </head>
@@ -162,155 +139,183 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   <div class="nav-links">
     <a href="index.html">Home</a>
     <a href="module1.html" class="active">Module 1</a>
-    <a href="#simulations">Simulations</a>
-    <a href="#games">Games</a>
   </div>
   <a class="nav-back" href="index.html">← Course Home</a>
 </nav>
 
 <div class="shell">
 
-  <!-- Module Hero -->
-  <div class="mod-hero mb24">
-    <div class="crumb">
-      <a href="index.html">Home</a>
-      <span class="crumb-sep">/</span>
-      <span>Module 1</span>
-    </div>
-    <div class="mod-label">Module 01 — Foundations</div>
+  <div class="mod-hero">
+    <div class="crumb"><a href="index.html">Home</a><span style="color:var(--text3)">/</span><span>Module 1</span></div>
+    <div class="mod-label">Module 01 · Foundations</div>
     <h1>Foundations of<br><em>Derivatives</em></h1>
-    <p class="mod-desc">Learn the market grammar before the formulas. This module builds the language — spot markets, long and short, hedging, speculation, and arbitrage — through activities rather than text.</p>
+    <p class="mod-desc">Market language before market formulas. Build your vocabulary through activities, connect theory to real NSE mechanics, and use simulators to explore ideas on your own terms.</p>
     <div class="outcome-list">
       <div class="outcome-item">Explain what a derivative is and distinguish it from the underlying asset</div>
-      <div class="outcome-item">Identify long, short, and squared-off positions correctly</div>
-      <div class="outcome-item">Distinguish hedgers, speculators, and arbitrageurs by motive</div>
-      <div class="outcome-item">Read and interpret a live NSE futures contract screen</div>
+      <div class="outcome-item">Identify long, short, and squared-off positions and calculate basic P&L</div>
+      <div class="outcome-item">Classify hedgers, speculators, and arbitrageurs by motive — not instrument</div>
+      <div class="outcome-item">Read a live NSE futures screen and interpret OI, MTM, and margin mechanics</div>
     </div>
     <div class="hero-btns">
-      <a class="btn-primary" href="s1-1.html">Open Session 1.1 →</a>
-      <a class="btn-ghost" href="#futures-track">Futures Track</a>
+      <a class="btn-primary" href="s1-1.html">Start with Session 1.1 →</a>
+      <a class="btn-ghost" href="#markets">Jump to Markets ↓</a>
     </div>
   </div>
 
-  <!-- Core Sessions -->
-  <div class="sec-head">
-    <div class="sec-title">Core Sessions</div>
-    <div class="sec-line"></div>
-    <div class="sec-count">3 sessions</div>
+  <!-- ── CONCEPTS ── -->
+  <div class="layer-head">
+    <div class="layer-badge badge-concepts">◈ Concepts</div>
+    <div class="layer-line"></div>
+    <div class="layer-meta">Activity-first · do first, define after · 3 sessions</div>
   </div>
-  <div class="session-list mb24">
 
-    <a class="session-card active" href="s1-1.html">
+  <div class="session-list">
+    <a class="session-card" href="s1-1.html">
       <div class="s-num">1.1</div>
       <div class="s-body">
         <div class="s-tag">Session 1 of 3</div>
         <div class="s-title">Spot, Long, Short &amp; Square Off</div>
-        <div class="s-desc">Discover spot transactions, understand directional positions, learn how short selling works in the spot market, and close positions through squaring off.</div>
-        <div class="s-topics">
-          <span class="topic">Spot transaction</span>
-          <span class="topic">Long position</span>
-          <span class="topic">Short position</span>
-          <span class="topic">Square off</span>
-          <span class="topic">Short selling mechanics</span>
-        </div>
+        <div class="s-desc">Discover spot transactions, directional positions, short selling mechanics, and how closing a position removes market exposure.</div>
+        <div class="s-topics"><span class="topic">Spot transaction</span><span class="topic">Long · Short</span><span class="topic">Short selling</span><span class="topic">Square off</span></div>
       </div>
       <div class="s-action"><div class="s-btn">Open →</div></div>
     </a>
-
     <a class="session-card" href="s1-2.html">
       <div class="s-num">1.2</div>
       <div class="s-body">
         <div class="s-tag">Session 2 of 3</div>
         <div class="s-title">Risk, Hedging &amp; Speculation</div>
-        <div class="s-desc">Understand why some participants seek profit from risk while others use derivatives to achieve certainty. Learn to evaluate a hedge correctly — not by its profit, but by the risk it removes.</div>
-        <div class="s-topics">
-          <span class="topic">Speculative risk</span>
-          <span class="topic">Hedger</span>
-          <span class="topic">Speculator</span>
-          <span class="topic">Certainty vs profit</span>
-          <span class="topic">Unhedged exposure</span>
-        </div>
+        <div class="s-desc">Classify market participants by motive. Understand why certainty — not profit — is the hedger's goal, and why not hedging is itself a risk choice.</div>
+        <div class="s-topics"><span class="topic">Hedger</span><span class="topic">Speculator</span><span class="topic">Certainty vs profit</span><span class="topic">Unhedged exposure</span></div>
       </div>
       <div class="s-action"><div class="s-btn">Open →</div></div>
     </a>
-
     <a class="session-card" href="s1-3.html">
       <div class="s-num">1.3</div>
       <div class="s-body">
         <div class="s-tag">Session 3 of 3</div>
         <div class="s-title">Arbitrage &amp; Trader Hats</div>
-        <div class="s-desc">Learn to spot arbitrage as a response to price inconsistency, not market prediction. See how hedgers, speculators, and arbitrageurs interpret the same market event completely differently.</div>
-        <div class="s-topics">
-          <span class="topic">Arbitrage logic</span>
-          <span class="topic">Price inconsistency</span>
-          <span class="topic">Trader classification</span>
-          <span class="topic">Same event, three hats</span>
-        </div>
+        <div class="s-desc">Spot price inconsistency across markets. See how the same event means completely different things to three different trader types.</div>
+        <div class="s-topics"><span class="topic">Arbitrage logic</span><span class="topic">Price inconsistency</span><span class="topic">Three trader types</span><span class="topic">Same event · three reactions</span></div>
       </div>
       <div class="s-action"><div class="s-btn">Open →</div></div>
     </a>
-
   </div>
 
-  <!-- Futures Track -->
-  <div class="sec-head" id="futures-track">
-    <div class="sec-title">Futures Practical Track</div>
-    <div class="sec-line"></div>
-    <div class="sec-count">4 pages</div>
-  </div>
-  <div class="track-grid mb24">
-
-    <a class="track-card" href="nse-contract.html">
-      <div class="track-num">Track 1 · NSE Markets</div>
-      <div class="track-title">Reading a Live NSE Futures Contract</div>
-      <div class="track-desc">Hover or tap each field on a simulated NSE screen to learn what lot size, contract value, open interest, expiry, and bid-ask actually mean.</div>
-      <div class="track-tag">Interactive terminal</div>
-    </a>
-
-    <a class="track-card" href="open-interest.html">
-      <div class="track-num">Track 2 · Participation</div>
-      <div class="track-title">Open Interest &amp; Volume</div>
-      <div class="track-desc">Activity-first: see contracts created and closed, distinguish open interest from volume, and understand what rising or falling OI actually tells you.</div>
-      <div class="track-tag">Sorting activities</div>
-    </a>
-
-    <a class="track-card" href="mtm-pnl.html">
-      <div class="track-num">Track 3 · Daily Settlement</div>
-      <div class="track-title">Mark-to-Market P&amp;L</div>
-      <div class="track-desc">Follow a futures position across three days. Learn that profit and loss is settled daily through mark-to-market, not only at final expiry.</div>
-      <div class="track-tag">Day-by-day tracker</div>
-    </a>
-
-    <a class="track-card" href="margin-call.html">
-      <div class="track-num">Track 4 · Margin System</div>
-      <div class="track-title">Margin &amp; Margin Calls</div>
-      <div class="track-desc">Understand why margin is smaller than contract value, how daily losses erode the margin account, and what triggers a margin call.</div>
-      <div class="track-tag">Balance tracker</div>
-    </a>
-
+  <!-- ── MARKETS ── -->
+  <div class="layer-head" id="markets">
+    <div class="layer-badge badge-markets">◎ Markets</div>
+    <div class="layer-line"></div>
+    <div class="layer-meta">Applied NSE mechanics · do after Concepts · 4 tracks</div>
   </div>
 
-  <!-- Assessment -->
-  <div class="sec-head" id="assessment">
-    <div class="sec-title">Assessment</div>
-    <div class="sec-line"></div>
-    <div class="sec-count">2 items</div>
+  <div class="markets-grid">
+    <a class="market-card" href="nse-contract.html">
+      <div class="mc-track">Track 1 · NSE Terminal</div>
+      <div class="mc-title">Reading a Live NSE Futures Contract</div>
+      <div class="mc-desc">Tap each field on a simulated NSE screen. Learn what lot size, contract value, open interest, expiry, and bid-ask actually mean in practice.</div>
+      <div class="mc-tag">Interactive terminal</div>
+    </a>
+    <a class="market-card" href="open-interest.html">
+      <div class="mc-track">Track 2 · Participation</div>
+      <div class="mc-title">Open Interest &amp; Volume</div>
+      <div class="mc-desc">See contracts created and closed in real time. Understand why OI and volume are completely different — and when high volume can coexist with zero OI.</div>
+      <div class="mc-tag">Sorting activities</div>
+    </a>
+    <a class="market-card" href="mtm-pnl.html">
+      <div class="mc-track">Track 3 · Daily Settlement</div>
+      <div class="mc-title">Mark-to-Market P&amp;L</div>
+      <div class="mc-desc">Follow a position across three days. MTM compares each day to the previous settlement — not back to entry. Long and short mirror each other exactly.</div>
+      <div class="mc-tag">Day-by-day tracker</div>
+    </a>
+    <a class="market-card" href="margin-call.html">
+      <div class="mc-track">Track 4 · Margin System</div>
+      <div class="mc-title">Margin &amp; Margin Calls</div>
+      <div class="mc-desc">Contract value is exposure. Margin is the deposit. Watch daily losses erode the account and see a margin call fire when maintenance is breached.</div>
+      <div class="mc-tag">Balance tracker</div>
+    </a>
   </div>
+
+  <!-- ── TRADING DESK ── -->
+  <div class="layer-head" id="trading-desk">
+    <div class="layer-badge badge-desk">⬡ Trading Desk</div>
+    <div class="layer-line"></div>
+    <div class="layer-meta">Free-play simulators + live game · return anytime · 3 tools</div>
+  </div>
+
+  <div class="desk-grid">
+    <a class="desk-card" href="oi-simulator.html">
+      <div class="dc-label">Simulator · Open Interest</div>
+      <div class="dc-title">OI Simulator</div>
+      <div class="dc-desc">Three traders — A, B, C. Each round choose who goes long, short, or flat and in how many contracts. Watch OI update and understand exactly why it moves.</div>
+      <div class="dc-tag">3-trader game</div>
+    </a>
+    <a class="desk-card" href="mtm-simulator.html">
+      <div class="dc-label">Simulator · MTM &amp; Margin</div>
+      <div class="dc-title">MTM &amp; Margin Simulator</div>
+      <div class="dc-desc">Set your own margins, entry price, and position. Decide how price moves over 5 days. Daily P&L, margin erosion, and margin calls in real time.</div>
+      <div class="dc-tag">5-day simulation</div>
+    </a>
+    <a class="desk-card" href="price-discovery.html">
+      <div class="dc-label">Market Game · Live Classroom</div>
+      <div class="dc-title">Price Discovery Game</div>
+      <div class="dc-desc">Trade spot, futures, and options in a live market. Pick your hat — speculator, hedger, market maker, or arbitrageur — and find the price together.</div>
+      <div class="dc-tag">Live classroom game</div>
+    </a>
+  </div>
+
+  <!-- ── ASSESSMENT ── -->
+  <div class="layer-head" id="assessment">
+    <div class="layer-badge badge-assess">✦ Assessment</div>
+    <div class="layer-line"></div>
+    <div class="layer-meta">Practice or formal quiz · Firebase gradebook</div>
+  </div>
+
   <div class="assess-grid">
-    <a class="assess-card" href="m1-checks.html">
+    <a class="assess-card" href="m1-quiz.html">
       <div>
-        <div class="assess-title">Concept Checks</div>
-        <div class="assess-meta">Quick checks after each session · 15 questions total · Instant feedback</div>
+        <div class="ac-title">Concept Checks — Practice Mode</div>
+        <div class="ac-meta">Instant feedback after each question · No score stored · Use anytime</div>
       </div>
-      <div class="assess-badge badge-amber">Open</div>
+      <div class="ac-badge badge-open">Practice</div>
     </a>
     <a class="assess-card" href="m1-quiz.html">
       <div>
-        <div class="assess-title">Module 1 Quiz</div>
-        <div class="assess-meta">10 questions · MCQ + scenario reasoning · Score stored to Firebase</div>
+        <div class="ac-title">Module 1 Quiz — Formal</div>
+        <div class="ac-meta">10 questions · MCQ + scenario reasoning · Score stored to Firebase</div>
       </div>
-      <div class="assess-badge badge-ghost">Available soon</div>
+      <div class="ac-badge badge-open">Take Quiz →</div>
     </a>
+  </div>
+
+  <!-- PATH GUIDE -->
+  <div class="path-guide">
+    <div class="pg-label">Recommended path through Module 1</div>
+    <div class="pg-steps">
+      <div class="pg-step s-teal">
+        <div class="pg-step-num">Step 1</div>
+        <div class="pg-step-label">Concepts</div>
+        <div class="pg-step-sub">Sessions 1.1 → 1.2 → 1.3</div>
+      </div>
+      <div class="pg-arrow">→</div>
+      <div class="pg-step s-amber">
+        <div class="pg-step-num">Step 2</div>
+        <div class="pg-step-label">Markets</div>
+        <div class="pg-step-sub">NSE · OI · MTM · Margin</div>
+      </div>
+      <div class="pg-arrow">→</div>
+      <div class="pg-step s-violet">
+        <div class="pg-step-num">Step 3</div>
+        <div class="pg-step-label">Trading Desk</div>
+        <div class="pg-step-sub">Simulators + Game</div>
+      </div>
+      <div class="pg-arrow">→</div>
+      <div class="pg-step s-coral">
+        <div class="pg-step-num">Step 4</div>
+        <div class="pg-step-label">Assessment</div>
+        <div class="pg-step-sub">Practice · then Quiz</div>
+      </div>
+    </div>
   </div>
 
 </div>
