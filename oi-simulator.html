@@ -135,15 +135,21 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   <a class="nav-logo" href="index.html" style="text-decoration:none">DERIVATIVES<span>LAB</span></a>
   <div class="nav-pill">
     <a class="nav-btn" href="index.html">← Home</a>
-    <a class="nav-btn" href="open-interest.html">← OI Lesson</a>
-    <a class="nav-btn" href="mtm-simulator.html">MTM Sim →</a>
+    <a class="nav-btn" href="module1.html">Module 1</a>
+    <a class="nav-btn" href="mtm-simulator.html">Next: MTM Sim →</a>
   </div>
 </nav>
 
 <div class="shell">
 
   <div class="s-hero">
-    <div class="s-kicker">Simulation · Open Interest</div>
+    <div style="display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:0.68rem;color:var(--text3);margin-bottom:12px">
+      <a href="index.html" style="color:var(--text3);text-decoration:none">Home</a><span>/</span>
+      <a href="module1.html" style="color:var(--text3);text-decoration:none">Module 1</a><span>/</span>
+      <span style="color:var(--violet)">Trading Desk</span><span>/</span>
+      <span>OI Simulator</span>
+    </div>
+    <div class="s-kicker">Trading Desk · Simulator 1 of 2</div>
     <h1>Open Interest Simulator</h1>
     <p>Three traders — A, B, and C. Each round you decide who goes long, short, or flat and in how many contracts. Watch open interest update after every round and understand <em>exactly</em> why it moves.</p>
   </div>
@@ -249,6 +255,14 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
     <div class="reset-row">
       <button class="reset-btn" onclick="resetAll()">Reset all positions</button>
     </div>
+  </div>
+
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 22px;border-radius:20px;background:var(--bg2);border:1px solid var(--border);margin-top:16px">
+    <div>
+      <div style="font-family:var(--serif);font-size:1.05rem;margin-bottom:4px">Next: MTM &amp; Margin Simulator</div>
+      <div style="font-size:0.8rem;color:var(--text2)">Set your own position, margins and entry price — run 5 days of P&amp;L and trigger a margin call</div>
+    </div>
+    <a href="mtm-simulator.html" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:12px;background:var(--amber);color:#0f1117;font-weight:600;font-size:0.86rem;white-space:nowrap;text-decoration:none">Continue →</a>
   </div>
 
 </div>
