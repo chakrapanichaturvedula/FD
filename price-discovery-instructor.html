@@ -124,6 +124,12 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px 60px}
 .t-detail{color:var(--text3);font-size:0.72rem}
 .t-time{font-family:var(--mono);font-size:0.65rem;color:var(--text3)}
 
+/* INST CHOICE CARDS */
+.inst-choice{padding:10px 12px;border-radius:10px;border:1.5px solid var(--border2);background:var(--bg3);cursor:pointer;transition:all .15s}
+.inst-choice:hover{border-color:rgba(45,212,191,0.3)}
+.inst-choice.active{border-color:rgba(45,212,191,0.5);background:rgba(45,212,191,0.06);color:var(--teal)}
+.inst-choice.active div:first-child{color:var(--teal)}
+
 /* INST TOGGLE */
 .inst-toggle{display:flex;flex-direction:column;gap:8px;padding:12px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;margin-bottom:12px}
 .inst-row{display:flex;align-items:center;justify-content:space-between}
@@ -206,13 +212,37 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px 60px}
         <div class="card-title">Capital &amp; instruments</div>
         <div class="fi"><label>Starting capital per student (₹)</label><input id="defCapital" type="number" value="500000"/></div>
 
-        <div style="font-family:var(--mono);font-size:0.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;margin-top:4px">Instruments</div>
-        <div class="inst-toggle">
-          <div class="inst-row">
-            <div><div class="inst-lbl">Spot &amp; Futures</div><div class="inst-sub">Nifty Spot · Nifty Futures · Bank Nifty Fut</div></div>
-            <span class="ibadge ib-on">Always ON</span>
+        <div style="font-family:var(--mono);font-size:0.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;margin-top:4px">Instrument for Round 1</div>
+
+        <!-- Instrument selector -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px" id="instSelector">
+          <div class="inst-choice active" id="ic-spot" onclick="selectInst('spot')">
+            <div style="font-weight:600;font-size:0.86rem">Spot</div>
+            <div style="font-size:0.72rem;color:var(--text3);margin-top:2px">Trade in shares · no expiry</div>
           </div>
-          <div class="inst-row" style="padding-top:8px;border-top:1px solid var(--border)">
+          <div class="inst-choice" id="ic-futures" onclick="selectInst('futures')">
+            <div style="font-weight:600;font-size:0.86rem">Futures</div>
+            <div style="font-size:0.72rem;color:var(--text3);margin-top:2px">Trade in lots · expiry date</div>
+          </div>
+        </div>
+
+        <!-- Futures config (hidden when spot selected) -->
+        <div id="futuresCfg" style="display:none;padding:10px;background:rgba(45,212,191,0.04);border:1px solid rgba(45,212,191,0.15);border-radius:9px;margin-bottom:12px">
+          <div class="fi" style="margin-bottom:8px"><label>Futures expiry</label>
+            <select id="futuresExpiry" style="padding:9px 12px;border-radius:9px;background:var(--bg3);border:1.5px solid var(--border2);color:var(--text);font-family:var(--sans);font-size:0.86rem;outline:none;width:100%">
+              <option value="near">Near month (current month)</option>
+              <option value="next">Next month</option>
+              <option value="far">Far month (month after next)</option>
+            </select>
+          </div>
+          <div class="fi" style="margin-bottom:0"><label>Expiry date label (shown to students)</label>
+            <input id="expiryLabel" value="27-Jun-2026" placeholder="e.g. 27-Jun-2026"/>
+          </div>
+        </div>
+
+        <!-- Options toggle -->
+        <div class="inst-toggle" style="margin-bottom:12px">
+          <div class="inst-row" style="padding:0">
             <div><div class="inst-lbl">Options trading</div><div class="inst-sub">Nifty Call ATM + Put ATM · Module 3</div></div>
             <label class="toggle"><input type="checkbox" id="optEnabled" onchange="toggleOptCfg()"/><span class="tslider"></span></label>
           </div>
@@ -422,6 +452,17 @@ function doAuth(){
 document.getElementById('pwInput').addEventListener('keydown',e=>{ if(e.key==='Enter') doAuth(); });
 
 /* ── SETUP ── */
+let selectedInst = 'spot';
+
+function selectInst(inst){
+  selectedInst = inst;
+  document.getElementById('ic-spot').classList.toggle('active', inst==='spot');
+  document.getElementById('ic-futures').classList.toggle('active', inst==='futures');
+  document.getElementById('futuresCfg').style.display = inst==='futures' ? 'block' : 'none';
+  // Update lot size label in left card
+  const lotLabel = document.querySelector('label[for="lotSize"]');
+  if(lotLabel) lotLabel.textContent = inst==='futures' ? 'Lot size (shares per lot)' : 'Lot size (shares per lot)';
+}
 function toggleOptCfg(){ document.getElementById('optCfg').style.display = document.getElementById('optEnabled').checked?'block':'none'; }
 
 function showSetup(){
@@ -449,6 +490,9 @@ async function createGame(){
     numRounds:     parseInt(document.getElementById('numRounds').value)||3,
     positionLimit: parseInt(document.getElementById('posLimit').value)||10,
     defaultCapital:parseFloat(document.getElementById('defCapital').value)||500000,
+    instrument:    selectedInst,                                          // 'spot' | 'futures'
+    futuresExpiry: selectedInst==='futures' ? (document.getElementById('futuresExpiry').value||'near') : null,
+    expiryLabel:   selectedInst==='futures' ? (document.getElementById('expiryLabel').value.trim()||'') : null,
     optionsEnabled:document.getElementById('optEnabled').checked,
     optionsStrike: parseFloat(document.getElementById('optStrike').value)||null,
     optionsExpiry: document.getElementById('optExpiry').value.trim()||null,

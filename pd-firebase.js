@@ -178,6 +178,9 @@ const PD = (() => {
         defaultCapital: params.defaultCapital || 500000,
         status: 'waiting',
         roundCue: params.roundCue || '',
+        instrument: params.instrument || 'spot',          // 'spot' | 'futures'
+        futuresExpiry: params.futuresExpiry || null,       // 'near' | 'next' | 'far'
+        expiryLabel: params.expiryLabel || '',             // e.g. '27-Jun-2026'
         optionsEnabled: params.optionsEnabled || false,
         optionsStrike: params.optionsStrike || null,
         optionsExpiry: params.optionsExpiry || null,

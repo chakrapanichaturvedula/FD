@@ -197,10 +197,14 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 
 <!-- ══ TRADING TERMINAL ══ -->
 <div id="tradeScreen">
-  <!-- Sticky top bar -->
+  <!-- Sticky top bar — NSE-style contract header -->
   <div class="top-bar">
     <div class="tb-r1">
-      <div class="tb-asset" id="tbAsset">—</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <div class="tb-asset" id="tbAsset">—</div>
+        <!-- Contract badge: SPOT or FUTURES with expiry -->
+        <div id="tbContractBadge" style="display:none;font-family:var(--mono);font-size:0.62rem;padding:3px 8px;border-radius:5px;background:rgba(45,212,191,0.1);border:1px solid rgba(45,212,191,0.2);color:var(--teal)"></div>
+      </div>
       <div class="tb-status ts-waiting" id="tbStatus">Waiting</div>
     </div>
     <div class="tb-r2">
@@ -208,7 +212,8 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
       <div class="tb-sub">
         <div class="tb-stat"><div class="tb-sv" id="tbHigh" style="color:var(--green)">—</div><div class="tb-sl">High</div></div>
         <div class="tb-stat"><div class="tb-sv" id="tbLow" style="color:var(--red)">—</div><div class="tb-sl">Low</div></div>
-        <div class="tb-stat"><div class="tb-sv" id="tbVol" style="color:var(--text2)">—</div><div class="tb-sl">Vol</div></div>
+        <div class="tb-stat"><div class="tb-sv" id="tbVol" style="color:var(--text2)">—</div><div class="tb-sl" id="tbVolLbl">Vol</div></div>
+        <div class="tb-stat" id="tbLotBox" style="display:none"><div class="tb-sv" id="tbLotSize" style="color:var(--text3)">—</div><div class="tb-sl">Lot</div></div>
       </div>
     </div>
   </div>
@@ -268,7 +273,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 
     <!-- Quantity -->
     <div class="qty-row">
-      <span class="price-lbl">Lots</span>
+      <span class="price-lbl" id="qtyLabel">Lots</span>
       <div class="qty-step">
         <button class="qs" onclick="stepQty(-1)">−</button>
         <input class="qv" id="qtyInput" type="number" value="1" min="1" oninput="updateVal()"/>
@@ -405,11 +410,44 @@ function onState(data){
 }
 
 function updateTopBar(data, md){
-  document.getElementById('tbAsset').textContent=data.assetName||'—';
-  document.getElementById('tbLTP').textContent=md.ltp?fmtRs(md.ltp):'—';
-  document.getElementById('tbHigh').textContent=md.high?fmtRs(md.high):'—';
-  document.getElementById('tbLow').textContent=md.low?fmtRs(md.low):'—';
-  document.getElementById('tbVol').textContent=(md.volume||0)+'L';
+  const isSpot = (data.instrument||'spot') === 'spot';
+  const isFutures = data.instrument === 'futures';
+
+  document.getElementById('tbAsset').textContent = data.assetName||'—';
+
+  // Contract badge
+  const badge = document.getElementById('tbContractBadge');
+  if(isFutures){
+    const expMap = {near:'Near Month', next:'Next Month', far:'Far Month'};
+    const expType = expMap[data.futuresExpiry||'near'] || 'Futures';
+    const expLabel = data.expiryLabel ? ' · Exp: '+data.expiryLabel : '';
+    badge.textContent = 'FUTURES · '+expType+expLabel;
+    badge.style.display='inline-flex';
+  } else {
+    badge.textContent = 'SPOT';
+    badge.style.display='inline-flex';
+  }
+
+  document.getElementById('tbLTP').textContent = md.ltp?fmtRs(md.ltp):'—';
+  document.getElementById('tbHigh').textContent = md.high?fmtRs(md.high):'—';
+  document.getElementById('tbLow').textContent  = md.low?fmtRs(md.low):'—';
+
+  // Volume label: shares for spot, lots for futures
+  const volVal = md.volume||0;
+  document.getElementById('tbVol').textContent  = isSpot ? fmt(volVal)+' sh' : volVal+'L';
+  document.getElementById('tbVolLbl').textContent = isSpot ? 'Volume (shares)' : 'Volume (lots)';
+
+  // Lot size display (only for futures)
+  if(isFutures && data.lotSize){
+    document.getElementById('tbLotSize').textContent = fmt(data.lotSize);
+    document.getElementById('tbLotBox').style.display = 'block';
+  } else {
+    document.getElementById('tbLotBox').style.display = 'none';
+  }
+
+  // Qty label
+  document.getElementById('qtyLabel').textContent = isSpot ? 'Shares' : 'Lots';
+
   const sm={open:'ts-open Trading Open',closed:'ts-closed Closed',waiting:'ts-waiting Waiting',ended:'ts-closed Ended',paused:'ts-paused Paused'};
   const [cls,...words]=(sm[data.status]||'ts-waiting Waiting').split(' ');
   const el=document.getElementById('tbStatus');
@@ -500,7 +538,14 @@ function updateVal(){
   const p=parseFloat(document.getElementById('priceInput').value)||0;
   const q=parseInt(document.getElementById('qtyInput').value)||1;
   const lot=gs?.lotSize||50;
-  document.getElementById('orderVal').textContent=tab==='limit'&&p>0?`Notional: ${fmtRs(p*q*lot)}`:`${q} lot${q!==1?'s':''}`;
+  const isSpot=(gs?.instrument||'spot')==='spot';
+  const unit = isSpot ? 'share' : 'lot';
+  if(tab==='limit'&&p>0){
+    const notional = isSpot ? p*q : p*q*lot;
+    document.getElementById('orderVal').textContent=`Notional: ${fmtRs(notional)} · ${q} ${unit}${q!==1?'s':''}`;
+  } else {
+    document.getElementById('orderVal').textContent=`${q} ${unit}${q!==1?'s':''}`;
+  }
 }
 
 /* ══ ORDER CONFIRM ══ */
@@ -511,15 +556,18 @@ function showConfirm(){
   const ob=gs?.orderBook||{bids:[],asks:[]};
   const topAsk=ob.asks?.length?Math.min(...ob.asks.map(a=>a.price)):null;
   const topBid=ob.bids?.length?Math.max(...ob.bids.map(b=>b.price)):null;
+  const isSpot=(gs?.instrument||'spot')==='spot';
+  const unit=isSpot?'share':'lot';
+  const unitP=isSpot?'shares':'lots';
   let body='';
   if(tab==='limit'){
     const warns=[];
     if(dir==='buy'&&topAsk&&price>=topAsk) warns.push(`⚠ Your buy price ${fmtRs(price)} is at or above the best ask ${fmtRs(topAsk)} — this will match immediately.`);
     if(dir==='sell'&&topBid&&price<=topBid) warns.push(`⚠ Your sell price ${fmtRs(price)} is at or below the best bid ${fmtRs(topBid)} — this will match immediately.`);
-    body=`<strong>LIMIT ${dir.toUpperCase()}</strong> · ${qty} lot${qty!==1?'s':''} · ${fmtRs(price)}<br><br>This order enters the order book. It executes when someone matches your price. You can cancel it from the orders list below.${warns.length?'<br><br>'+warns.join('<br>'):''}`;
+    body=`<strong>LIMIT ${dir.toUpperCase()}</strong> · ${qty} ${qty!==1?unitP:unit} · ${fmtRs(price)}<br><br>This order enters the order book. It executes when someone matches your price. You can cancel it from the orders list below.${warns.length?'<br><br>'+warns.join('<br>'):''}`;
   } else {
     const est=dir==='buy'?(topAsk?fmtRs(topAsk):'no sellers available'):(topBid?fmtRs(topBid):'no buyers available');
-    body=`<strong>MARKET ${dir.toUpperCase()}</strong> · ${qty} lot${qty!==1?'s':''}<br><br>Estimated fill: <strong>${est}</strong><br><br>Executes immediately at whatever price is available. You cannot cancel after confirming.`;
+    body=`<strong>MARKET ${dir.toUpperCase()}</strong> · ${qty} ${qty!==1?unitP:unit}<br><br>Estimated fill: <strong>${est}</strong><br><br>Executes immediately at whatever price is available. You cannot cancel after confirming.`;
   }
   document.getElementById('modalTitle').textContent=tab==='limit'?'Confirm limit order':'Confirm market order';
   document.getElementById('modalBody').innerHTML=body;
@@ -530,7 +578,7 @@ async function submitOrder(){
   closeModal('orderModal');
   const qty=parseInt(document.getElementById('qtyInput').value)||1;
   const price=parseFloat(document.getElementById('priceInput').value)||0;
-  const r=await PD.placeOrder({studentId:session.studentId,side:dir,type:tab,price:tab==='limit'?price:0,qty,instrument:'spot'});
+  const r=await PD.placeOrder({studentId:session.studentId,side:dir,type:tab,price:tab==='limit'?price:0,qty,instrument:gs?.instrument||'spot'});
   if(r?.error){toast('Error: '+r.error);return;}
   toast(tab==='limit'?'Limit order placed ✓':'Market order submitted ✓');
   if(tab==='limit') document.getElementById('priceInput').value='';
