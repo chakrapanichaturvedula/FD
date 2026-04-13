@@ -144,6 +144,7 @@ main{max-width:1100px;margin:0 auto;padding:24px 20px 60px}
     <a href="index.html">← Home</a>
     <a href="price-discovery-projector.html" target="_blank">Projector ↗</a>
     <a href="price-discovery.html" target="_blank">Student view ↗</a>
+    <a href="#" onclick="logout()" style="color:var(--text3)">Log out</a>
   </div>
   <div class="badge-i">INSTRUCTOR</div>
 </nav>
@@ -406,25 +407,52 @@ if(window.DLabConfig?.firebase?.apiKey) firebase.initializeApp(window.DLabConfig
 const SECRET = 'IMTFD26_INSTRUCTOR';
 let gs = null;
 let _gameLoaded = false;
-let selectedInst = 'spot';
+let _authed = false;
 
 const fmt   = n => n==null?'—':new Intl.NumberFormat('en-IN').format(Math.round(n));
 const fmtRs = n => '₹'+fmt(n);
 const fmtSign = n => (n>=0?'+₹':'−₹')+fmt(Math.abs(n));
 function toast(m,d=2500){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),d)}
 
-/* ── AUTH ── */
+/* ── AUTH — persists across refresh via sessionStorage ── */
 function doAuth(){
   if(document.getElementById('pwInput').value.trim()===SECRET){
-    document.getElementById('authScreen').style.display='none';
-    document.getElementById('console').style.display='block';
-    PD.init(onState);
-    toast('Access granted ✓');
+    sessionStorage.setItem('pd_auth','1');
+    _activate();
   } else { document.getElementById('pwInput').value=''; toast('Incorrect password'); }
 }
 document.getElementById('pwInput').addEventListener('keydown',e=>{ if(e.key==='Enter') doAuth(); });
 
-/* ── INSTRUMENT PICKER ── */
+function _activate(){
+  _authed = true;
+  document.getElementById('authScreen').style.display='none';
+  document.getElementById('console').style.display='block';
+  PD.init(onState);
+  toast('Access granted ✓');
+}
+
+// On page load: check if already authed this session
+window.addEventListener('DOMContentLoaded', () => {
+  if(sessionStorage.getItem('pd_auth')==='1'){
+    _activate();
+  }
+});
+
+let selectedInst = 'spot';
+
+function logout(){
+  sessionStorage.removeItem('pd_auth');
+  PD.stopMatching();
+  location.reload();
+}
+
+// Warn before closing if matching engine is active
+window.addEventListener('beforeunload', e => {
+  if(gs?.status === 'open'){
+    e.preventDefault();
+    e.returnValue = 'The matching engine is running. Closing this tab will stop trade matching. Close anyway?';
+  }
+});
 function pickInst(inst, el){
   selectedInst = inst;
   document.querySelectorAll('#instCards .ic').forEach(c=>c.classList.remove('active'));
@@ -441,8 +469,11 @@ function showSetup(){
   document.getElementById('controlPanel').style.display='none';
 }
 function showControl(){
+  _gameLoaded=true;   // mark as loaded so onState renders into control panel
   document.getElementById('setupPanel').style.display='none';
   document.getElementById('controlPanel').style.display='block';
+  // Immediately re-render with current game state if we have it
+  if(gs) onState(gs);
 }
 
 async function createGame(){
@@ -606,14 +637,36 @@ function instBadgeText(data){
 /* ── STATE HANDLER ── */
 function onState(data){
   gs=data;
-  // Show resume button if a game exists but we haven't loaded one
-  if(!_gameLoaded && data?.assetName && data.status!=='no_game'){
-    document.getElementById('resumeBtn').style.display='inline-flex';
-    document.getElementById('resumeBtn').textContent=`Resume: ${data.assetName} (${data.gameCode||'—'}) →`;
+
+  if(!data||data.status==='no_game'||!data.assetName){
+    // No game exists — show setup
+    if(document.getElementById('controlPanel').style.display!=='none'){
+      showSetup();
+    }
+    return;
   }
-  // Only update control panel if it's visible
+
+  // Game exists. If we haven't explicitly loaded one yet:
+  if(!_gameLoaded){
+    // Auto-resume to control panel if game is actively running
+    if(data.status==='open'||data.status==='paused'){
+      _gameLoaded=true;
+      document.getElementById('setupPanel').style.display='none';
+      document.getElementById('controlPanel').style.display='block';
+      // Also restart matching engine if round is open
+      if(data.status==='open') PD.startMatching();
+      toast('Resumed: '+data.assetName+' ('+data.gameCode+')');
+    } else {
+      // Game exists but not running — show resume button
+      document.getElementById('resumeBtn').style.display='inline-flex';
+      document.getElementById('resumeBtn').textContent=
+        `Resume: ${data.assetName} (${data.gameCode||'—'}) →`;
+      return; // don't update control panel yet
+    }
+  }
+
+  // Control panel is visible — update everything
   if(document.getElementById('controlPanel').style.display==='none') return;
-  if(!data||data.status==='no_game'||!data.assetName) return;
 
   const isSpot = (data.instrument||'spot')==='spot';
 

@@ -130,6 +130,7 @@ canvas{width:100%!important;height:100%!important;display:block}
       <div class="tb-logo">DERIVATIVES<span>LAB</span></div>
       <div class="tb-asset" id="pbAsset">—</div>
       <div class="tb-code" id="pbCode">—</div>
+      <div id="pbInstBadge" style="font-family:var(--mono);font-size:0.65rem;padding:3px 10px;border-radius:6px;background:rgba(45,212,191,0.1);border:1px solid rgba(45,212,191,0.2);color:var(--teal);display:none">SPOT</div>
     </div>
     <div class="top-center">
       <div class="tc-stat"><div class="tc-val" id="pbLTP" style="color:var(--amber)">—</div><div class="tc-lbl">LTP</div></div>
@@ -233,6 +234,16 @@ function onState(data){
   }
   document.getElementById('waitScreen').style.display='none';
   document.getElementById('projView').style.display='flex';
+
+  // Auto-sync instrument tab to game's instrument
+  if(data.instrument && data.instrument !== curInst){
+    curInst = data.instrument === 'options' ? 'call' : data.instrument;
+    document.querySelectorAll('#projTabs .it').forEach(t => t.classList.remove('active'));
+    const tabMap = { spot:'spot', futures:'futures', options:'call' };
+    const targetTab = document.querySelector(`#projTabs .it[onclick*="${tabMap[data.instrument]||'spot'}"]`);
+    if(targetTab) targetTab.classList.add('active');
+  }
+
   render(data);
   checkAnnouncement(data);
 }
@@ -245,6 +256,18 @@ function render(data){
   // Top bar
   document.getElementById('pbAsset').textContent = data.assetName+(data.assetSymbol?' · '+data.assetSymbol:'');
   document.getElementById('pbCode').textContent = 'Game: '+(data.gameCode||'—');
+  // Instrument badge
+  const instBadge = document.getElementById('pbInstBadge');
+  if(data.instrument==='futures'){
+    const m={near:'Near Month',next:'Next Month',far:'Far Month'};
+    instBadge.textContent='FUTURES · '+(m[data.futuresExpiry]||'')+(data.expiryLabel?' · '+data.expiryLabel:'');
+    instBadge.style.display='block';
+  } else if(data.instrument==='options'){
+    instBadge.textContent='OPTIONS · '+(data.optType||'Call').toUpperCase()+' · ₹'+(data.optStrike||'—');
+    instBadge.style.display='block';
+  } else {
+    instBadge.textContent='SPOT'; instBadge.style.display='block';
+  }
   const md = data.marketData||{};
   document.getElementById('pbLTP').textContent = md.ltp?fmtRs(md.ltp):'—';
   document.getElementById('pbHigh').textContent = md.high?fmtRs(md.high):'—';

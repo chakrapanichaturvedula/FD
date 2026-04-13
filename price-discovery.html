@@ -369,10 +369,19 @@ function unitLabel(data, plural=true){
 function onState(data){
   gs=data;
   if(!data||data.status==='no_game') return;
-  if(data.status==='open'&&document.getElementById('waitScreen').style.display!=='none'){
+
+  // Switch from wait → trade whenever game is open OR paused (already started)
+  const active = data.status==='open'||data.status==='paused';
+  if(active && document.getElementById('waitScreen').style.display!=='none'){
     document.getElementById('waitScreen').style.display='none';
     document.getElementById('tradeScreen').style.display='block';
   }
+  // Also handle: student refreshes browser while game is open
+  if(active && document.getElementById('joinScreen').style.display!=='none' && session.studentId){
+    document.getElementById('joinScreen').style.display='none';
+    document.getElementById('tradeScreen').style.display='block';
+  }
+
   if(document.getElementById('tradeScreen').style.display==='none') return;
   updateHeader(data);
   updateContractInfo(data);
