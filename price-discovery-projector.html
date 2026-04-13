@@ -279,7 +279,7 @@ function render(data){
   // Order book
   const bids=(ob.bids||[]).filter(o=>!o.instrument||o.instrument===curInst);
   const asks=(ob.asks||[]).filter(o=>!o.instrument||o.instrument===curInst);
-  function agg(arr){const m={};arr.forEach(o=>{if(!m[o.price])m[o.price]={price:o.price,qty:0};m[o.price].qty+=o.qty});return Object.values(m)}
+  function agg(arr){const m={};arr.forEach(o=>{const q=parseInt(o.remainingQty??o.qty??o.originalQty??0)||0;if(!m[o.price])m[o.price]={price:o.price,qty:0};m[o.price].qty+=q});return Object.values(m)}
   const aBids=agg(bids).sort((a,b)=>b.price-a.price).slice(0,10);
   const aAsks=agg(asks).sort((a,b)=>a.price-b.price).slice(0,10);
   const maxQ=Math.max(...aBids.map(b=>b.qty),...aAsks.map(a=>a.qty),1);

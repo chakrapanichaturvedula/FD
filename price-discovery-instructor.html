@@ -561,7 +561,7 @@ async function disableOpt(){
 
 /* ── ORDER BOOK ── */
 function renderOB(ob){
-  function agg(arr){ const m={}; arr.forEach(o=>{ if(!m[o.price])m[o.price]={price:o.price,qty:0,names:[]}; m[o.price].qty+=o.qty; if(o.trader)m[o.price].names.push(o.trader); }); return Object.values(m); }
+  function agg(arr){ const m={}; arr.forEach(o=>{ const q=parseInt(o.remainingQty??o.qty??o.originalQty??0)||0; if(!m[o.price])m[o.price]={price:o.price,qty:0,names:[]}; m[o.price].qty+=q; if(o.trader)m[o.price].names.push(o.trader); }); return Object.values(m); }
   const bids=agg(ob.bids||[]).sort((a,b)=>b.price-a.price).slice(0,8);
   const asks=agg(ob.asks||[]).sort((a,b)=>a.price-b.price).slice(0,8);
   const maxQ=Math.max(...bids.map(b=>b.qty),...asks.map(a=>a.qty),1);

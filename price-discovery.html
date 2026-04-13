@@ -98,12 +98,10 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .dir-btn.buy.active{border-color:rgba(74,222,128,0.5);background:rgba(74,222,128,0.1);color:var(--green)}
 .dir-btn.sell.active{border-color:rgba(248,113,113,0.5);background:rgba(248,113,113,0.1);color:var(--red)}
 
-/* PRICE ROW */
+/* PRICE INPUT */
 .price-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .price-lbl{font-family:var(--mono);font-size:0.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;min-width:44px}
-.step-btn{padding:7px 11px;border-radius:7px;background:var(--bg4);border:1px solid var(--border2);font-size:0.8rem;cursor:pointer;font-family:var(--mono);color:var(--text2);transition:background .1s}
-.step-btn:hover{background:var(--bg3);color:var(--text)}
-.price-inp{flex:1;padding:10px 12px;border-radius:9px;background:var(--bg3);border:1.5px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:1rem;outline:none;text-align:right;transition:border-color .15s}
+.price-inp{flex:1;padding:12px 16px;border-radius:10px;background:var(--bg3);border:1.5px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:1.1rem;outline:none;text-align:right;transition:border-color .15s}
 .price-inp:focus{border-color:var(--amber)}
 .price-inp:disabled{opacity:.4;cursor:not-allowed}
 .price-hint{font-family:var(--mono);font-size:0.62rem;color:var(--text3);text-align:right;margin-bottom:10px}
@@ -257,10 +255,8 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
     <!-- Price (limit only) -->
     <div id="priceSection">
       <div class="price-row">
-        <span class="price-lbl">Price</span>
-        <button class="step-btn" onclick="stepPrice(-10)">−10</button>
-        <input class="price-inp" id="priceInput" type="number" min="1" step="1" placeholder="₹"/>
-        <button class="step-btn" onclick="stepPrice(+10)">+10</button>
+        <span class="price-lbl">Price (₹)</span>
+        <input class="price-inp" id="priceInput" type="number" min="1" step="1" placeholder="Enter price"/>
       </div>
       <div class="price-hint" id="priceHint">Best bid: — · Best ask: —</div>
     </div>
@@ -447,7 +443,7 @@ function updatePriceHint(ob){
 
 /* ══ ORDER BOOK ══ */
 function renderOB(ob){
-  function agg(arr){const m={};arr.forEach(o=>{if(!m[o.price])m[o.price]={price:o.price,qty:0};m[o.price].qty+=o.qty});return Object.values(m)}
+  function agg(arr){const m={};arr.forEach(o=>{const q=parseInt(o.remainingQty??o.qty??o.originalQty??0)||0;if(!m[o.price])m[o.price]={price:o.price,qty:0};m[o.price].qty+=q});return Object.values(m)}
   const bids=agg(ob.bids||[]).sort((a,b)=>b.price-a.price).slice(0,5);
   const asks=agg(ob.asks||[]).sort((a,b)=>a.price-b.price).slice(0,5);
   const maxQ=Math.max(...bids.map(b=>b.qty),...asks.map(a=>a.qty),1);
@@ -499,7 +495,6 @@ function updateSubmitBtn(){
   else{btn.className='sub-sell';btn.textContent=tab==='limit'?'Place Limit Sell':'Market Sell';}
 }
 
-function stepPrice(d){const el=document.getElementById('priceInput');el.value=Math.max(1,(parseFloat(el.value)||0)+d);updateVal();}
 function stepQty(d){const el=document.getElementById('qtyInput');el.value=Math.max(1,(parseInt(el.value)||1)+d);updateVal();}
 function updateVal(){
   const p=parseFloat(document.getElementById('priceInput').value)||0;
