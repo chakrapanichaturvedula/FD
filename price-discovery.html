@@ -17,150 +17,145 @@
   --sans:'DM Sans',system-ui,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;-webkit-text-size-adjust:100%}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh}
 
-/* ── JOIN SCREEN ── */
-#joinScreen{max-width:420px;margin:0 auto;padding:60px 20px}
+/* ══ JOIN SCREEN ══ */
+#joinScreen{max-width:400px;margin:0 auto;padding:48px 20px}
 .join-logo{font-family:var(--mono);font-size:0.78rem;color:var(--amber);margin-bottom:20px;text-align:center}
 .join-logo span{color:var(--text3)}
-.join-card{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:28px 24px}
-.jc-title{font-family:var(--serif);font-size:1.5rem;margin-bottom:4px}
-.jc-sub{font-size:0.84rem;color:var(--text2);margin-bottom:22px}
+.jcard{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:28px 22px}
+.jcard-title{font-family:var(--serif);font-size:1.4rem;margin-bottom:4px}
+.jcard-sub{font-size:0.82rem;color:var(--text2);margin-bottom:20px}
 .fi{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
 .fi label{font-family:var(--mono);font-size:0.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em}
-.fi input{padding:11px 14px;border-radius:10px;background:var(--bg3);border:1.5px solid var(--border2);color:var(--text);font-size:0.92rem;outline:none;transition:border-color .15s}
+.fi input{padding:11px 14px;border-radius:10px;background:var(--bg3);border:1.5px solid var(--border2);color:var(--text);font-size:0.92rem;outline:none;transition:border-color .15s;width:100%}
 .fi input:focus{border-color:var(--amber)}
 .fi input.err{border-color:var(--red)}
-.fi input.code{font-family:var(--mono);font-size:1.3rem;letter-spacing:0.15em;text-align:center;text-transform:uppercase}
-.btn-full{width:100%;padding:13px;border-radius:11px;font-size:0.9rem;font-weight:700;cursor:pointer;border:none;font-family:var(--sans);transition:all .15s}
-.btn-amber{background:var(--amber);color:#0f1117}.btn-amber:hover{background:var(--amber2)}
-.btn-ghost{background:var(--bg3);border:1px solid var(--border2);color:var(--text2)}.btn-ghost:hover{color:var(--text)}
-.join-err{display:none;color:var(--red);font-size:0.8rem;margin-top:6px}
+.code-input{font-family:var(--mono);font-size:1.5rem;letter-spacing:0.2em;text-align:center;text-transform:uppercase}
+.join-btn{width:100%;padding:13px;border-radius:11px;background:var(--amber);color:#0f1117;font-size:0.92rem;font-weight:700;border:none;cursor:pointer;font-family:var(--sans);transition:background .15s;margin-top:4px}
+.join-btn:hover{background:var(--amber2)}
+.join-btn:disabled{opacity:.5;cursor:not-allowed}
+.join-err{display:none;color:var(--red);font-size:0.8rem;margin-top:8px;padding:8px 12px;background:rgba(248,113,113,0.08);border-radius:8px;border:1px solid rgba(248,113,113,0.2)}
 .join-err.show{display:block}
 
-/* ── ROLE CARD ── */
-#roleScreen{max-width:420px;margin:0 auto;padding:40px 20px;display:none}
-.role-card{background:var(--bg2);border:1px solid rgba(167,139,250,0.3);border-radius:20px;padding:28px 24px}
-.rc-kicker{font-family:var(--mono);font-size:0.62rem;color:var(--violet);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px}
-.rc-role{font-family:var(--serif);font-size:1.6rem;margin-bottom:10px;color:var(--violet)}
-.rc-desc{font-size:0.88rem;color:var(--text2);line-height:1.6;margin-bottom:14px;padding:12px 14px;background:rgba(167,139,250,0.05);border:1px solid rgba(167,139,250,0.1);border-radius:10px}
-.rc-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px}
-.rc-item{background:var(--bg3);border-radius:9px;padding:10px 12px}
-.rc-item-lbl{font-family:var(--mono);font-size:0.56rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em}
-.rc-item-val{font-family:var(--mono);font-size:0.92rem;margin-top:2px}
+/* ══ WAITING SCREEN ══ */
+#waitScreen{display:none;max-width:400px;margin:0 auto;padding:80px 20px;text-align:center}
+.wait-icon{font-size:2.5rem;margin-bottom:16px}
+.wait-title{font-family:var(--serif);font-size:1.3rem;margin-bottom:8px}
+.wait-sub{font-size:0.84rem;color:var(--text2);margin-bottom:20px;line-height:1.6}
+.wait-code{font-family:var(--mono);font-size:0.72rem;padding:8px 16px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text2);display:inline-block}
 
-/* ── TRADING TERMINAL ── */
-#tradeScreen{display:none;max-width:480px;margin:0 auto;padding-bottom:20px}
+/* ══ TRADING TERMINAL ══ */
+#tradeScreen{display:none;max-width:480px;margin:0 auto;padding-bottom:40px}
+
+/* TOP BAR */
 .top-bar{position:sticky;top:0;z-index:50;background:rgba(15,17,23,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:10px 16px}
-.tb-row1{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.tb-r1{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px}
 .tb-asset{font-family:var(--serif);font-size:1rem}
 .tb-status{font-family:var(--mono);font-size:0.62rem;padding:3px 8px;border-radius:5px}
 .ts-open{background:rgba(74,222,128,0.1);color:var(--green);border:1px solid rgba(74,222,128,0.2)}
 .ts-closed{background:var(--bg3);color:var(--text3);border:1px solid var(--border)}
 .ts-paused{background:rgba(96,165,250,0.1);color:#60a5fa;border:1px solid rgba(96,165,250,0.2)}
-.tb-row2{display:flex;gap:16px;align-items:baseline}
-.tb-ltp{font-family:var(--mono);font-size:1.5rem;font-weight:500;color:var(--amber)}
-.tb-stats{display:flex;gap:10px}
+.ts-waiting{background:var(--bg3);color:var(--text3);border:1px solid var(--border)}
+.tb-r2{display:flex;align-items:baseline;gap:12px}
+.tb-ltp{font-family:var(--mono);font-size:1.6rem;font-weight:500;color:var(--amber)}
+.tb-sub{display:flex;gap:12px}
 .tb-stat{text-align:center}
-.tb-stat-val{font-family:var(--mono);font-size:0.72rem}
-.tb-stat-lbl{font-family:var(--mono);font-size:0.52rem;color:var(--text3);text-transform:uppercase}
+.tb-sv{font-family:var(--mono);font-size:0.72rem}
+.tb-sl{font-family:var(--mono);font-size:0.5rem;color:var(--text3);text-transform:uppercase}
 
-.section{padding:12px 16px;border-bottom:1px solid var(--border)}
-.sec-label{font-family:var(--mono);font-size:0.58rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px}
+/* SECTION */
+.sec{padding:12px 16px;border-bottom:1px solid var(--border)}
+.sec-lbl{font-family:var(--mono);font-size:0.58rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px}
 
 /* MY STATUS */
-.status-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.sg-box{background:var(--bg3);border-radius:9px;padding:9px 10px;text-align:center}
-.sg-val{font-family:var(--mono);font-size:0.86rem;font-weight:500}
-.sg-lbl{font-family:var(--mono);font-size:0.52rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-top:2px}
-
-/* ROLE BADGE */
-.role-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:7px;background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.2);font-size:0.8rem;color:var(--violet);cursor:pointer;transition:background .15s}
-.role-badge:hover{background:rgba(167,139,250,0.18)}
+.my-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.mg-box{background:var(--bg3);border-radius:9px;padding:10px;text-align:center}
+.mg-val{font-family:var(--mono);font-size:0.9rem;font-weight:500}
+.mg-lbl{font-family:var(--mono);font-size:0.5rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-top:2px}
 
 /* ORDER BOOK */
-.ob-rows{display:flex;flex-direction:column;gap:2px}
 .ob-ask-side{margin-bottom:4px}
 .ob-bid-side{margin-top:4px}
-.ob-row{display:flex;justify-content:space-between;padding:5px 10px;border-radius:6px;position:relative;overflow:hidden;font-family:var(--mono);font-size:0.78rem}
-.ob-bg-bid{position:absolute;left:0;top:0;bottom:0;background:rgba(74,222,128,0.07);border-radius:6px}
-.ob-bg-ask{position:absolute;right:0;top:0;bottom:0;background:rgba(248,113,113,0.07);border-radius:6px}
-.ob-p-bid{color:var(--green);font-weight:500;position:relative}
-.ob-p-ask{color:var(--red);font-weight:500;position:relative}
+.ob-level{display:flex;justify-content:space-between;padding:5px 10px;border-radius:6px;position:relative;overflow:hidden;font-family:var(--mono);font-size:0.8rem;margin-bottom:2px}
+.ob-bg-bid{position:absolute;left:0;top:0;bottom:0;background:rgba(74,222,128,0.07)}
+.ob-bg-ask{position:absolute;right:0;top:0;bottom:0;background:rgba(248,113,113,0.07)}
+.ob-pb{color:var(--green);font-weight:500;position:relative}
+.ob-pa{color:var(--red);font-weight:500;position:relative}
 .ob-q{color:var(--text3);font-size:0.7rem;position:relative}
-.spread-line{text-align:center;font-family:var(--mono);font-size:0.66rem;color:var(--amber);padding:4px;background:rgba(245,166,35,0.05);border-radius:5px;margin:2px 0}
-.ob-empty{text-align:center;color:var(--text3);font-size:0.76rem;padding:10px;font-style:italic}
+.spread-line{text-align:center;font-family:var(--mono);font-size:0.66rem;color:var(--amber);padding:4px;background:rgba(245,166,35,0.05);border-radius:5px;margin:3px 0}
+.ob-empty{text-align:center;color:var(--text3);font-size:0.76rem;padding:8px;font-style:italic}
 
 /* ORDER TABS */
-.order-tabs{display:grid;grid-template-columns:1fr 1fr;gap:0;background:var(--bg3);border-radius:10px;overflow:hidden;margin-bottom:12px;border:1px solid var(--border2)}
-.ot{padding:10px;text-align:center;font-size:0.82rem;font-weight:600;cursor:pointer;transition:all .2s;color:var(--text3)}
-.ot.active.limit{background:rgba(45,212,191,0.12);border-bottom:2px solid var(--teal);color:var(--teal)}
-.ot.active.market{background:rgba(245,166,35,0.12);border-bottom:2px solid var(--amber);color:var(--amber)}
+.order-tabs{display:grid;grid-template-columns:1fr 1fr;border-radius:10px;overflow:hidden;background:var(--bg3);border:1px solid var(--border2);margin-bottom:12px}
+.ot{padding:11px;text-align:center;font-size:0.84rem;font-weight:600;cursor:pointer;transition:all .2s;color:var(--text3)}
+.ot.active-limit{background:rgba(45,212,191,0.12);border-bottom:2px solid var(--teal);color:var(--teal)}
+.ot.active-market{background:rgba(245,166,35,0.12);border-bottom:2px solid var(--amber);color:var(--amber)}
 
-/* DIRECTION TOGGLE */
-.dir-toggle{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px}
-.dt-btn{padding:10px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg3);font-size:0.88rem;font-weight:700;cursor:pointer;text-align:center;transition:all .15s;font-family:var(--sans);color:var(--text3)}
-.dt-btn.buy.active{border-color:rgba(74,222,128,0.5);background:rgba(74,222,128,0.1);color:var(--green)}
-.dt-btn.sell.active{border-color:rgba(248,113,113,0.5);background:rgba(248,113,113,0.1);color:var(--red)}
+/* BUY / SELL */
+.dir-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.dir-btn{padding:11px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg3);font-size:0.9rem;font-weight:700;cursor:pointer;text-align:center;transition:all .15s;font-family:var(--sans);color:var(--text3)}
+.dir-btn.buy.active{border-color:rgba(74,222,128,0.5);background:rgba(74,222,128,0.1);color:var(--green)}
+.dir-btn.sell.active{border-color:rgba(248,113,113,0.5);background:rgba(248,113,113,0.1);color:var(--red)}
 
-/* PRICE INPUT */
-.price-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-.price-label{font-family:var(--mono);font-size:0.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;min-width:48px}
-.price-input{flex:1;padding:10px 12px;border-radius:9px;background:var(--bg3);border:1.5px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:1rem;outline:none;transition:border-color .15s;text-align:right}
-.price-input:focus{border-color:var(--amber)}
-.price-input:disabled{opacity:.4}
-.price-step{padding:8px 12px;border-radius:8px;background:var(--bg4);border:1px solid var(--border2);font-size:0.8rem;cursor:pointer;font-family:var(--mono);color:var(--text2);transition:all .15s;flex-shrink:0}
-.price-step:hover{color:var(--text)}
-.price-hint{font-family:var(--mono);font-size:0.64rem;color:var(--text3);text-align:right}
+/* PRICE ROW */
+.price-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.price-lbl{font-family:var(--mono);font-size:0.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;min-width:44px}
+.step-btn{padding:7px 11px;border-radius:7px;background:var(--bg4);border:1px solid var(--border2);font-size:0.8rem;cursor:pointer;font-family:var(--mono);color:var(--text2);transition:background .1s}
+.step-btn:hover{background:var(--bg3);color:var(--text)}
+.price-inp{flex:1;padding:10px 12px;border-radius:9px;background:var(--bg3);border:1.5px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:1rem;outline:none;text-align:right;transition:border-color .15s}
+.price-inp:focus{border-color:var(--amber)}
+.price-inp:disabled{opacity:.4;cursor:not-allowed}
+.price-hint{font-family:var(--mono);font-size:0.62rem;color:var(--text3);text-align:right;margin-bottom:10px}
 
-/* QTY ROW */
-.qty-row{display:flex;align-items:center;gap:8px;margin-bottom:12px}
-.qty-stepper{display:flex;border:1.5px solid var(--border2);border-radius:9px;overflow:hidden}
-.qs-btn{width:36px;height:36px;background:var(--bg3);border:none;color:var(--text2);font-size:1.2rem;cursor:pointer;transition:background .1s}
-.qs-btn:hover{background:var(--bg4);color:var(--text)}
-.qs-val{width:48px;text-align:center;font-family:var(--mono);font-size:1rem;background:transparent;border:none;border-left:1px solid var(--border);border-right:1px solid var(--border);height:36px;color:var(--text);outline:none}
+/* QTY */
+.qty-row{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.qty-step{display:flex;border:1.5px solid var(--border2);border-radius:9px;overflow:hidden}
+.qs{width:36px;height:36px;background:var(--bg3);border:none;color:var(--text2);font-size:1.1rem;cursor:pointer;transition:background .1s}
+.qs:hover{background:var(--bg4);color:var(--text)}
+.qv{width:44px;height:36px;text-align:center;font-family:var(--mono);font-size:1rem;background:transparent;border:none;border-left:1px solid var(--border);border-right:1px solid var(--border);color:var(--text);outline:none}
+.order-val{font-family:var(--mono);font-size:0.7rem;color:var(--text3);text-align:right;margin-bottom:12px}
 
 /* MARKET NOTE */
-.market-note{padding:9px 12px;background:rgba(245,166,35,0.06);border:1px solid rgba(245,166,35,0.2);border-radius:9px;font-size:0.78rem;color:var(--amber);margin-bottom:10px;line-height:1.5}
-.market-note.dn{background:rgba(248,113,113,0.06);border-color:rgba(248,113,113,0.2);color:var(--red)}
+.mkt-note{padding:9px 12px;background:rgba(245,166,35,0.06);border:1px solid rgba(245,166,35,0.2);border-radius:9px;font-size:0.8rem;color:var(--amber);margin-bottom:10px;line-height:1.5;display:none}
 
-/* ORDER VALUE */
-.order-value{font-family:var(--mono);font-size:0.72rem;color:var(--text3);margin-bottom:12px;text-align:right}
-
-/* SUBMIT BUTTONS */
-.submit-buy{width:100%;padding:14px;border-radius:12px;background:rgba(74,222,128,0.15);border:1.5px solid rgba(74,222,128,0.35);color:var(--green);font-size:0.95rem;font-weight:700;cursor:pointer;transition:all .15s}
-.submit-buy:hover:not(:disabled){background:rgba(74,222,128,0.25)}
-.submit-sell{width:100%;padding:14px;border-radius:12px;background:rgba(248,113,113,0.12);border:1.5px solid rgba(248,113,113,0.35);color:var(--red);font-size:0.95rem;font-weight:700;cursor:pointer;transition:all .15s}
-.submit-sell:hover:not(:disabled){background:rgba(248,113,113,0.2)}
-.submit-btn:disabled,.submit-buy:disabled,.submit-sell:disabled{opacity:.35;cursor:not-allowed}
+/* SUBMIT */
+.sub-buy{width:100%;padding:14px;border-radius:12px;background:rgba(74,222,128,0.15);border:1.5px solid rgba(74,222,128,0.35);color:var(--green);font-size:0.95rem;font-weight:700;cursor:pointer;transition:all .15s}
+.sub-buy:hover:not(:disabled){background:rgba(74,222,128,0.25)}
+.sub-sell{width:100%;padding:14px;border-radius:12px;background:rgba(248,113,113,0.12);border:1.5px solid rgba(248,113,113,0.35);color:var(--red);font-size:0.95rem;font-weight:700;cursor:pointer;transition:all .15s}
+.sub-sell:hover:not(:disabled){background:rgba(248,113,113,0.2)}
+.sub-buy:disabled,.sub-sell:disabled{opacity:.35;cursor:not-allowed}
 
 /* BLOTTER */
-.blotter-table{width:100%;border-collapse:collapse;font-size:0.76rem}
-.blotter-table th{font-family:var(--mono);font-size:0.54rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;padding:5px 8px;text-align:left;border-bottom:1px solid var(--border)}
-.blotter-table td{padding:7px 8px;border-bottom:1px solid var(--border);vertical-align:middle}
-.blotter-table tr:last-child td{border-bottom:none}
-.cancel-btn{padding:4px 10px;border-radius:6px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.25);color:var(--red);font-size:0.7rem;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .15s;white-space:nowrap}
+.blot-tbl{width:100%;border-collapse:collapse;font-size:0.78rem}
+.blot-tbl th{font-family:var(--mono);font-size:0.54rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;padding:5px 8px;text-align:left;border-bottom:1px solid var(--border)}
+.blot-tbl td{padding:7px 8px;border-bottom:1px solid var(--border);vertical-align:middle}
+.blot-tbl tr:last-child td{border-bottom:none}
+.st-open{color:var(--amber);font-family:var(--mono);font-size:0.68rem}
+.st-partial{color:var(--teal);font-family:var(--mono);font-size:0.68rem}
+.st-filled{color:var(--green);font-family:var(--mono);font-size:0.68rem}
+.st-cancelled{color:var(--text3);font-family:var(--mono);font-size:0.68rem}
+.cancel-btn{padding:3px 9px;border-radius:6px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.25);color:var(--red);font-size:0.68rem;font-weight:600;cursor:pointer;font-family:var(--sans);white-space:nowrap}
 .cancel-btn:hover{background:rgba(248,113,113,0.2)}
-.st-open{color:var(--amber);font-family:var(--mono);font-size:0.7rem}
-.st-filled{color:var(--green);font-family:var(--mono);font-size:0.7rem}
-.st-cancelled{color:var(--text3);font-family:var(--mono);font-size:0.7rem}
-.st-partial{color:var(--teal);font-family:var(--mono);font-size:0.7rem}
-.blot-empty{text-align:center;padding:20px;color:var(--text3);font-size:0.8rem;font-style:italic}
+.blot-empty{text-align:center;padding:16px;color:var(--text3);font-size:0.78rem;font-style:italic}
 
 /* ANNOUNCEMENT */
-.ann-banner{position:fixed;top:0;left:0;right:0;z-index:200;background:var(--amber);color:#0f1117;padding:10px 16px;font-weight:600;font-size:0.88rem;text-align:center;display:none;animation:slideDown .3s ease}
+.ann-banner{position:fixed;top:0;left:0;right:0;z-index:200;background:var(--amber);color:#0f1117;padding:10px 16px;font-weight:600;font-size:0.86rem;text-align:center;display:none;animation:slideDown .3s ease}
 @keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}
 .ann-banner.show{display:block}
 
 /* MODAL */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;align-items:flex-end;justify-content:center;z-index:100}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.75);display:none;align-items:flex-end;justify-content:center;z-index:100}
 .modal-bg.show{display:flex}
 .modal{background:var(--bg2);border:1px solid var(--border2);border-radius:20px 20px 0 0;padding:24px 20px;width:100%;max-width:480px;animation:slideUp .25s ease}
 @keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
 .modal-title{font-family:var(--serif);font-size:1.1rem;margin-bottom:6px}
-.modal-body{font-size:0.86rem;color:var(--text2);margin-bottom:20px;line-height:1.6}
-.modal-actions{display:flex;gap:10px}
-.modal-actions button{flex:1}
+.modal-body{font-size:0.84rem;color:var(--text2);margin-bottom:20px;line-height:1.6}
+.modal-acts{display:flex;gap:10px}
+.modal-acts button{flex:1;padding:11px;border-radius:9px;font-size:0.86rem;font-weight:600;cursor:pointer;border:none;font-family:var(--sans)}
+.modal-cancel{background:var(--bg3);color:var(--text2)}
+.modal-confirm{background:var(--amber);color:#0f1117}
+.modal-danger{background:rgba(248,113,113,0.15);border:1.5px solid rgba(248,113,113,0.35)!important;color:var(--red)}
 
 /* TOAST */
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:9px 16px;border-radius:9px;font-size:0.82rem;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;z-index:300;white-space:nowrap;max-width:90vw;text-align:center}
@@ -169,128 +164,139 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 </head>
 <body>
 
-<!-- ANNOUNCEMENT BANNER -->
 <div class="ann-banner" id="annBanner"></div>
 
-<!-- JOIN SCREEN -->
+<!-- ══ JOIN SCREEN ══ -->
 <div id="joinScreen">
   <div class="join-logo">DERIVATIVES<span>LAB</span></div>
-  <div class="join-card">
-    <div class="jc-title">Join Game</div>
-    <p class="jc-sub">Enter the 4-letter code on the projector screen</p>
-    <div class="fi"><label>Game code</label><input id="joinCode" class="code" maxlength="4" placeholder="FD26" oninput="this.value=this.value.toUpperCase()"/></div>
-    <div class="fi"><label>Your name</label><input id="joinName" placeholder="e.g. Sneha Rao" autocomplete="name"/></div>
-    <div class="fi"><label>Roll number (optional)</label><input id="joinRoll" placeholder="e.g. 2024MBA042"/></div>
-    <div class="join-err" id="joinErr"></div>
-    <button class="btn-full btn-amber" style="margin-top:6px" onclick="doJoin()">Join →</button>
-  </div>
-</div>
-
-<!-- ROLE CARD SCREEN -->
-<div id="roleScreen">
-  <div style="font-family:var(--mono);font-size:0.7rem;color:var(--amber);text-align:center;margin-bottom:16px">⬡ Price Discovery · DerivativesLab</div>
-  <div class="role-card">
-    <div class="rc-kicker">Your role this round</div>
-    <div class="rc-role" id="rcRole">—</div>
-    <div class="rc-desc" id="rcDesc">—</div>
-    <div class="rc-meta">
-      <div class="rc-item"><div class="rc-item-lbl">Starting capital</div><div class="rc-item-val" id="rcCapital">—</div></div>
-      <div class="rc-item"><div class="rc-item-lbl">Position limit</div><div class="rc-item-val" id="rcLimit">±10 lots</div></div>
+  <div class="jcard">
+    <div class="jcard-title">Join Game</div>
+    <p class="jcard-sub">Enter the 4-letter code shown on the classroom screen</p>
+    <div class="fi">
+      <label>Game code</label>
+      <input id="joinCode" class="code-input" maxlength="4" placeholder="e.g. BH78" autocomplete="off" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')doJoin()"/>
     </div>
-    <button class="btn-full btn-amber" onclick="startTrading()">I understand — Start Trading →</button>
+    <div class="fi">
+      <label>Your name</label>
+      <input id="joinName" placeholder="e.g. Sneha Rao" autocomplete="name" onkeydown="if(event.key==='Enter')doJoin()"/>
+    </div>
+    <div class="fi">
+      <label>Roll number <span style="color:var(--text3);font-family:var(--sans);text-transform:none;font-size:0.65rem;letter-spacing:0">(optional)</span></label>
+      <input id="joinRoll" placeholder="e.g. 2024MBA042" onkeydown="if(event.key==='Enter')doJoin()"/>
+    </div>
+    <div class="join-err" id="joinErr"></div>
+    <button class="join-btn" id="joinBtn" onclick="doJoin()">Join →</button>
   </div>
 </div>
 
-<!-- TRADING TERMINAL -->
-<div id="tradeScreen">
+<!-- ══ WAITING SCREEN ══ -->
+<div id="waitScreen">
+  <div class="wait-icon">⏳</div>
+  <div class="wait-title">Waiting for instructor</div>
+  <p class="wait-sub">You've joined successfully. The instructor will open the round shortly — trading will begin when they press "Open Round".</p>
+  <div class="wait-code" id="waitInfo">—</div>
+</div>
 
-  <!-- STICKY TOP BAR -->
+<!-- ══ TRADING TERMINAL ══ -->
+<div id="tradeScreen">
+  <!-- Sticky top bar -->
   <div class="top-bar">
-    <div class="tb-row1">
+    <div class="tb-r1">
       <div class="tb-asset" id="tbAsset">—</div>
       <div class="tb-status ts-waiting" id="tbStatus">Waiting</div>
     </div>
-    <div class="tb-row2">
+    <div class="tb-r2">
       <div class="tb-ltp" id="tbLTP">—</div>
-      <div class="tb-stats">
-        <div class="tb-stat"><div class="tb-stat-val" id="tbHigh" style="color:var(--green)">—</div><div class="tb-stat-lbl">High</div></div>
-        <div class="tb-stat"><div class="tb-stat-val" id="tbLow" style="color:var(--red)">—</div><div class="tb-stat-lbl">Low</div></div>
-        <div class="tb-stat"><div class="tb-stat-val" id="tbVol" style="color:var(--text2)">—</div><div class="tb-stat-lbl">Vol</div></div>
+      <div class="tb-sub">
+        <div class="tb-stat"><div class="tb-sv" id="tbHigh" style="color:var(--green)">—</div><div class="tb-sl">High</div></div>
+        <div class="tb-stat"><div class="tb-sv" id="tbLow" style="color:var(--red)">—</div><div class="tb-sl">Low</div></div>
+        <div class="tb-stat"><div class="tb-sv" id="tbVol" style="color:var(--text2)">—</div><div class="tb-sl">Vol</div></div>
       </div>
     </div>
   </div>
 
-  <!-- MY STATUS -->
-  <div class="section">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-      <div class="sec-label" style="margin-bottom:0">My position</div>
-      <div class="role-badge" onclick="showRoleCard()"><span id="myRoleEmoji">🎯</span> <span id="myRoleName">—</span></div>
-    </div>
-    <div class="status-grid">
-      <div class="sg-box"><div class="sg-val" id="myCapital" style="color:var(--text)">—</div><div class="sg-lbl">Capital</div></div>
-      <div class="sg-box"><div class="sg-val" id="myPosition" style="color:var(--text3)">Flat</div><div class="sg-lbl">Position</div></div>
-      <div class="sg-box"><div class="sg-val" id="myPnL">—</div><div class="sg-lbl">P&amp;L</div></div>
+  <!-- My position -->
+  <div class="sec">
+    <div class="sec-lbl">My position</div>
+    <div class="my-grid">
+      <div class="mg-box"><div class="mg-val" id="myCapital">—</div><div class="mg-lbl">Capital</div></div>
+      <div class="mg-box"><div class="mg-val" id="myPosition" style="color:var(--text3)">Flat</div><div class="mg-lbl">Position</div></div>
+      <div class="mg-box"><div class="mg-val" id="myPnL">—</div><div class="mg-lbl">P&amp;L</div></div>
     </div>
   </div>
 
-  <!-- ORDER BOOK -->
-  <div class="section">
-    <div class="sec-label">Order book</div>
+  <!-- Order book -->
+  <div class="sec">
+    <div class="sec-lbl">Order book</div>
     <div id="obAsks" class="ob-ask-side"></div>
     <div class="spread-line" id="spreadLine">—</div>
     <div id="obBids" class="ob-bid-side"></div>
   </div>
 
-  <!-- ORDER ENTRY -->
-  <div class="section">
-    <div class="sec-label">Place order</div>
-    <!-- Tabs: Limit | Market -->
+  <!-- Order entry -->
+  <div class="sec">
+    <div class="sec-lbl">Place order</div>
+
+    <!-- Limit / Market tabs -->
     <div class="order-tabs">
-      <div class="ot limit active" id="otLimit" onclick="setTab('limit')">Limit</div>
-      <div class="ot market" id="otMarket" onclick="setTab('market')">Market</div>
+      <div class="ot active-limit" id="otLimit" onclick="setTab('limit')">📋 Limit Order</div>
+      <div class="ot" id="otMarket" onclick="setTab('market')">⚡ Market Order</div>
     </div>
-    <!-- Direction -->
-    <div class="dir-toggle">
-      <button class="dt-btn buy active" id="dtBuy" onclick="setDir('buy')">Buy</button>
-      <button class="dt-btn sell" id="dtSell" onclick="setDir('sell')">Sell</button>
+
+    <!-- Tab explanation -->
+    <div id="tabExplain" style="padding:8px 12px;background:rgba(45,212,191,0.05);border:1px solid rgba(45,212,191,0.15);border-radius:8px;font-size:0.78rem;color:var(--teal);margin-bottom:12px;line-height:1.5">
+      <strong>Limit:</strong> You set the price. Order waits in the book until someone matches it. You can cancel it.
     </div>
-    <!-- Price (hidden for market) -->
+
+    <!-- Buy / Sell -->
+    <div class="dir-grid">
+      <button class="dir-btn buy active" id="dtBuy" onclick="setDir('buy')">Buy</button>
+      <button class="dir-btn sell" id="dtSell" onclick="setDir('sell')">Sell</button>
+    </div>
+
+    <!-- Price (limit only) -->
     <div id="priceSection">
       <div class="price-row">
-        <span class="price-label">Price</span>
-        <button class="price-step" onclick="stepPrice(-10)">−10</button>
-        <input class="price-input" id="priceInput" type="number" min="0.01" step="1" placeholder="0"/>
-        <button class="price-step" onclick="stepPrice(+10)">+10</button>
+        <span class="price-lbl">Price</span>
+        <button class="step-btn" onclick="stepPrice(-10)">−10</button>
+        <input class="price-inp" id="priceInput" type="number" min="1" step="1" placeholder="₹"/>
+        <button class="step-btn" onclick="stepPrice(+10)">+10</button>
       </div>
       <div class="price-hint" id="priceHint">Best bid: — · Best ask: —</div>
     </div>
-    <!-- Market note (shown for market orders) -->
-    <div class="market-note" id="marketNote" style="display:none">Market order — executes immediately at best available price. You cannot control the price.</div>
-    <!-- Quantity -->
-    <div class="qty-row" style="margin-top:10px">
-      <span class="price-label">Lots</span>
-      <div class="qty-stepper">
-        <button class="qs-btn" onclick="stepQty(-1)">−</button>
-        <input class="qs-val" id="qtyInput" type="number" value="1" min="1" max="10" oninput="updateOrderValue()"/>
-        <button class="qs-btn" onclick="stepQty(+1)">+</button>
-      </div>
-      <div class="order-value" id="orderValue" style="margin:0 0 0 auto;font-size:0.72rem"></div>
+
+    <!-- Market note -->
+    <div class="mkt-note" id="mktNote">
+      <strong>Market order</strong> — executes immediately at the best available price in the book. You cannot control the exact price. If no one is on the other side, the order is rejected.
     </div>
+
+    <!-- Quantity -->
+    <div class="qty-row">
+      <span class="price-lbl">Lots</span>
+      <div class="qty-step">
+        <button class="qs" onclick="stepQty(-1)">−</button>
+        <input class="qv" id="qtyInput" type="number" value="1" min="1" oninput="updateVal()"/>
+        <button class="qs" onclick="stepQty(+1)">+</button>
+      </div>
+      <div class="order-val" id="orderVal" style="margin:0 0 0 auto"></div>
+    </div>
+
     <!-- Submit -->
-    <button class="submit-buy" id="submitBtn" onclick="showOrderConfirm()">Place Buy Order</button>
+    <button class="sub-buy" id="submitBtn" onclick="showConfirm()" disabled>
+      Place Buy Order
+    </button>
   </div>
 
-  <!-- MY ORDERS BLOTTER -->
-  <div class="section">
-    <div class="sec-label">My orders</div>
+  <!-- My orders blotter -->
+  <div class="sec">
+    <div class="sec-lbl">My orders</div>
     <div style="overflow-x:auto">
-      <table class="blotter-table">
+      <table class="blot-tbl">
         <thead><tr><th>Type</th><th>Side</th><th>Price</th><th>Qty</th><th>Filled</th><th>Status</th><th></th></tr></thead>
-        <tbody id="blotterBody"></tbody>
+        <tbody id="blotBody"></tbody>
       </table>
     </div>
   </div>
-
 </div>
 
 <!-- ORDER CONFIRM MODAL -->
@@ -298,9 +304,9 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
   <div class="modal">
     <div class="modal-title" id="modalTitle">Confirm order</div>
     <div class="modal-body" id="modalBody">—</div>
-    <div class="modal-actions">
-      <button class="btn-full btn-ghost" onclick="closeModal()">Cancel</button>
-      <button class="btn-full btn-amber" id="modalConfirm" onclick="submitOrder()">Confirm</button>
+    <div class="modal-acts">
+      <button class="modal-cancel" onclick="closeModal('orderModal')">Cancel</button>
+      <button class="modal-confirm" onclick="submitOrder()">Confirm →</button>
     </div>
   </div>
 </div>
@@ -308,11 +314,11 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 <!-- CANCEL CONFIRM MODAL -->
 <div class="modal-bg" id="cancelModal">
   <div class="modal">
-    <div class="modal-title">Cancel order?</div>
-    <div class="modal-body" id="cancelModalBody">—</div>
-    <div class="modal-actions">
-      <button class="btn-full btn-ghost" onclick="document.getElementById('cancelModal').classList.remove('show')">Keep order</button>
-      <button class="btn-full btn-amber" style="background:rgba(248,113,113,0.15);border:1.5px solid rgba(248,113,113,0.35);color:var(--red)" id="cancelConfirmBtn">Yes, cancel</button>
+    <div class="modal-title">Cancel this order?</div>
+    <div class="modal-body" id="cancelBody">—</div>
+    <div class="modal-acts">
+      <button class="modal-cancel" onclick="closeModal('cancelModal')">Keep it</button>
+      <button class="modal-danger" id="cancelConfirmBtn">Yes, cancel</button>
     </div>
   </div>
 </div>
@@ -332,137 +338,114 @@ const fmt = n => n==null?'—':new Intl.NumberFormat('en-IN').format(Math.round(
 const fmtRs = n => '₹'+fmt(n);
 const fmtSign = n => (n>=0?'+₹':'−₹')+fmt(Math.abs(n));
 function toast(m,d=2500){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),d)}
+function closeModal(id){document.getElementById(id).classList.remove('show')}
 
-let session = {};   // { studentId, gameId, name, role, privateValue }
-let gs = null;      // game state snapshot
-let tab = 'limit';  // 'limit' | 'market'
-let dir = 'buy';    // 'buy' | 'sell'
-let myOrders = [];
+let session = {};    // { studentId, gameId, name }
+let gs = null;
+let tab = 'limit';
+let dir = 'buy';
 let annTimer = null;
+let pendingCancel = null;
 
-const ROLE_META = {
-  speculator:   { emoji:'🎯', label:'Speculator',         desc:'No private information. Take a directional view — buy if you think the price will rise, sell if you think it will fall. Your goal is profit.' },
-  hedger_long:  { emoji:'🏭', label:'Hedger — Long',       desc:'You hold the underlying asset. You want to protect against a fall in price. Use the futures market to lock in today\'s price.' },
-  hedger_short: { emoji:'🚢', label:'Hedger — Short',      desc:'You are short the underlying (e.g. an exporter). You want to protect against a rise in price. Buy futures to hedge your exposure.' },
-  informed:     { emoji:'🔬', label:'Informed Trader',     desc:'Your research gives you a private estimate of the true value. Trade aggressively toward it — you have an edge.' },
-  market_maker: { emoji:'⚖️', label:'Market Maker',        desc:'Quote both sides — maintain a bid and an ask at all times. Your profit comes from the spread. Provide liquidity to the market.' },
-  noise:        { emoji:'🎲', label:'Noise Trader',        desc:'Trade based on your instincts or randomly. You play an important role — markets need noise to hide informed trading.' }
-};
-
-// ── JOIN ──
+/* ══ JOIN ══ */
 async function doJoin(){
   const code = document.getElementById('joinCode').value.trim().toUpperCase();
   const name = document.getElementById('joinName').value.trim();
   const roll = document.getElementById('joinRoll').value.trim();
   const errEl = document.getElementById('joinErr');
-  if(!code||code.length<4){errEl.textContent='Enter a 4-letter game code';errEl.className='join-err show';return}
-  if(!name){document.getElementById('joinName').classList.add('err');errEl.textContent='Enter your name';errEl.className='join-err show';return}
+  const btn = document.getElementById('joinBtn');
+
+  if(code.length < 2){ errEl.textContent='Enter the game code from the projector screen'; errEl.className='join-err show'; return; }
+  if(!name){ document.getElementById('joinName').classList.add('err'); errEl.textContent='Enter your name'; errEl.className='join-err show'; return; }
   errEl.className='join-err';
+  btn.disabled=true; btn.textContent='Joining…';
+
   const r = await PD.joinGame({ gameCode: code, name, rollNo: roll });
-  if(r.error){ errEl.textContent=r.error; errEl.className='join-err show'; return; }
+  btn.disabled=false; btn.textContent='Join →';
+
+  if(r?.error){ errEl.textContent=r.error; errEl.className='join-err show'; return; }
+
   session = { studentId: r.studentId, gameId: r.gameId, name };
-  // Set up state listener
-  PD.init(onState);
-  // Show role card
-  const game = r.game||{};
-  const studentSnap = await firebase.firestore().doc(`games/${r.gameId}/students/${r.studentId}`).get();
-  const student = studentSnap.data()||{};
-  session.role = student.role || 'speculator';
-  session.privateValue = student.privateValue;
-  session.capital = student.capitalRemaining || game.defaultCapital || 500000;
-  session.posLimit = game.positionLimit || 10;
-  session.lotSize = game.lotSize || 50;
-  showRoleCard();
+
+  // Show waiting screen first
   document.getElementById('joinScreen').style.display='none';
-  document.getElementById('roleScreen').style.display='block';
+  document.getElementById('waitScreen').style.display='block';
+  document.getElementById('waitInfo').textContent = `Hi ${name} · Game: ${code}`;
+
+  // Subscribe to state — will switch to trade screen when round opens
+  PD.init(onState);
 }
 
-function showRoleCard(){
-  const meta = ROLE_META[session.role]||ROLE_META.speculator;
-  document.getElementById('rcRole').textContent = meta.emoji+' '+meta.label;
-  let desc = meta.desc;
-  if(session.privateValue) desc += ` Your private value estimate: ${fmtRs(session.privateValue)}.`;
-  document.getElementById('rcDesc').textContent = desc;
-  document.getElementById('rcCapital').textContent = fmtRs(session.capital);
-  document.getElementById('rcLimit').textContent = '±'+(session.posLimit||10)+' lots';
-  // Also update trading screen role badge
-  document.getElementById('myRoleEmoji').textContent = meta.emoji;
-  document.getElementById('myRoleName').textContent = meta.label;
-  if(document.getElementById('tradeScreen').style.display!=='none'){
-    document.getElementById('roleScreen').style.display='block';
-    document.getElementById('tradeScreen').style.display='none';
-  }
-}
-
-function startTrading(){
-  document.getElementById('roleScreen').style.display='none';
-  document.getElementById('tradeScreen').style.display='block';
-}
-
-// ── STATE ──
+/* ══ STATE ══ */
 function onState(data){
   gs = data;
-  if(!data||data.status==='no_game'){ return; }
+  if(!data || data.status==='no_game') return;
+
   const md = data.marketData||{};
-  // Top bar
-  document.getElementById('tbAsset').textContent = data.assetName||'—';
-  document.getElementById('tbLTP').textContent = md.ltp?fmtRs(md.ltp):'—';
-  document.getElementById('tbHigh').textContent = md.high?fmtRs(md.high):'—';
-  document.getElementById('tbLow').textContent = md.low?fmtRs(md.low):'—';
-  document.getElementById('tbVol').textContent = (md.volume||0)+'L';
-  const stMap={open:'ts-open Trading Open',closed:'ts-closed Round Closed',waiting:'ts-waiting Waiting',ended:'ts-closed Ended',paused:'ts-paused Paused'};
-  const stParts=(stMap[data.status]||'ts-waiting Waiting').split(' ');
-  document.getElementById('tbStatus').className='tb-status '+stParts[0];
-  document.getElementById('tbStatus').textContent=stParts.slice(1).join(' ');
 
-  // My student data
-  const me = (data.students||[]).find(s=>s.id===session.studentId)||{};
-  if(me.capitalRemaining!=null) session.capital = me.capitalRemaining;
-  if(me.role) session.role = me.role;
+  // If round is open and we're on wait screen, switch to trading
+  if(data.status==='open' && document.getElementById('waitScreen').style.display!=='none'){
+    document.getElementById('waitScreen').style.display='none';
+    document.getElementById('tradeScreen').style.display='block';
+  }
 
-  const pos = me.netPosition||0;
-  const pnl = (me.realisedPnl||0)+(me.unrealisedPnl||0);
-  document.getElementById('myCapital').textContent = fmtRs(session.capital);
-  const posEl=document.getElementById('myPosition');
-  if(pos===0){posEl.textContent='Flat';posEl.style.color='var(--text3)';}
-  else if(pos>0){posEl.textContent='Long '+fmt(pos)+'L';posEl.style.color='var(--green)';}
-  else{posEl.textContent='Short '+fmt(Math.abs(pos))+'L';posEl.style.color='var(--red)';}
-  const pnlEl=document.getElementById('myPnL');
-  pnlEl.textContent=fmtSign(pnl);
-  pnlEl.style.color=pnl>=0?'var(--green)':'var(--red)';
-
-  // Order book
-  renderOB(data.orderBook||{bids:[],asks:[]});
-
-  // My orders from state
-  const allOrders = [...(data.orderBook?.bids||[]),...(data.orderBook?.asks||[])];
-  // Blotter uses full orders from student's own tracking
-  myOrders = (data.studentOrders||[]).filter(o=>o.traderId===session.studentId);
-  // Also check orders in order book
-  renderBlotter(myOrders, data);
-
-  // Hints
-  const bids=data.orderBook?.bids||[];
-  const asks=data.orderBook?.asks||[];
-  const topBid=bids.length?Math.max(...bids.map(b=>b.price)):null;
-  const topAsk=asks.length?Math.min(...asks.map(a=>a.price)):null;
-  document.getElementById('priceHint').textContent=`Best bid: ${topBid?fmtRs(topBid):'—'} · Best ask: ${topAsk?fmtRs(topAsk):'—'}`;
-  updateOrderValue();
-
-  // Submit button state
-  document.getElementById('submitBtn').disabled = data.status !== 'open';
+  // If we're on trade screen, update everything
+  if(document.getElementById('tradeScreen').style.display!=='none'){
+    updateTopBar(data, md);
+    updateMyStatus(data);
+    renderOB(data.orderBook||{bids:[],asks:[]});
+    renderBlotter(data);
+    updateSubmitEnabled(data.status);
+    updatePriceHint(data.orderBook||{bids:[],asks:[]});
+  }
 
   // Announcements
-  const anns = data.announcements||[];
-  const mine = anns.filter(a=>!a.targetStudentId||a.targetStudentId===session.studentId);
-  if(mine.length){
-    const latest=mine[0];
-    const age=(Date.now()-(latest.createdAt?.seconds?latest.createdAt.seconds*1000:0));
-    if(age<8000) showAnnouncement(latest.message);
+  const anns = (data.announcements||[]).filter(a=>!a.targetStudentId||a.targetStudentId===session.studentId);
+  if(anns.length){
+    const latest=anns[0];
+    const age=Date.now()-(latest.createdAt?.seconds?latest.createdAt.seconds*1000:0);
+    if(age<8000) showAnn(latest.message);
   }
 }
 
-// ── ORDER BOOK ──
+function updateTopBar(data, md){
+  document.getElementById('tbAsset').textContent=data.assetName||'—';
+  document.getElementById('tbLTP').textContent=md.ltp?fmtRs(md.ltp):'—';
+  document.getElementById('tbHigh').textContent=md.high?fmtRs(md.high):'—';
+  document.getElementById('tbLow').textContent=md.low?fmtRs(md.low):'—';
+  document.getElementById('tbVol').textContent=(md.volume||0)+'L';
+  const sm={open:'ts-open Trading Open',closed:'ts-closed Closed',waiting:'ts-waiting Waiting',ended:'ts-closed Ended',paused:'ts-paused Paused'};
+  const [cls,...words]=(sm[data.status]||'ts-waiting Waiting').split(' ');
+  const el=document.getElementById('tbStatus');
+  el.className='tb-status '+cls; el.textContent=words.join(' ');
+}
+
+function updateMyStatus(data){
+  const me=(data.students||[]).find(s=>s.id===session.studentId)||{};
+  if(me.capitalRemaining!=null) session.capital=me.capitalRemaining;
+  const pos=me.netPosition||0;
+  const pnl=(me.realisedPnl||0)+(me.unrealisedPnl||0);
+  document.getElementById('myCapital').textContent=fmtRs(session.capital||0);
+  const pel=document.getElementById('myPosition');
+  pel.textContent=pos===0?'Flat':pos>0?`Long ${fmt(pos)}L`:`Short ${fmt(Math.abs(pos))}L`;
+  pel.style.color=pos===0?'var(--text3)':pos>0?'var(--green)':'var(--red)';
+  const pl=document.getElementById('myPnL');
+  pl.textContent=fmtSign(pnl); pl.style.color=pnl>=0?'var(--green)':'var(--red)';
+}
+
+function updateSubmitEnabled(status){
+  document.getElementById('submitBtn').disabled = (status!=='open');
+}
+
+function updatePriceHint(ob){
+  const bids=ob.bids||[], asks=ob.asks||[];
+  const topBid=bids.length?Math.max(...bids.map(b=>b.price)):null;
+  const topAsk=asks.length?Math.min(...asks.map(a=>a.price)):null;
+  document.getElementById('priceHint').textContent=
+    `Best bid: ${topBid?fmtRs(topBid):'—'} · Best ask: ${topAsk?fmtRs(topAsk):'—'}`;
+}
+
+/* ══ ORDER BOOK ══ */
 function renderOB(ob){
   function agg(arr){const m={};arr.forEach(o=>{if(!m[o.price])m[o.price]={price:o.price,qty:0};m[o.price].qty+=o.qty});return Object.values(m)}
   const bids=agg(ob.bids||[]).sort((a,b)=>b.price-a.price).slice(0,5);
@@ -470,106 +453,78 @@ function renderOB(ob){
   const maxQ=Math.max(...bids.map(b=>b.qty),...asks.map(a=>a.qty),1);
   function rows(arr,type){
     if(!arr.length)return`<div class="ob-empty">No ${type}s</div>`;
-    return arr.map(r=>{const w=Math.round(r.qty/maxQ*65);
-      return`<div class="ob-row"><div class="${type==='bid'?'ob-bg-bid':'ob-bg-ask'}" style="width:${w}%"></div><span class="${type==='bid'?'ob-p-bid':'ob-p-ask'}">${fmtRs(r.price)}</span><span class="ob-q">${r.qty}L</span></div>`;
+    return [...arr].reverse().map(r=>{
+      const w=Math.round(r.qty/maxQ*65);
+      return`<div class="ob-level"><div class="${type==='bid'?'ob-bg-bid':'ob-bg-ask'}" style="width:${w}%"></div><span class="${type==='bid'?'ob-pb':'ob-pa'}">${fmtRs(r.price)}</span><span class="ob-q">${r.qty}L</span></div>`;
     }).join('');
   }
-  // Asks shown in reverse (lowest at bottom, closest to spread)
+  // asks: show lowest ask at bottom (closest to spread), so reverse for display
   const asksDisplay=[...asks].reverse();
   document.getElementById('obAsks').innerHTML=rows(asksDisplay,'ask');
   document.getElementById('obBids').innerHTML=rows(bids,'bid');
   const topBid=bids[0]?.price, topAsk=asks[0]?.price;
-  if(topBid&&topAsk) document.getElementById('spreadLine').textContent=`Spread: ${fmtRs(topAsk-topBid)}`;
-  else document.getElementById('spreadLine').textContent='—';
+  document.getElementById('spreadLine').textContent=(topBid&&topAsk)?`Spread: ${fmtRs(topAsk-topBid)}`:'—';
 }
 
-// ── BLOTTER ──
-function renderBlotter(myOrdersList, data){
-  // Merge from orderBook (open/partial) and past orders
-  const seen = new Set();
-  let allMine = [];
-  // Open/partial from order book
-  [...(data.orderBook?.bids||[]),...(data.orderBook?.asks||[])].forEach(o=>{
-    if(o.traderId===session.studentId&&!seen.has(o.id)){seen.add(o.id);allMine.push(o);}
-  });
-  // Past orders from trades
-  (data.trades||[]).forEach(t=>{
-    if(t.buyTraderId===session.studentId&&!seen.has(t.buyOrderId)){seen.add(t.buyOrderId);allMine.push({id:t.buyOrderId,side:'buy',type:'limit',price:t.price,originalQty:t.qty,remainingQty:0,status:'filled'});}
-    if(t.sellTraderId===session.studentId&&!seen.has(t.sellOrderId)){seen.add(t.sellOrderId);allMine.push({id:t.sellOrderId,side:'sell',type:'limit',price:t.price,originalQty:t.qty,remainingQty:0,status:'filled'});}
-  });
-
-  const tbody=document.getElementById('blotterBody');
-  if(!allMine.length){tbody.innerHTML=`<tr><td colspan="7" class="blot-empty">No orders placed yet</td></tr>`;return;}
-  tbody.innerHTML=allMine.slice(0,15).map(o=>{
-    const filled=o.originalQty-(o.remainingQty||0);
-    const canCancel=(o.status==='open'||o.status==='partial')&&data.status==='open';
-    const cancelLabel=o.status==='partial'?`Cancel (${o.remainingQty}L remaining)`:'Cancel';
-    const stClass={open:'st-open',filled:'st-filled',partial:'st-partial',cancelled:'st-cancelled',rejected:'st-cancelled',cancel_requested:'st-cancelled'}[o.status]||'st-open';
-    const stTxt={open:'Open',filled:'Filled',partial:'Partial',cancelled:'Cancelled',rejected:'Rejected',cancel_requested:'Cancelling…'}[o.status]||o.status;
-    const priceTxt=o.type==='market'?'Market':fmtRs(o.price);
-    return`<tr>
-      <td style="font-family:var(--mono);font-size:0.68rem;color:var(--text3)">${o.type==='market'?'MKT':'LMT'}</td>
-      <td style="color:${o.side==='buy'?'var(--green)':'var(--red)'};font-weight:600;font-size:0.78rem">${o.side.toUpperCase()}</td>
-      <td style="font-family:var(--mono)">${priceTxt}</td>
-      <td style="font-family:var(--mono)">${o.originalQty||'—'}</td>
-      <td style="font-family:var(--mono)">${filled}</td>
-      <td><span class="${stClass}">${stTxt}</span></td>
-      <td>${canCancel?`<button class="cancel-btn" onclick="confirmCancel('${o.id}','${priceTxt}','${o.remainingQty}')">${cancelLabel}</button>`:'—'}</td>
-    </tr>`;
-  }).join('');
-}
-
-// ── TABS & DIRECTION ──
+/* ══ TABS & DIRECTION ══ */
 function setTab(t){
   tab=t;
-  document.getElementById('otLimit').className='ot limit'+(t==='limit'?' active':'');
-  document.getElementById('otMarket').className='ot market'+(t==='market'?' active':'');
+  document.getElementById('otLimit').className='ot'+(t==='limit'?' active-limit':'');
+  document.getElementById('otMarket').className='ot'+(t==='market'?' active-market':'');
   document.getElementById('priceSection').style.display=t==='limit'?'block':'none';
-  document.getElementById('marketNote').style.display=t==='market'?'block':'none';
+  document.getElementById('mktNote').style.display=t==='market'?'block':'none';
+  document.getElementById('priceHint').style.display=t==='limit'?'block':'none';
+  const explainEl=document.getElementById('tabExplain');
+  if(t==='limit'){
+    explainEl.style.background='rgba(45,212,191,0.05)';explainEl.style.borderColor='rgba(45,212,191,0.15)';explainEl.style.color='var(--teal)';
+    explainEl.innerHTML='<strong>Limit:</strong> You set the price. Waits in the book until matched. You can cancel it anytime.';
+  } else {
+    explainEl.style.background='rgba(245,166,35,0.05)';explainEl.style.borderColor='rgba(245,166,35,0.2)';explainEl.style.color='var(--amber)';
+    explainEl.innerHTML='<strong>Market:</strong> Executes immediately at best available price. No price control. Cannot cancel.';
+  }
   updateSubmitBtn();
 }
+
 function setDir(d){
   dir=d;
-  document.getElementById('dtBuy').className='dt-btn buy'+(d==='buy'?' active':'');
-  document.getElementById('dtSell').className='dt-btn sell'+(d==='sell'?' active':'');
+  document.getElementById('dtBuy').className='dir-btn buy'+(d==='buy'?' active':'');
+  document.getElementById('dtSell').className='dir-btn sell'+(d==='sell'?' active':'');
   updateSubmitBtn();
-  updateOrderValue();
+  updateVal();
 }
+
 function updateSubmitBtn(){
   const btn=document.getElementById('submitBtn');
-  if(dir==='buy'){btn.className='submit-buy';btn.textContent=tab==='limit'?'Place Limit Buy':'Market Buy';}
-  else{btn.className='submit-sell';btn.textContent=tab==='limit'?'Place Limit Sell':'Market Sell';}
+  if(dir==='buy'){btn.className='sub-buy';btn.textContent=tab==='limit'?'Place Limit Buy':'Market Buy';}
+  else{btn.className='sub-sell';btn.textContent=tab==='limit'?'Place Limit Sell':'Market Sell';}
 }
 
-// ── PRICE & QTY STEPPERS ──
-function stepPrice(d){const el=document.getElementById('priceInput');el.value=Math.max(1,(parseFloat(el.value)||0)+d);updateOrderValue();}
-function stepQty(d){const el=document.getElementById('qtyInput');el.value=Math.max(1,Math.min(session.posLimit||10,(parseInt(el.value)||1)+d));updateOrderValue();}
-function updateOrderValue(){
-  const price=parseFloat(document.getElementById('priceInput').value)||0;
-  const qty=parseInt(document.getElementById('qtyInput').value)||1;
-  const lot=session.lotSize||50;
-  if(tab==='limit'&&price>0){
-    document.getElementById('orderValue').textContent=`Notional: ${fmtRs(price*qty*lot)} · ${qty} lot${qty!==1?'s':''}`;
-  } else {
-    document.getElementById('orderValue').textContent=`${qty} lot${qty!==1?'s':''}`;
-  }
+function stepPrice(d){const el=document.getElementById('priceInput');el.value=Math.max(1,(parseFloat(el.value)||0)+d);updateVal();}
+function stepQty(d){const el=document.getElementById('qtyInput');el.value=Math.max(1,(parseInt(el.value)||1)+d);updateVal();}
+function updateVal(){
+  const p=parseFloat(document.getElementById('priceInput').value)||0;
+  const q=parseInt(document.getElementById('qtyInput').value)||1;
+  const lot=gs?.lotSize||50;
+  document.getElementById('orderVal').textContent=tab==='limit'&&p>0?`Notional: ${fmtRs(p*q*lot)}`:`${q} lot${q!==1?'s':''}`;
 }
 
-// ── ORDER CONFIRM ──
-function showOrderConfirm(){
+/* ══ ORDER CONFIRM ══ */
+function showConfirm(){
   const qty=parseInt(document.getElementById('qtyInput').value)||1;
   const price=parseFloat(document.getElementById('priceInput').value)||0;
-  if(tab==='limit'&&price<=0){toast('Enter a valid price');return;}
+  if(tab==='limit'&&price<=0){toast('Enter a price first');return;}
   const ob=gs?.orderBook||{bids:[],asks:[]};
-  const asks=ob.asks||[];const bids=ob.bids||[];
-  const bestAsk=asks.length?Math.min(...asks.map(a=>a.price)):null;
-  const bestBid=bids.length?Math.max(...bids.map(b=>b.price)):null;
+  const topAsk=ob.asks?.length?Math.min(...ob.asks.map(a=>a.price)):null;
+  const topBid=ob.bids?.length?Math.max(...ob.bids.map(b=>b.price)):null;
   let body='';
   if(tab==='limit'){
-    body=`You are placing a <strong>LIMIT ${dir.toUpperCase()}</strong> for <strong>${qty} lot${qty!==1?'s':''}</strong> at <strong>${fmtRs(price)}</strong>.<br><br>This order will sit in the order book until a counterparty matches your price. It may not execute immediately. You can cancel it from the orders blotter.`;
+    const warns=[];
+    if(dir==='buy'&&topAsk&&price>=topAsk) warns.push(`⚠ Your buy price ${fmtRs(price)} is at or above the best ask ${fmtRs(topAsk)} — this will match immediately.`);
+    if(dir==='sell'&&topBid&&price<=topBid) warns.push(`⚠ Your sell price ${fmtRs(price)} is at or below the best bid ${fmtRs(topBid)} — this will match immediately.`);
+    body=`<strong>LIMIT ${dir.toUpperCase()}</strong> · ${qty} lot${qty!==1?'s':''} · ${fmtRs(price)}<br><br>This order enters the order book. It executes when someone matches your price. You can cancel it from the orders list below.${warns.length?'<br><br>'+warns.join('<br>'):''}`;
   } else {
-    const est=dir==='buy'?(bestAsk?fmtRs(bestAsk):'no sellers available'):(bestBid?fmtRs(bestBid):'no buyers available');
-    body=`You are placing a <strong>MARKET ${dir.toUpperCase()}</strong> for <strong>${qty} lot${qty!==1?'s':''}</strong>.<br><br>Estimated fill: <strong>${est}</strong>.<br>Market orders execute immediately at any available price. You cannot cancel after submission.`;
+    const est=dir==='buy'?(topAsk?fmtRs(topAsk):'no sellers available'):(topBid?fmtRs(topBid):'no buyers available');
+    body=`<strong>MARKET ${dir.toUpperCase()}</strong> · ${qty} lot${qty!==1?'s':''}<br><br>Estimated fill: <strong>${est}</strong><br><br>Executes immediately at whatever price is available. You cannot cancel after confirming.`;
   }
   document.getElementById('modalTitle').textContent=tab==='limit'?'Confirm limit order':'Confirm market order';
   document.getElementById('modalBody').innerHTML=body;
@@ -577,48 +532,71 @@ function showOrderConfirm(){
 }
 
 async function submitOrder(){
-  document.getElementById('orderModal').classList.remove('show');
+  closeModal('orderModal');
   const qty=parseInt(document.getElementById('qtyInput').value)||1;
   const price=parseFloat(document.getElementById('priceInput').value)||0;
-  const r=await PD.placeOrder({
-    studentId:session.studentId, side:dir, type:tab,
-    price:tab==='limit'?price:0, qty, instrument:'spot'
-  });
-  if(r.error){toast('Error: '+r.error);return;}
+  const r=await PD.placeOrder({studentId:session.studentId,side:dir,type:tab,price:tab==='limit'?price:0,qty,instrument:'spot'});
+  if(r?.error){toast('Error: '+r.error);return;}
   toast(tab==='limit'?'Limit order placed ✓':'Market order submitted ✓');
   if(tab==='limit') document.getElementById('priceInput').value='';
   document.getElementById('qtyInput').value='1';
-  updateOrderValue();
+  updateVal();
 }
-function closeModal(){document.getElementById('orderModal').classList.remove('show');}
 
-// ── CANCEL ──
-let pendingCancelId = null;
-function confirmCancel(orderId, priceStr, remainingQty){
-  pendingCancelId=orderId;
-  document.getElementById('cancelModalBody').innerHTML=`Cancel your order at <strong>${priceStr}</strong>?${remainingQty>0?` <strong>${remainingQty} lot${remainingQty!==1?'s':''}</strong> remaining (already-filled lots are kept).`:''}`;
+/* ══ BLOTTER ══ */
+function renderBlotter(data){
+  const tbody=document.getElementById('blotBody');
+  // Collect my orders from current open order book
+  const myOpen=[...(data.orderBook?.bids||[]),...(data.orderBook?.asks||[])].filter(o=>o.traderId===session.studentId);
+  // Collect fills from trades
+  const fills=[];
+  const seen=new Set(myOpen.map(o=>o.id));
+  (data.trades||[]).forEach(t=>{
+    if(t.buyTraderId===session.studentId&&!seen.has(t.buyOrderId)){seen.add(t.buyOrderId);fills.push({id:t.buyOrderId,side:'buy',type:'limit',price:t.price,originalQty:t.qty,remainingQty:0,status:'filled'});}
+    if(t.sellTraderId===session.studentId&&!seen.has(t.sellOrderId)){seen.add(t.sellOrderId);fills.push({id:t.sellOrderId,side:'sell',type:'limit',price:t.price,originalQty:t.qty,remainingQty:0,status:'filled'});}
+  });
+  const all=[...myOpen,...fills];
+  if(!all.length){tbody.innerHTML=`<tr><td colspan="7" class="blot-empty">No orders placed yet</td></tr>`;return;}
+  tbody.innerHTML=all.slice(0,15).map(o=>{
+    const filled=(o.originalQty||0)-(o.remainingQty||0);
+    const canCancel=(o.status==='open'||o.status==='partial')&&gs?.status==='open';
+    const cancelLbl=o.status==='partial'?`Cancel (${o.remainingQty}L left)`:'Cancel';
+    const stCls={open:'st-open',partial:'st-partial',filled:'st-filled',cancelled:'st-cancelled',cancel_requested:'st-cancelled'}[o.status]||'st-open';
+    const stTxt={open:'Open',partial:'Partial',filled:'Filled',cancelled:'Cancelled',cancel_requested:'Cancelling…'}[o.status]||o.status;
+    return`<tr>
+      <td style="font-family:var(--mono);font-size:0.68rem;color:var(--text3)">${o.type==='market'?'MKT':'LMT'}</td>
+      <td style="color:${o.side==='buy'?'var(--green)':'var(--red)'};font-weight:700;font-size:0.8rem">${o.side.toUpperCase()}</td>
+      <td style="font-family:var(--mono)">${o.type==='market'?'Mkt':fmtRs(o.price)}</td>
+      <td style="font-family:var(--mono)">${o.originalQty||'—'}</td>
+      <td style="font-family:var(--mono)">${filled}</td>
+      <td><span class="${stCls}">${stTxt}</span></td>
+      <td>${canCancel?`<button class="cancel-btn" onclick="confirmCancel('${o.id}','${fmtRs(o.price)}','${o.remainingQty||0}')">${cancelLbl}</button>`:'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ══ CANCEL ══ */
+function confirmCancel(orderId, priceStr, remaining){
+  pendingCancel=orderId;
+  document.getElementById('cancelBody').innerHTML=`Cancel your order at <strong>${priceStr}</strong>?${remaining>0?` ${remaining} lot${remaining>1?'s':''} still unfilled.`:''}`;
   document.getElementById('cancelConfirmBtn').onclick=doCancel;
   document.getElementById('cancelModal').classList.add('show');
 }
 async function doCancel(){
-  document.getElementById('cancelModal').classList.remove('show');
-  if(!pendingCancelId)return;
-  const r=await PD.cancelOrder(pendingCancelId);
-  if(r.error){toast('Error: '+r.error);return;}
-  toast('Order cancellation sent ✓');
-  pendingCancelId=null;
+  closeModal('cancelModal');
+  if(!pendingCancel)return;
+  const r=await PD.cancelOrder(pendingCancel);
+  r?.error?toast('Error: '+r.error):toast('Order cancelled ✓');
+  pendingCancel=null;
 }
 
-// ── ANNOUNCEMENTS ──
-function showAnnouncement(msg){
+/* ══ ANNOUNCEMENTS ══ */
+function showAnn(msg){
   const b=document.getElementById('annBanner');
   b.textContent=msg; b.classList.add('show');
   clearTimeout(annTimer);
   annTimer=setTimeout(()=>b.classList.remove('show'),6000);
 }
-
-document.getElementById('joinCode').addEventListener('keydown',e=>{if(e.key==='Enter')doJoin();});
-document.getElementById('joinName').addEventListener('keydown',e=>{if(e.key==='Enter')doJoin();});
 </script>
 </body>
 </html>
