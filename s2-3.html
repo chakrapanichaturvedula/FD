@@ -308,7 +308,7 @@ canvas{width:100%;border-radius:10px;display:block}
         </div>
         <div class="act-check" id="actArbCheck"></div>
       </div>
-      <div class="activity-body" id="actArbBody" id="arb">
+      <div class="activity-body" id="actArbBody">
         <div style="background:var(--bg3);border:1px solid rgba(96,165,250,0.2);border-radius:14px;padding:16px 18px;margin-bottom:18px;font-size:0.87rem;color:var(--text2);line-height:1.65">
           <strong style="color:var(--blue)">The mispricing:</strong> Futures at ₹22,380 vs fair value ₹22,182. Deviation = ₹198/unit. Lot size = 50. Potential locked profit before costs ≈ <strong style="color:var(--text)">₹9,900</strong>. Confirm each step to execute the trade.
         </div>
@@ -467,9 +467,11 @@ function pickRole(r) {
 
   if(r==='hedger') {
     document.getElementById('hedgerPath').classList.add('show');
+    document.getElementById('actHedgerBody').style.display = 'block';
     buildHedgerScenarios();
   } else {
     document.getElementById('arbPath').classList.add('show');
+    document.getElementById('actArbBody').style.display = 'block';
     buildArbSteps();
   }
 }
