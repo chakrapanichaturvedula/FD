@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Session 1.2 — Risk, Hedging & Speculation · DerivativesLab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0f1117;--bg2:#161b26;--bg3:#1e2535;--bg4:#252e42;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --amber:#f5a623;--amber2:#ffc75a;--teal:#2dd4bf;
+  --green:#4ade80;--red:#f87171;--blue:#60a5fa;--violet:#a78bfa;
+  --text:#e8eaf0;--text2:#8b91a8;--text3:#555e78;
+  --serif:'DM Serif Display',Georgia,serif;
+  --mono:'DM Mono','Courier New',monospace;
+  --sans:'DM Sans',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+a{text-decoration:none;color:inherit}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:56px;background:rgba(15,17,23,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--mono);font-size:0.82rem;color:var(--amber);letter-spacing:0.04em}
+.nav-logo span{color:var(--text2)}
+.nav-pill{display:flex;align-items:center;gap:10px}
+.nav-session{font-family:var(--mono);font-size:0.72rem;color:var(--text3)}
+.nav-next{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;background:var(--bg3);border:1px solid var(--border2);font-size:0.78rem;font-weight:600;color:var(--text2);transition:color .15s,border-color .15s}
+.nav-next:hover{color:var(--amber);border-color:rgba(245,166,35,0.3)}
+
+.shell{max-width:900px;margin:0 auto;padding:80px 24px 80px}
+
+.progress-meta{display:flex;justify-content:space-between;margin-bottom:6px}
+.progress-label{font-family:var(--mono);font-size:0.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em}
+.progress-bar{height:2px;background:var(--bg3);margin-bottom:28px;border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:var(--amber);border-radius:2px;transition:width .4s ease;width:0%}
+
+/* HERO */
+.s-hero{padding:36px 40px;border-radius:28px;background:var(--bg2);border:1px solid var(--border2);margin-bottom:28px;position:relative;overflow:hidden}
+.s-hero::before{content:'';position:absolute;bottom:-40px;right:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(245,166,35,0.07) 0%,transparent 70%);pointer-events:none}
+.crumb{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:0.68rem;color:var(--text3);margin-bottom:14px}
+.crumb a{color:var(--text3);transition:color .15s}.crumb a:hover{color:var(--amber)}
+.s-kicker{font-family:var(--mono);font-size:0.68rem;color:var(--amber);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px}
+.s-hero h1{font-family:var(--serif);font-size:clamp(1.8rem,3vw,2.6rem);line-height:1.1;margin-bottom:8px}
+.s-hero p{color:var(--text2);font-size:0.9rem;max-width:500px}
+.s-outcomes{display:flex;flex-direction:column;gap:5px;margin-top:14px}
+.s-out{display:flex;align-items:flex-start;gap:8px;font-size:0.82rem;color:var(--text2)}
+.s-out::before{content:'→';color:var(--amber);font-family:var(--mono);flex-shrink:0}
+
+/* ACTIVITY CARD */
+.activity{background:var(--bg2);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-bottom:16px;transition:border-color .2s}
+.activity.done{border-color:rgba(74,222,128,0.25)}
+.activity-head{display:flex;align-items:center;gap:14px;padding:18px 22px;border-bottom:1px solid var(--border)}
+.act-num{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:10px;flex-shrink:0;background:var(--bg3);font-family:var(--mono);font-size:0.75rem;color:var(--text3);border:1px solid var(--border);transition:all .2s}
+.activity.done .act-num{background:rgba(74,222,128,0.1);color:var(--green);border-color:rgba(74,222,128,0.25)}
+.act-meta{flex:1}
+.act-tag{font-family:var(--mono);font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px}
+.act-title{font-size:0.95rem;font-weight:600}
+.act-check{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.65rem}
+.activity.done .act-check{background:var(--green);border-color:var(--green);color:#0f1117}
+.activity-body{padding:20px 22px}
+
+/* PROMPT */
+.prompt{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px 16px;font-size:0.88rem;color:var(--text);margin-bottom:16px;border-left:3px solid var(--amber)}
+.prompt strong{color:var(--amber)}
+.prompt em{color:var(--text2);font-style:normal}
+
+/* MCQ */
+.options{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.opt{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-radius:12px;background:var(--bg3);border:1px solid var(--border);cursor:pointer;font-size:0.88rem;color:var(--text2);transition:all .15s;text-align:left;width:100%;font-family:var(--sans)}
+.opt:hover{border-color:var(--border2);color:var(--text)}
+.opt-letter{display:flex;align-items:center;justify-content:center;width:22px;height:22px;flex-shrink:0;border-radius:6px;background:var(--bg4);font-family:var(--mono);font-size:0.7rem;color:var(--text3);transition:all .15s;margin-top:1px}
+.opt.correct{border-color:rgba(74,222,128,0.4);background:rgba(74,222,128,0.07);color:var(--text)}
+.opt.correct .opt-letter{background:var(--green);color:#0f1117}
+.opt.wrong{border-color:rgba(248,113,113,0.4);background:rgba(248,113,113,0.07);color:var(--text)}
+.opt.wrong .opt-letter{background:var(--red);color:#0f1117}
+.opt:disabled{cursor:default}
+
+/* PAIR PICKER (wrong/right question) */
+.pair-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.pair-btn{padding:14px 16px;border-radius:12px;background:var(--bg3);border:1.5px solid var(--border);font-size:0.85rem;color:var(--text2);cursor:pointer;text-align:left;transition:all .15s;width:100%;font-family:var(--sans);line-height:1.5}
+.pair-btn:hover{border-color:var(--border2);color:var(--text)}
+.pair-btn.correct{border-color:rgba(74,222,128,0.4);background:rgba(74,222,128,0.07);color:var(--green)}
+.pair-btn.wrong{border-color:rgba(248,113,113,0.3);background:rgba(248,113,113,0.05);color:var(--red);opacity:.6}
+.pair-label{font-family:var(--mono);font-size:0.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px}
+
+/* DRAG-TO-BUCKET */
+.bucket-zone{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.drag-cards{display:flex;flex-wrap:wrap;gap:8px;padding:12px;background:var(--bg3);border:1px dashed var(--border2);border-radius:12px;min-height:56px;margin-bottom:12px}
+.drag-card{padding:8px 12px;border-radius:8px;background:var(--bg4);border:1px solid var(--border2);font-size:0.82rem;color:var(--text2);cursor:grab;user-select:none;transition:all .15s}
+.drag-card:hover{border-color:var(--amber);color:var(--text)}
+.drag-card.dragging{opacity:.5;transform:scale(0.96)}
+.bucket{border-radius:12px;border:1.5px dashed var(--border2);padding:12px;min-height:90px;transition:border-color .15s,background .15s}
+.bucket.drag-over{border-color:var(--amber);background:rgba(245,166,35,0.05)}
+.bucket-title{font-family:var(--mono);font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px}
+.bucket.hedge-bucket .bucket-title{color:var(--teal)}
+.bucket.spec-bucket .bucket-title{color:var(--amber)}
+.bucket-items{display:flex;flex-wrap:wrap;gap:6px;min-height:40px}
+.bucket-item{padding:6px 10px;border-radius:8px;font-size:0.78rem}
+.hedge-bucket .bucket-item{background:rgba(45,212,191,0.08);border:1px solid rgba(45,212,191,0.2);color:var(--teal)}
+.spec-bucket .bucket-item{background:rgba(245,166,35,0.08);border:1px solid rgba(245,166,35,0.2);color:var(--amber)}
+.wrong-bucket .bucket-item{background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:var(--red)}
+.check-btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:12px;background:var(--bg3);border:1px solid var(--border2);font-size:0.82rem;font-weight:600;color:var(--text2);cursor:pointer;font-family:var(--sans);transition:all .15s}
+.check-btn:hover{color:var(--amber);border-color:rgba(245,166,35,0.3);background:rgba(245,166,35,0.05)}
+
+/* MATCH THE FOLLOWING */
+.match-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px;align-items:start}
+.match-col-label{font-family:var(--mono);font-size:0.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px}
+.match-terms{display:flex;flex-direction:column;gap:6px}
+.match-term{padding:10px 12px;border-radius:10px;background:var(--bg3);border:1.5px solid var(--border);font-size:0.85rem;color:var(--text);font-weight:500}
+.match-defs{display:flex;flex-direction:column;gap:6px}
+.match-def{padding:10px 12px;border-radius:10px;background:var(--bg3);border:1.5px solid var(--border);font-size:0.82rem;color:var(--text2);cursor:pointer;transition:all .15s;position:relative}
+.match-def:hover{border-color:var(--border2);color:var(--text)}
+.match-def.selected{border-color:var(--amber);color:var(--text);background:rgba(245,166,35,0.06)}
+.match-def.matched-correct{border-color:rgba(74,222,128,0.4);background:rgba(74,222,128,0.07);color:var(--green);cursor:default}
+.match-def.matched-wrong{border-color:rgba(248,113,113,0.4);background:rgba(248,113,113,0.07);color:var(--red)}
+.match-term.matched{border-color:rgba(74,222,128,0.3);color:var(--teal)}
+.match-connector{font-family:var(--mono);font-size:0.7rem;color:var(--text3);padding:0 4px}
+
+/* FEEDBACK */
+.feedback{display:none;padding:12px 14px;border-radius:12px;font-size:0.85rem;margin-top:4px}
+.feedback.show{display:block}
+.feedback.fb-correct{background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);color:var(--green)}
+.feedback.fb-wrong{background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:var(--red)}
+.fb-icon{display:inline;margin-right:6px}
+
+/* EXPLANATION */
+.explanation{display:none;margin-top:12px;padding:14px 16px;border-radius:12px;background:var(--bg3);border:1px solid var(--border);font-size:0.85rem;color:var(--text2);line-height:1.7}
+.explanation.show{display:block}
+.explanation strong{color:var(--text)}
+
+/* TAKEAWAY */
+.takeaway{background:rgba(245,166,35,0.05);border:1px solid rgba(245,166,35,0.15);border-radius:20px;padding:20px 22px;margin-bottom:16px}
+.takeaway-title{font-family:var(--mono);font-size:0.7rem;color:var(--amber);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px}
+.takeaway-list{display:flex;flex-direction:column;gap:8px}
+.takeaway-item{display:flex;align-items:flex-start;gap:10px;font-size:0.88rem;color:var(--text2)}
+.takeaway-item::before{content:'✦';color:var(--amber);font-size:0.6rem;flex-shrink:0;margin-top:4px}
+
+/* NEXT */
+.next-section{display:flex;align-items:center;justify-content:space-between;padding:22px;border-radius:20px;background:var(--bg2);border:1px solid var(--border);margin-top:24px}
+.next-info h3{font-family:var(--serif);font-size:1.1rem;margin-bottom:4px}
+.next-info p{font-size:0.82rem;color:var(--text2)}
+.btn-next{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:12px;background:var(--amber);color:#0f1117;font-weight:600;font-size:0.88rem;white-space:nowrap;transition:background .15s,transform .1s}
+.btn-next:hover{background:var(--amber2);transform:translateY(-1px)}
+
+/* TAP ORDER (mobile fallback for sequences) */
+.tap-order-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.tap-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;background:var(--bg3);border:1.5px solid var(--border);cursor:pointer;transition:all .15s}
+.tap-item:hover{border-color:var(--border2)}
+.tap-item.tap-selected{border-color:var(--amber);background:rgba(245,166,35,0.06)}
+.tap-item.tap-correct{border-color:rgba(74,222,128,0.4);background:rgba(74,222,128,0.07)}
+.tap-item.tap-wrong{border-color:rgba(248,113,113,0.3);background:rgba(248,113,113,0.06)}
+.tap-num{width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:0.72rem;background:var(--bg4);color:var(--text3);border:1px solid var(--border);flex-shrink:0}
+.tap-item.tap-selected .tap-num{background:var(--amber);color:#0f1117;border-color:var(--amber)}
+
+@media(max-width:600px){
+  .s-hero{padding:24px 20px}
+  .activity-body,.activity-head{padding:14px 16px}
+  .bucket-zone,.pair-grid,.match-grid{grid-template-columns:1fr}
+  .pair-grid{gap:8px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html" style="text-decoration:none">DERIVATIVES<span>LAB</span></a>
+  <div class="nav-pill">
+    <a class="nav-next" href="index.html" style="margin-right:4px">← Home</a>
+    <div class="nav-session">Module 1 · Session 1.2</div>
+    <a class="nav-next" href="s1-3.html">Next: Session 1.3 →</a>
+  </div>
+</nav>
+
+<div class="shell">
+
+  <div class="progress-meta">
+    <div class="progress-label">Session 1.2 of 3</div>
+    <div class="progress-label" id="progress-pct">0 / 5 activities</div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+
+  <div class="s-hero">
+    <div class="crumb"><a href="index.html">Home</a><span style="color:var(--text3)">/</span><a href="module1.html">Module 1</a><span style="color:var(--text3)">/</span><span style="color:var(--teal)">Concepts</span><span style="color:var(--text3)">/</span><span>Session 1.2</span></div>
+    <div class="s-kicker">Session 1.2 — Market Motives</div>
+    <h1>Risk, Hedging<br>&amp; Speculation</h1>
+    <p>The same market can be used for completely different reasons. Discover the difference through scenarios — not definitions.</p>
+    <div class="s-outcomes">
+      <div class="s-out">Classify market participants by their objective, not their instrument</div>
+      <div class="s-out">Explain why certainty — not profit — is the hedger's goal</div>
+      <div class="s-out">Understand that not hedging an existing exposure is itself a risk choice</div>
+    </div>
+  </div>
+
+  <!-- ── ACTIVITY 1: BUCKET SORT ── -->
+  <div class="activity" id="act1">
+    <div class="activity-head">
+      <div class="act-num">1</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity 1 · Sort the motive</div>
+        <div class="act-title">Speculative risk or business exposure?</div>
+      </div>
+      <div class="act-check" id="act1-check"></div>
+    </div>
+    <div class="activity-body">
+      <div class="prompt">Each scenario describes a different market situation. <strong>Drag</strong> each card into the correct bucket — or tap a card, then tap a bucket on mobile.</div>
+
+      <div class="drag-cards" id="bucket1-source">
+        <div class="drag-card" draggable="true" data-id="c1" data-correct="spec">A trader buys Nifty expecting it to rise next week</div>
+        <div class="drag-card" draggable="true" data-id="c2" data-correct="hedge">An exporter will receive USD in 3 months, worries the dollar may fall</div>
+        <div class="drag-card" draggable="true" data-id="c3" data-correct="spec">A student buys a stock hoping for profit if the price rises</div>
+        <div class="drag-card" draggable="true" data-id="c4" data-correct="hedge">An importer must pay dollars next month, worries the dollar may rise</div>
+      </div>
+
+      <div class="bucket-zone">
+        <div class="bucket hedge-bucket" id="b1-hedge" data-bucket="hedge">
+          <div class="bucket-title">Existing exposure — needs protection</div>
+          <div class="bucket-items" id="b1-hedge-items"></div>
+        </div>
+        <div class="bucket spec-bucket" id="b1-spec" data-bucket="spec">
+          <div class="bucket-title">Directional risk — taken for profit</div>
+          <div class="bucket-items" id="b1-spec-items"></div>
+        </div>
+      </div>
+
+      <button class="check-btn" onclick="checkBuckets('act1','b1','bucket1-source',{hedge:['c2','c4'],spec:['c1','c3']})">Check →</button>
+      <div class="feedback" id="act1-feedback"></div>
+      <div class="explanation" id="act1-expl">
+        <strong>Speculation</strong> means taking risk deliberately to profit from a market view. <strong>Hedging</strong> means reducing an existing risk that is already there from your business or position. The key question is always: <em>is this person creating risk, or managing risk that already exists?</em>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ACTIVITY 2: ROLE PICKER ── -->
+  <div class="activity" id="act2">
+    <div class="activity-head">
+      <div class="act-num">2</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity 2 · Trader hats</div>
+        <div class="act-title">Who is this — hedger or speculator?</div>
+      </div>
+      <div class="act-check" id="act2-check"></div>
+    </div>
+    <div class="activity-body">
+      <div class="prompt">Four scenarios, four decisions. Pick the correct hat for each.</div>
+
+      <div style="display:flex;flex-direction:column;gap:16px" id="role-scenarios">
+
+        <div data-scenario="s1">
+          <div style="font-size:0.85rem;color:var(--text2);margin-bottom:8px;padding:10px 12px;background:var(--bg3);border-radius:10px;border-left:3px solid var(--border2)">A trader thinks crude oil prices will rise and buys a futures contract.</div>
+          <div class="options" id="rs1-opts">
+            <button class="opt" onclick="checkRole('rs1',this,false,'Not this. A hedger reduces an existing risk — this trader has no prior exposure to reduce.')"><span class="opt-letter">A</span>Hedger</button>
+            <button class="opt" onclick="checkRole('rs1',this,true,'Correct. No underlying exposure — this is a directional bet for profit.')"><span class="opt-letter">B</span>Speculator</button>
+          </div>
+          <div class="feedback" id="rs1-feedback"></div>
+        </div>
+
+        <div data-scenario="s2">
+          <div style="font-size:0.85rem;color:var(--text2);margin-bottom:8px;padding:10px 12px;background:var(--bg3);border-radius:10px;border-left:3px solid var(--border2)">A wheat farmer expects harvest in two months and wants to lock in a sale price today.</div>
+          <div class="options" id="rs2-opts">
+            <button class="opt" onclick="checkRole('rs2',this,true,'Correct. The farmer has a real underlying exposure and wants certainty.')"><span class="opt-letter">A</span>Hedger</button>
+            <button class="opt" onclick="checkRole('rs2',this,false,'Not this. The farmer is not taking a speculative market view — the harvest exposure already exists.')"><span class="opt-letter">B</span>Speculator</button>
+          </div>
+          <div class="feedback" id="rs2-feedback"></div>
+        </div>
+
+        <div data-scenario="s3">
+          <div style="font-size:0.85rem;color:var(--text2);margin-bottom:8px;padding:10px 12px;background:var(--bg3);border-radius:10px;border-left:3px solid var(--border2)">A software exporter expects dollar inflows and wants to reduce uncertainty in rupee cash flows.</div>
+          <div class="options" id="rs3-opts">
+            <button class="opt" onclick="checkRole('rs3',this,true,'Correct. The dollar exposure already exists from the business — hedging removes the uncertainty.')"><span class="opt-letter">A</span>Hedger</button>
+            <button class="opt" onclick="checkRole('rs3',this,false,'Not this. The exporter is not speculating — they already have the dollar exposure from their business.')"><span class="opt-letter">B</span>Speculator</button>
+          </div>
+          <div class="feedback" id="rs3-feedback"></div>
+        </div>
+
+        <div data-scenario="s4">
+          <div style="font-size:0.85rem;color:var(--text2);margin-bottom:8px;padding:10px 12px;background:var(--bg3);border-radius:10px;border-left:3px solid var(--border2)">A trader takes a market position with no existing business exposure, purely to profit from a market view.</div>
+          <div class="options" id="rs4-opts">
+            <button class="opt" onclick="checkRole('rs4',this,false,'Not this. No underlying business exposure means no hedging motive.')"><span class="opt-letter">A</span>Hedger</button>
+            <button class="opt" onclick="checkRole('rs4',this,true,'Correct. No underlying exposure, directional market view — this is speculation.')"><span class="opt-letter">B</span>Speculator</button>
+          </div>
+          <div class="feedback" id="rs4-feedback"></div>
+        </div>
+      </div>
+
+      <div class="explanation" id="act2-expl" style="display:none">
+        <strong>The motive decides the label — not the instrument.</strong> A hedger and a speculator can both use the same futures contract. What separates them is whether the position is reducing an existing risk, or creating new risk for potential gain.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ACTIVITY 3: SORT CERTAINTY vs PROFIT ── -->
+  <div class="activity" id="act3">
+    <div class="activity-head">
+      <div class="act-num">3</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity 3 · Certainty vs profit</div>
+        <div class="act-title">What does this person actually want?</div>
+      </div>
+      <div class="act-check" id="act3-check"></div>
+    </div>
+    <div class="activity-body">
+      <div class="prompt">Sort each objective into the correct column.</div>
+
+      <div class="drag-cards" id="bucket3-source">
+        <div class="drag-card" draggable="true" data-id="d1" data-correct="cert">Lock in future dollar receipts</div>
+        <div class="drag-card" draggable="true" data-id="d2" data-correct="prof">Benefit from expected rise in Nifty</div>
+        <div class="drag-card" draggable="true" data-id="d3" data-correct="cert">Reduce uncertainty in import cost</div>
+        <div class="drag-card" draggable="true" data-id="d4" data-correct="prof">Gain from falling stock prices</div>
+        <div class="drag-card" draggable="true" data-id="d5" data-correct="cert">Make cash flows predictable</div>
+        <div class="drag-card" draggable="true" data-id="d6" data-correct="prof">Take a bullish market view</div>
+      </div>
+
+      <div class="bucket-zone">
+        <div class="bucket hedge-bucket" id="b3-cert" data-bucket="cert">
+          <div class="bucket-title">Wants certainty</div>
+          <div class="bucket-items" id="b3-cert-items"></div>
+        </div>
+        <div class="bucket spec-bucket" id="b3-prof" data-bucket="prof">
+          <div class="bucket-title">Wants profit from market movement</div>
+          <div class="bucket-items" id="b3-prof-items"></div>
+        </div>
+      </div>
+
+      <button class="check-btn" onclick="checkBuckets('act3','b3','bucket3-source',{cert:['d1','d3','d5'],prof:['d2','d4','d6']})">Check →</button>
+      <div class="feedback" id="act3-feedback"></div>
+      <div class="explanation" id="act3-expl">
+        <strong>The hedger's success is not measured by profit on the derivative.</strong> It is measured by how much uncertainty has been removed. A hedge can reduce upside along with downside — and that is perfectly acceptable if certainty was the goal.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ACTIVITY 4: WRONG / RIGHT QUESTION ── -->
+  <div class="activity" id="act4">
+    <div class="activity-head">
+      <div class="act-num">4</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity 4 · Right question</div>
+        <div class="act-title">Which question should you ask about a hedge?</div>
+      </div>
+      <div class="act-check" id="act4-check"></div>
+    </div>
+    <div class="activity-body">
+      <div class="prompt">In each pair, one question is <strong>the speculator's question</strong> and one is <strong>the hedger's question</strong>. Click the better one for each pair.</div>
+
+      <div style="display:flex;flex-direction:column;gap:16px">
+
+        <div>
+          <div class="pair-label">Pair 1</div>
+          <div class="pair-grid">
+            <button class="pair-btn" onclick="checkPair('p1',this,false,'Not quite. Asking only about profit misses the point of a hedge entirely.')">Where is the profit in the hedge?</button>
+            <button class="pair-btn" onclick="checkPair('p1',this,true,'Correct. The right question is about risk reduction, not derivative profit.')">What risk is being reduced by the hedge?</button>
+          </div>
+          <div class="feedback" id="p1-feedback"></div>
+        </div>
+
+        <div>
+          <div class="pair-label">Pair 2</div>
+          <div class="pair-grid">
+            <button class="pair-btn" onclick="checkPair('p2',this,false,'Not quite. \"Giving up upside\" frames it as a loss — but certainty is the goal, not maximum gain.')">Why is the firm giving up upside?</button>
+            <button class="pair-btn" onclick="checkPair('p2',this,true,'Correct. The hedger wants to eliminate uncertainty — giving up upside is a deliberate trade-off.')">What uncertainty is the firm trying to avoid?</button>
+          </div>
+          <div class="feedback" id="p2-feedback"></div>
+        </div>
+
+        <div>
+          <div class="pair-label">Pair 3</div>
+          <div class="pair-grid">
+            <button class="pair-btn" onclick="checkPair('p3',this,false,'Not quite. The derivative leg alone is not the whole story — total exposure matters.')">Can a hedger lose on the derivative leg?</button>
+            <button class="pair-btn" onclick="checkPair('p3',this,true,'Correct. Evaluate the hedge by what happens to total exposure — not just the derivative in isolation.')">What happens to the total position after hedging?</button>
+          </div>
+          <div class="feedback" id="p3-feedback"></div>
+        </div>
+
+      </div>
+
+      <div class="explanation" id="act4-expl" style="display:none;margin-top:16px">
+        <strong>When students ask only "where is the profit?", they are still thinking like speculators.</strong><br><br>
+        The right way to evaluate a hedge: what risk existed before? What uncertainty remains now? How has the total position changed? A hedge that removes uncertainty has done its job — even if the derivative leg alone shows a loss.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ACTIVITY 5: NO HEDGE IS ALSO A CHOICE ── -->
+  <div class="activity" id="act5">
+    <div class="activity-head">
+      <div class="act-num">5</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity 5 · Key insight</div>
+        <div class="act-title">If you do not hedge, what are you doing?</div>
+      </div>
+      <div class="act-check" id="act5-check"></div>
+    </div>
+    <div class="activity-body">
+      <div class="prompt">An exporter expects USD receipts after three months and <strong>decides not to hedge</strong> the exchange-rate risk. Which statement best describes the situation?</div>
+      <div class="options" id="a5-opts">
+        <button class="opt" onclick="checkMCQ('a5',this,false,'Not this. No derivative does not mean no exposure. The dollar risk still exists.')"><span class="opt-letter">A</span>The exporter is neutral because no derivative is used</button>
+        <button class="opt" onclick="checkMCQ('a5',this,true,'Correct. Choosing not to hedge leaves the original uncertainty open to market movement.')"><span class="opt-letter">B</span>The exporter is effectively exposed to currency risk and is choosing to live with it</button>
+        <button class="opt" onclick="checkMCQ('a5',this,false,'Not this. Avoiding derivatives does not remove an underlying business exposure.')"><span class="opt-letter">C</span>The exporter has removed risk by avoiding derivatives</button>
+        <button class="opt" onclick="checkMCQ('a5',this,false,'Not this. Not hedging does not make someone an arbitrageur.')"><span class="opt-letter">D</span>The exporter becomes an arbitrageur</button>
+      </div>
+      <div class="feedback" id="a5-feedback"></div>
+      <div class="explanation" id="a5-expl">
+        <strong>This is one of the deepest ideas in the module.</strong> If an exposure already exists, "doing nothing" is not zero risk. It is a choice to remain exposed to whatever the market does. Not hedging is itself a position — even though no derivative is involved.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CONCEPT CHECK ── -->
+  <div class="activity" id="checks">
+    <div class="activity-head">
+      <div class="act-num">✓</div>
+      <div class="act-meta">
+        <div class="act-tag">Concept check · 4 questions</div>
+        <div class="act-title">Quick reinforcement</div>
+      </div>
+      <div class="act-check" id="checks-check"></div>
+    </div>
+    <div class="activity-body">
+
+      <div style="margin-bottom:20px">
+        <div class="prompt" style="border-left-color:var(--text3)">True or False: The primary objective of a hedger is to maximise speculative profit.</div>
+        <div class="options" id="q1-opts">
+          <button class="opt" onclick="checkMCQ('q1',this,false,'Correct — this is False. The hedger seeks certainty and risk reduction, not speculative profit.')"><span class="opt-letter">True</span></button>
+          <button class="opt" onclick="checkMCQ('q1',this,true,'Correct. False — hedgers seek certainty, not maximum speculative profit.')"><span class="opt-letter">False</span></button>
+        </div>
+        <div class="feedback" id="q1-feedback"></div>
+      </div>
+
+      <div style="margin-bottom:20px">
+        <div class="prompt" style="border-left-color:var(--text3)">An exporter locks in a future exchange rate. The objective is:</div>
+        <div class="options" id="q2-opts">
+          <button class="opt" onclick="checkMCQ('q2',this,false,'Not this. Arbitrage profits come from price discrepancies, not from locking in exchange rates.')"><span class="opt-letter">A</span>Guaranteed arbitrage profit</button>
+          <button class="opt" onclick="checkMCQ('q2',this,true,'Correct. The exporter wants certainty of rupee cash flow, not speculative gain.')"><span class="opt-letter">B</span>Certainty of cash flow</button>
+          <button class="opt" onclick="checkMCQ('q2',this,false,'Not this. A hedger deliberately gives up unlimited upside to secure certainty.')"><span class="opt-letter">C</span>Unlimited upside</button>
+          <button class="opt" onclick="checkMCQ('q2',this,false,'Not this. More volatility is the speculator\'s environment, not the hedger\'s goal.')"><span class="opt-letter">D</span>More volatility</button>
+        </div>
+        <div class="feedback" id="q2-feedback"></div>
+      </div>
+
+      <div style="margin-bottom:20px">
+        <div class="prompt" style="border-left-color:var(--text3)">True or False: The same derivative contract can be used by both a hedger and a speculator.</div>
+        <div class="options" id="q3-opts">
+          <button class="opt" onclick="checkMCQ('q3',this,true,'Correct. True — instrument alone does not define the motive. Purpose decides the label.')"><span class="opt-letter">True</span></button>
+          <button class="opt" onclick="checkMCQ('q3',this,false,'Not this. The same contract can absolutely serve very different purposes for different participants.')"><span class="opt-letter">False</span></button>
+        </div>
+        <div class="feedback" id="q3-feedback"></div>
+      </div>
+
+      <div>
+        <div class="prompt" style="border-left-color:var(--text3)">Choosing not to hedge an existing exposure means:</div>
+        <div class="options" id="q4-opts">
+          <button class="opt" onclick="checkMCQ('q4',this,false,'Not this. Doing nothing does not eliminate an existing market exposure.')"><span class="opt-letter">A</span>The risk disappears</button>
+          <button class="opt" onclick="checkMCQ('q4',this,false,'Not this. An underlying business exposure exists whether or not a derivative is used.')"><span class="opt-letter">B</span>No exposure exists since no instrument is used</button>
+          <button class="opt" onclick="checkMCQ('q4',this,true,'Correct. If exposure exists and you choose not to hedge, the uncertainty stays open.')"><span class="opt-letter">C</span>The exposure remains open to market movement</button>
+          <button class="opt" onclick="checkMCQ('q4',this,false,'Not this. Avoiding a hedge does not make someone risk-free.')"><span class="opt-letter">D</span>The person becomes risk-free</button>
+        </div>
+        <div class="feedback" id="q4-feedback"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAKEAWAY -->
+  <div class="takeaway">
+    <div class="takeaway-title">Session 1.2 — Remember This</div>
+    <div class="takeaway-list">
+      <div class="takeaway-item">Speculators take risk intentionally for possible profit</div>
+      <div class="takeaway-item">Hedgers reduce existing risk to improve certainty</div>
+      <div class="takeaway-item">Evaluate a hedge by total exposure change — not by the derivative leg alone</div>
+      <div class="takeaway-item">Not hedging an existing exposure is still a risk choice</div>
+      <div class="takeaway-item">The same contract can serve completely different motives</div>
+    </div>
+  </div>
+
+  <div class="next-section">
+    <div class="next-info">
+      <h3>Next: Session 1.3</h3>
+      <p>Arbitrage &amp; Trader Hats — the same market event, three different reactions</p>
+    </div>
+    <a class="btn-next" href="s1-3.html">Continue →</a>
+  </div>
+
+</div>
+
+<script>
+/* ── PROGRESS ── */
+const completed = new Set();
+function updateProgress(){
+  const pct = Math.round((completed.size/5)*100);
+  document.getElementById('progress-fill').style.width = pct+'%';
+  document.getElementById('progress-pct').textContent = completed.size+' / 5 activities';
+}
+
+function markDone(id){
+  completed.add(id);
+  const el = document.getElementById(id);
+  if(el){el.classList.add('done');const c=document.getElementById(id+'-check');if(c)c.innerHTML='✓';}
+  updateProgress();
+}
+
+/* ── MCQ ── */
+function checkMCQ(groupId, btn, isCorrect, msg){
+  const opts = document.querySelectorAll('#'+groupId+'-opts .opt');
+  opts.forEach(o=>o.disabled=true);
+  btn.classList.add(isCorrect?'correct':'wrong');
+  if(!isCorrect) opts.forEach(o=>{ if(o.onclick&&o.onclick.toString().includes('true,')) o.classList.add('correct') });
+  const fb = document.getElementById(groupId+'-feedback');
+  if(fb){fb.className='feedback show '+(isCorrect?'fb-correct':'fb-wrong');fb.innerHTML='<span class="fb-icon">'+(isCorrect?'✓':'✗')+'</span>'+msg}
+  const expl = document.getElementById(groupId+'-expl');
+  if(expl) expl.className='explanation show';
+  // map MCQ to activity
+  const map = {a5:'act5',q1:null,q2:null,q3:null,q4:null};
+  if(map[groupId]&&isCorrect) markDone(map[groupId]);
+}
+
+/* ── ROLE PICKER (multi-scenario) ── */
+let roleCorrect = {rs1:false,rs2:false,rs3:false,rs4:false};
+function checkRole(id, btn, isCorrect, msg){
+  const opts = document.querySelectorAll('#'+id+'-opts .opt');
+  opts.forEach(o=>o.disabled=true);
+  btn.classList.add(isCorrect?'correct':'wrong');
+  if(!isCorrect) opts.forEach(o=>{ if(o.onclick&&o.onclick.toString().includes('true,')) o.classList.add('correct') });
+  const fb = document.getElementById(id+'-feedback');
+  if(fb){fb.className='feedback show '+(isCorrect?'fb-correct':'fb-wrong');fb.innerHTML='<span class="fb-icon">'+(isCorrect?'✓':'✗')+'</span>'+msg}
+  if(isCorrect) roleCorrect[id]=true;
+  if(Object.values(roleCorrect).filter(Boolean).length>=3){
+    document.getElementById('act2-expl').className='explanation show';
+    markDone('act2');
+  }
+}
+
+/* ── PAIR PICKER ── */
+let pairsCorrect = {p1:false,p2:false,p3:false};
+function checkPair(id, btn, isCorrect, msg){
+  const parent = btn.parentElement;
+  parent.querySelectorAll('.pair-btn').forEach(b=>b.disabled=true);
+  btn.classList.add(isCorrect?'correct':'wrong');
+  if(!isCorrect) parent.querySelectorAll('.pair-btn').forEach(b=>{ if(b!==btn) b.classList.add('correct') });
+  const fb = document.getElementById(id+'-feedback');
+  if(fb){fb.className='feedback show '+(isCorrect?'fb-correct':'fb-wrong');fb.innerHTML='<span class="fb-icon">'+(isCorrect?'✓':'✗')+'</span>'+msg}
+  if(isCorrect) pairsCorrect[id]=true;
+  if(Object.values(pairsCorrect).filter(Boolean).length>=2){
+    document.getElementById('act4-expl').className='explanation show';
+    markDone('act4');
+  }
+}
+
+/* ── DRAG-TO-BUCKET ── */
+let dragTarget = null;
+function initDrag(sourceId){
+  document.querySelectorAll('#'+sourceId+' .drag-card').forEach(card=>{
+    card.addEventListener('dragstart', e=>{ dragTarget=card; card.classList.add('dragging'); e.dataTransfer.effectAllowed='move' });
+    card.addEventListener('dragend', ()=>card.classList.remove('dragging'));
+    // tap-to-select mobile fallback
+    card.addEventListener('click', ()=>{
+      if(card.classList.contains('in-bucket')) return;
+      document.querySelectorAll('.drag-card.tap-active').forEach(c=>c.classList.remove('tap-active'));
+      card.classList.toggle('tap-active');
+    });
+  });
+  document.querySelectorAll('.bucket').forEach(bucket=>{
+    bucket.addEventListener('dragover', e=>{ e.preventDefault(); bucket.classList.add('drag-over') });
+    bucket.addEventListener('dragleave', ()=>bucket.classList.remove('drag-over'));
+    bucket.addEventListener('drop', e=>{ e.preventDefault(); bucket.classList.remove('drag-over'); if(dragTarget) dropCard(dragTarget, bucket) });
+    bucket.addEventListener('click', ()=>{
+      const active = document.querySelector('.drag-card.tap-active');
+      if(active) dropCard(active, bucket);
+    });
+  });
+}
+
+function dropCard(card, bucket){
+  const itemsEl = bucket.querySelector('.bucket-items');
+  if(!itemsEl) return;
+  const item = document.createElement('div');
+  item.className = 'bucket-item';
+  item.textContent = card.textContent;
+  item.dataset.id = card.dataset.id;
+  item.dataset.correct = card.dataset.correct;
+  itemsEl.appendChild(item);
+  card.style.display='none';
+  card.classList.remove('tap-active');
+  card.classList.add('in-bucket');
+}
+
+function checkBuckets(actId, prefix, sourceId, expected){
+  let allCorrect = true;
+  // check each bucket
+  for(const [bucket, ids] of Object.entries(expected)){
+    const itemsEl = document.getElementById(prefix+'-'+bucket+'-items');
+    if(!itemsEl) continue;
+    itemsEl.querySelectorAll('.bucket-item').forEach(item=>{
+      const id = item.dataset.id;
+      if(!ids.includes(id)){
+        allCorrect=false;
+        item.style.background='rgba(248,113,113,0.1)';
+        item.style.borderColor='rgba(248,113,113,0.25)';
+        item.style.color='var(--red)';
+      }
+    });
+  }
+  // check for missing items
+  const allIds = Object.values(expected).flat();
+  const placed = [];
+  document.querySelectorAll('.bucket-item').forEach(i=>placed.push(i.dataset.id));
+  const missing = allIds.filter(id=>!placed.includes(id));
+  if(missing.length>0) allCorrect=false;
+
+  const fb = document.getElementById(actId+'-feedback');
+  const expl = document.getElementById(actId+'-expl');
+  if(allCorrect){
+    fb.className='feedback show fb-correct';
+    fb.innerHTML='<span class="fb-icon">✓</span> Correct. Well sorted.';
+    if(expl) expl.className='explanation show';
+    markDone(actId);
+  } else {
+    fb.className='feedback show fb-wrong';
+    fb.innerHTML='<span class="fb-icon">✗</span> Some items are in the wrong bucket. Red items need to move.';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  initDrag('bucket1-source');
+  initDrag('bucket3-source');
+  updateProgress();
+});
+</script>
+</body>
+</html>

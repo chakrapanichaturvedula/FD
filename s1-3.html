@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Session 1.3 — Arbitrage &amp; Trader Hats · DerivativesLab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0f1117;--bg2:#161b26;--bg3:#1e2535;--bg4:#252e42;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --amber:#f5a623;--amber2:#ffc75a;--teal:#2dd4bf;
+  --green:#4ade80;--red:#f87171;--blue:#60a5fa;--violet:#a78bfa;
+  --text:#e8eaf0;--text2:#8b91a8;--text3:#555e78;
+  --serif:'DM Serif Display',Georgia,serif;
+  --mono:'DM Mono','Courier New',monospace;
+  --sans:'DM Sans',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+a{text-decoration:none;color:inherit}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:56px;background:rgba(15,17,23,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--mono);font-size:0.82rem;color:var(--amber);letter-spacing:0.04em}
+.nav-logo span{color:var(--text2)}
+.nav-pill{display:flex;align-items:center;gap:10px}
+.nav-session{font-family:var(--mono);font-size:0.72rem;color:var(--text3)}
+.nav-next{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;background:var(--bg3);border:1px solid var(--border2);font-size:0.78rem;font-weight:600;color:var(--text2);transition:color .15s,border-color .15s}
+.nav-next:hover{color:var(--amber);border-color:rgba(245,166,35,0.3)}
+
+.shell{max-width:900px;margin:0 auto;padding:80px 24px 80px}
+
+.progress-meta{display:flex;justify-content:space-between;margin-bottom:6px}
+.progress-label{font-family:var(--mono);font-size:0.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em}
+.progress-bar{height:2px;background:var(--bg3);margin-bottom:28px;border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:var(--amber);border-radius:2px;transition:width .4s ease;width:0%}
+
+.s-hero{padding:36px 40px;border-radius:28px;background:var(--bg2);border:1px solid var(--border2);margin-bottom:28px;position:relative;overflow:hidden}
+.s-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:220px;height:220px;background:radial-gradient(circle,rgba(167,139,250,0.07) 0%,transparent 70%);pointer-events:none}
+.crumb{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:0.68rem;color:var(--text3);margin-bottom:14px}
+.crumb a{color:var(--text3);transition:color .15s}.crumb a:hover{color:var(--amber)}
+.s-kicker{font-family:var(--mono);font-size:0.68rem;color:var(--violet);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px}
+.s-hero h1{font-family:var(--serif);font-size:clamp(1.8rem,3vw,2.6rem);line-height:1.1;margin-bottom:8px}
+.s-hero p{color:var(--text2);font-size:0.9rem;max-width:500px}
+.s-outcomes{display:flex;flex-direction:column;gap:5px;margin-top:14px}
+.s-out{display:flex;align-items:flex-start;gap:8px;font-size:0.82rem;color:var(--text2)}
+.s-out::before{content:'→';color:var(--violet);font-family:var(--mono);flex-shrink:0}
+
+/* ACTIVITY */
+.activity{background:var(--bg2);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-bottom:16px;transition:border-color .2s}
+.activity.done{border-color:rgba(74,222,128,0.25)}
+.activity-head{display:flex;align-items:center;gap:14px;padding:18px 22px;border-bottom:1px solid var(--border)}
+.act-num{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:10px;flex-shrink:0;background:var(--bg3);font-family:var(--mono);font-size:0.75rem;color:var(--text3);border:1px solid var(--border);transition:all .2s}
+.activity.done .act-num{background:rgba(74,222,128,0.1);color:var(--green);border-color:rgba(74,222,128,0.25)}
+.act-meta{flex:1}
+.act-tag{font-family:var(--mono);font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px}
+.act-title{font-size:0.95rem;font-weight:600}
+.act-check{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.65rem}
+.activity.done .act-check{background:var(--green);border-color:var(--green);color:#0f1117}
+.activity-body{padding:20px 22px}
+
+/* PROMPT */
+.prompt{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px 16px;font-size:0.88rem;color:var(--text);margin-bottom:16px;border-left:3px solid var(--violet)}
+.prompt strong{color:var(--violet)}
+
+/* MCQ */
+.options{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.opt{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-radius:12px;background:var(--bg3);border:1px solid var(--border);cursor:pointer;font-size:0.88rem;color:var(--text2);transition:all .15s;text-align:left;width:100%;font-family:var(--sans)}
+.opt:hover{border-color:var(--border2);color:var(--text)}
+.opt-letter{display:flex;align-items:center;justify-content:center;width:22px;height:22px;flex-shrink:0;border-radius:6px;background:var(--bg4);font-family:var(--mono);font-size:0.7rem;color:var(--text3);transition:all .15s;margin-top:1px}
+.opt.correct{border-color:rgba(74,222,128,0.4);background:rgba(74,222,128,0.07);color:var(--text)}
+.opt.correct .opt-letter{background:var(--green);color:#0f1117}
+.opt.wrong{border-color:rgba(248,113,113,0.4);background:rgba(248,113,113,0.07);color:var(--text)}
+.opt.wrong .opt-letter{background:var(--red);color:#0f1117}
+.opt:disabled{cursor:default}
+
+/* FEEDBACK + EXPLANATION */
+.feedback{display:none;padding:12px 14px;border-radius:12px;font-size:0.85rem;margin-top:4px}
+.feedback.show{display:block}
+.feedback.fb-correct{background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);color:var(--green)}
+.feedback.fb-wrong{background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:var(--red)}
+.fb-icon{display:inline;margin-right:6px}
+.explanation{display:none;margin-top:12px;padding:14px 16px;border-radius:12px;background:var(--bg3);border:1px solid var(--border);font-size:0.85rem;color:var(--text2);line-height:1.7}
+.explanation.show{display:block}
+.explanation strong{color:var(--text)}
+
+/* PRICE INCONSISTENCY VISUAL */
+.market-display{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin-bottom:16px}
+.market-box{background:var(--bg3);border:1px solid var(--border2);border-radius:14px;padding:16px;text-align:center}
+.market-label{font-family:var(--mono);font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px}
+.market-price{font-family:var(--mono);font-size:1.5rem;font-weight:500;color:var(--text)}
+.market-sub{font-size:0.75rem;color:var(--text3);margin-top:4px}
+.market-gap{text-align:center}
+.gap-badge{display:inline-flex;flex-direction:column;align-items:center;gap:4px;padding:10px 14px;border-radius:12px;background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.25)}
+.gap-label{font-family:var(--mono);font-size:0.6rem;color:var(--amber);text-transform:uppercase;letter-spacing:0.06em}
+.gap-val{font-family:var(--mono);font-size:1rem;font-weight:500;color:var(--amber)}
+
+/* THREE-WAY BUCKET SORT */
+.bucket3-zone{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.drag-cards{display:flex;flex-wrap:wrap;gap:8px;padding:12px;background:var(--bg3);border:1px dashed var(--border2);border-radius:12px;min-height:56px;margin-bottom:12px}
+.drag-card{padding:8px 12px;border-radius:8px;background:var(--bg4);border:1px solid var(--border2);font-size:0.8rem;color:var(--text2);cursor:grab;user-select:none;transition:all .15s}
+.drag-card:hover{border-color:var(--amber);color:var(--text)}
+.drag-card.dragging{opacity:.5;transform:scale(0.96)}
+.bucket{border-radius:12px;border:1.5px dashed var(--border2);padding:12px;min-height:100px;transition:border-color .15s,background .15s}
+.bucket.drag-over{border-color:var(--amber);background:rgba(245,166,35,0.04)}
+.bucket-title{font-family:var(--mono);font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px}
+.bucket.hedge-bucket .bucket-title{color:var(--teal)}
+.bucket.spec-bucket .bucket-title{color:var(--amber)}
+.bucket.arb-bucket .bucket-title{color:var(--violet)}
+.bucket-items{display:flex;flex-wrap:wrap;gap:6px;min-height:40px}
+.bucket-item{padding:6px 10px;border-radius:8px;font-size:0.76rem}
+.hedge-bucket .bucket-item{background:rgba(45,212,191,0.08);border:1px solid rgba(45,212,191,0.2);color:var(--teal)}
+.spec-bucket .bucket-item{background:rgba(245,166,35,0.08);border:1px solid rgba(245,166,35,0.2);color:var(--amber)}
+.arb-bucket .bucket-item{background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);color:var(--violet)}
+.check-btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:12px;background:var(--bg3);border:1px solid var(--border2);font-size:0.82rem;font-weight:600;color:var(--text2);cursor:pointer;font-family:var(--sans);transition:all .15s}
+.check-btn:hover{color:var(--amber);border-color:rgba(245,166,35,0.3);background:rgba(245,166,35,0.05)}
+
+/* MATCH THE FOLLOWING */
+.match-container{margin-bottom:16px}
+.match-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.match-term{flex:0 0 auto;min-width:160px;padding:10px 14px;border-radius:10px;background:var(--bg3);border:1.5px solid var(--border);font-size:0.85rem;color:var(--text);font-weight:500}
+.match-arrow{color:var(--text3);font-family:var(--mono);font-size:0.85rem;flex-shrink:0}
+.match-def-opts{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.mopt{padding:8px 12px;border-radius:8px;background:var(--bg3);border:1px solid var(--border);font-size:0.8rem;color:var(--text2);cursor:pointer;transition:all .15s}
+.mopt:hover{border-color:var(--border2);color:var(--text)}
+.mopt.mopt-correct{border-color:rgba(74,222,128,0.4);background:rgba(74,222,128,0.07);color:var(--green);cursor:default}
+.mopt.mopt-wrong{border-color:rgba(248,113,113,0.3);background:rgba(248,113,113,0.06);color:var(--red);opacity:.6}
+.mopt:disabled{cursor:default}
+
+/* REACTIONS MATCHING */
+.reaction-grid{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.trader-card{display:flex;align-items:stretch;border-radius:14px;overflow:hidden;border:1px solid var(--border);background:var(--bg3)}
+.tc-label{display:flex;align-items:center;justify-content:center;width:80px;flex-shrink:0;font-family:var(--mono);font-size:0.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;border-right:1px solid var(--border);text-align:center;padding:8px 6px;writing-mode:vertical-lr;transform:rotate(180deg);letter-spacing:0.1em}
+.tc-body{flex:1;padding:14px 16px}
+.tc-scenario{font-size:0.82rem;color:var(--text2);margin-bottom:10px}
+.reaction-opts{display:flex;flex-direction:column;gap:6px}
+.ropt{padding:9px 12px;border-radius:8px;background:var(--bg4);border:1px solid var(--border);font-size:0.8rem;color:var(--text2);cursor:pointer;transition:all .15s;text-align:left;width:100%;font-family:var(--sans)}
+.ropt:hover{border-color:var(--border2);color:var(--text)}
+.ropt.correct{border-color:rgba(74,222,128,0.4);background:rgba(74,222,128,0.07);color:var(--green)}
+.ropt.wrong{border-color:rgba(248,113,113,0.3);background:rgba(248,113,113,0.06);color:var(--red)}
+.ropt:disabled{cursor:default}
+
+/* TAKEAWAY + NEXT */
+.takeaway{background:rgba(167,139,250,0.05);border:1px solid rgba(167,139,250,0.15);border-radius:20px;padding:20px 22px;margin-bottom:16px}
+.takeaway-title{font-family:var(--mono);font-size:0.7rem;color:var(--violet);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px}
+.takeaway-list{display:flex;flex-direction:column;gap:8px}
+.takeaway-item{display:flex;align-items:flex-start;gap:10px;font-size:0.88rem;color:var(--text2)}
+.takeaway-item::before{content:'✦';color:var(--violet);font-size:0.6rem;flex-shrink:0;margin-top:4px}
+.next-section{display:flex;align-items:center;justify-content:space-between;padding:22px;border-radius:20px;background:var(--bg2);border:1px solid var(--border);margin-top:24px}
+.next-info h3{font-family:var(--serif);font-size:1.1rem;margin-bottom:4px}
+.next-info p{font-size:0.82rem;color:var(--text2)}
+.btn-next{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:12px;background:var(--amber);color:#0f1117;font-weight:600;font-size:0.88rem;white-space:nowrap;transition:background .15s,transform .1s}
+.btn-next:hover{background:var(--amber2);transform:translateY(-1px)}
+
+@media(max-width:600px){
+  .s-hero{padding:24px 20px}
+  .activity-body,.activity-head{padding:14px 16px}
+  .bucket3-zone{grid-template-columns:1fr}
+  .market-display{grid-template-columns:1fr;gap:8px}
+  .match-row{flex-direction:column;align-items:flex-start}
+  .match-term{min-width:0;width:100%}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html" style="text-decoration:none">DERIVATIVES<span>LAB</span></a>
+  <div class="nav-pill">
+    <a class="nav-next" href="index.html" style="margin-right:4px">← Home</a>
+    <div class="nav-session">Module 1 · Session 1.3</div>
+    <a class="nav-next" href="nse-contract.html">Markets Layer →</a>
+  </div>
+</nav>
+
+<div class="shell">
+
+  <div class="progress-meta">
+    <div class="progress-label">Session 1.3 of 3</div>
+    <div class="progress-label" id="progress-pct">0 / 5 activities</div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+
+  <div class="s-hero">
+    <div class="crumb"><a href="index.html">Home</a><span style="color:var(--text3)">/</span><a href="module1.html">Module 1</a><span style="color:var(--text3)">/</span><span style="color:var(--teal)">Concepts</span><span style="color:var(--text3)">/</span><span>Session 1.3</span></div>
+    <div class="s-kicker">Session 1.3 — Market Intelligence</div>
+    <h1>Arbitrage &amp;<br>Trader Hats</h1>
+    <p>The same market event can look completely different depending on why you entered it. This session brings all three trader types into the same moment.</p>
+    <div class="s-outcomes">
+      <div class="s-out">Identify arbitrage as a response to price inconsistency — not prediction</div>
+      <div class="s-out">Distinguish arbitrage from speculation using motive, not instrument</div>
+      <div class="s-out">Match the same market event to three different trader reactions</div>
+    </div>
+  </div>
+
+  <!-- ── ACTIVITY 1: SPOT THE PRICE GAP ── -->
+  <div class="activity" id="act1">
+    <div class="activity-head">
+      <div class="act-num">1</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity 1 · Price inconsistency</div>
+        <div class="act-title">Same asset. Two prices. Same moment.</div>
+      </div>
+      <div class="act-check" id="act1-check"></div>
+    </div>
+    <div class="activity-body">
+      <div class="market-display">
+        <div class="market-box">
+          <div class="market-label">Market A</div>
+          <div class="market-price">₹60,000</div>
+          <div class="market-sub">Gold · Same quality</div>
+        </div>
+        <div class="market-gap">
+          <div class="gap-badge">
+            <div class="gap-label">Gap</div>
+            <div class="gap-val">₹600</div>
+          </div>
+        </div>
+        <div class="market-box">
+          <div class="market-label">Market B</div>
+          <div class="market-price">₹60,600</div>
+          <div class="market-sub">Gold · Same quality</div>
+        </div>
+      </div>
+      <div class="prompt">The two prices exist at the same time, for the same asset. <strong>What is the most important thing to notice?</strong></div>
+      <div class="options" id="a1-opts">
+        <button class="opt" onclick="checkMCQ('a1',this,false,'Not quite. Whether gold is expensive in absolute terms is not the key observation here.')"><span class="opt-letter">A</span>Gold is expensive in both markets</button>
+        <button class="opt" onclick="checkMCQ('a1',this,true,'Correct. The same asset has two different prices at the same time — that is the inconsistency arbitrage begins with.')"><span class="opt-letter">B</span>The same asset has different prices at the same time</button>
+        <button class="opt" onclick="checkMCQ('a1',this,false,'Not quite. Gold prices are not random — this gap reflects a real market structure opportunity.')"><span class="opt-letter">C</span>Gold prices are always random</button>
+        <button class="opt" onclick="checkMCQ('a1',this,false,'Not quite. The arbitrageur does not wait — the opportunity may disappear quickly.')"><span class="opt-letter">D</span>The buyer should wait for prices to equalise on their own</button>
+      </div>
+      <div class="feedback" id="a1-feedback"></div>
+      <div class="explanation" id="a1-expl">
+        <strong>Arbitrage begins with noticing price inconsistency.</strong> The key question is not "will the price rise or fall?" It is "why is the same thing priced differently right now?" That shift in question — from direction to consistency — is the core of arbitrage thinking.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ACTIVITY 2: WHO REACTS FIRST ── -->
+  <div class="activity" id="act2">
+    <div class="activity-head">
+      <div class="act-num">2</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity 2 · Trader identification</div>
+        <div class="act-title">Who reacts immediately to this price gap?</div>
+      </div>
+      <div class="act-check" id="act2-check"></div>
+    </div>
+    <div class="activity-body">
+      <div class="prompt">Gold is simultaneously ₹60,000 in Market A and ₹60,600 in Market B. <strong>Which trader type moves first?</strong></div>
+      <div class="options" id="a2-opts">
+        <button class="opt" onclick="checkMCQ('a2',this,false,'Not this. A hedger is looking to protect an existing exposure — not to exploit a price gap between markets.')"><span class="opt-letter">A</span>Hedger — wants certainty about future cash flows</button>
+        <button class="opt" onclick="checkMCQ('a2',this,false,'Not this. A speculator takes a directional view on where prices are going — the gap itself is not the signal.')"><span class="opt-letter">B</span>Speculator — expects prices to converge</button>
+        <button class="opt" onclick="checkMCQ('a2',this,true,'Correct. Arbitrageurs hunt price discrepancies across related markets — this gap is exactly their opportunity.')"><span class="opt-letter">C</span>Arbitrageur — sees the price discrepancy and acts on both sides</button>
+      </div>
+      <div class="feedback" id="a2-feedback"></div>
+      <div class="explanation" id="a2-expl">
+        <strong>An arbitrageur does not need a market view.</strong> They need: two related markets, a temporary price discrepancy, and the ability to trade both sides quickly. No prediction about direction is needed — the profit comes from the gap itself.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ACTIVITY 3: CLASSIFY THREE SCENARIOS ── -->
+  <div class="activity" id="act3">
+    <div class="activity-head">
+      <div class="act-num">3</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity 3 · Three-way sort</div>
+        <div class="act-title">Hedging, Speculation, or Arbitrage?</div>
+      </div>
+      <div class="act-check" id="act3-check"></div>
+    </div>
+    <div class="activity-body">
+      <div class="prompt"><strong>Drag</strong> each scenario into the correct bucket. The motive decides the label.</div>
+
+      <div class="drag-cards" id="bucket3-source">
+        <div class="drag-card" draggable="true" data-id="e1" data-correct="spec">A trader buys Nifty futures because she believes the market will rise next week</div>
+        <div class="drag-card" draggable="true" data-id="e2" data-correct="arb">A trader buys in Market A and simultaneously sells in Market B because the same asset is priced differently</div>
+        <div class="drag-card" draggable="true" data-id="e3" data-correct="hedge">A company uses currency futures to protect future export cash flows</div>
+        <div class="drag-card" draggable="true" data-id="e4" data-correct="arb">A trader takes offsetting long and short positions across related markets to lock in a price spread</div>
+        <div class="drag-card" draggable="true" data-id="e5" data-correct="spec">A fund manager sells futures because she expects the market to fall</div>
+        <div class="drag-card" draggable="true" data-id="e6" data-correct="hedge">A farmer locks in a selling price for next month's harvest today</div>
+      </div>
+
+      <div class="bucket3-zone">
+        <div class="bucket hedge-bucket" id="b3-hedge" data-bucket="hedge">
+          <div class="bucket-title">Hedging</div>
+          <div class="bucket-items" id="b3-hedge-items"></div>
+        </div>
+        <div class="bucket spec-bucket" id="b3-spec" data-bucket="spec">
+          <div class="bucket-title">Speculation</div>
+          <div class="bucket-items" id="b3-spec-items"></div>
+        </div>
+        <div class="bucket arb-bucket" id="b3-arb" data-bucket="arb">
+          <div class="bucket-title">Arbitrage</div>
+          <div class="bucket-items" id="b3-arb-items"></div>
+        </div>
+      </div>
+
+      <button class="check-btn" onclick="checkBuckets3('act3','b3','bucket3-source',{hedge:['e3','e6'],spec:['e1','e5'],arb:['e2','e4']})">Check →</button>
+      <div class="feedback" id="act3-feedback"></div>
+      <div class="explanation" id="act3-expl">
+        <strong>The motive is always the deciding factor.</strong> Expectation of price move → speculation. Protection of existing exposure → hedging. Response to price inconsistency across markets → arbitrage. The same type of instrument can appear in all three columns.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ACTIVITY 4: TRADER HAT MATCH ── -->
+  <div class="activity" id="act4">
+    <div class="activity-head">
+      <div class="act-num">4</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity 4 · Match the following</div>
+        <div class="act-title">Match each trader hat to its description</div>
+      </div>
+      <div class="act-check" id="act4-check"></div>
+    </div>
+    <div class="activity-body">
+      <div class="prompt">Each row is a trader type. Click the correct description on the right.</div>
+
+      <div class="match-container" id="match-game">
+        <div class="match-row" id="mr-hedger">
+          <div class="match-term" style="border-color:rgba(45,212,191,0.3);color:var(--teal)">Hedger</div>
+          <div class="match-arrow">→</div>
+          <div class="match-def-opts">
+            <button class="mopt" onclick="matchPick('hedger',this,'cert','Correct. Certainty of cash flow is the hedger\'s objective.')">Wants certainty and lower risk</button>
+            <button class="mopt" onclick="matchPick('hedger',this,'wrong','Not this. Directional profit is the speculator\'s goal.')">Wants profit from a market view</button>
+            <button class="mopt" onclick="matchPick('hedger',this,'wrong','Not this. Exploiting mispricing is what arbitrageurs do.')">Exploits temporary mispricing</button>
+          </div>
+        </div>
+        <div class="feedback" id="m-hedger-fb" style="margin-bottom:10px"></div>
+
+        <div class="match-row" id="mr-spec">
+          <div class="match-term" style="border-color:rgba(245,166,35,0.3);color:var(--amber)">Speculator</div>
+          <div class="match-arrow">→</div>
+          <div class="match-def-opts">
+            <button class="mopt" onclick="matchPick('spec',this,'wrong','Not this. Hedgers seek certainty, not profit from price movement.')">Wants certainty of cash flow</button>
+            <button class="mopt" onclick="matchPick('spec',this,'cert','Correct. A speculator takes deliberate risk hoping the market view proves right.')">Wants profit from a directional market view</button>
+            <button class="mopt" onclick="matchPick('spec',this,'wrong','Not this. Arbitrage is about simultaneous trades on a price gap — no directional view needed.')">Uses simultaneous trades to lock a spread</button>
+          </div>
+        </div>
+        <div class="feedback" id="m-spec-fb" style="margin-bottom:10px"></div>
+
+        <div class="match-row" id="mr-arb">
+          <div class="match-term" style="border-color:rgba(167,139,250,0.3);color:var(--violet)">Arbitrageur</div>
+          <div class="match-arrow">→</div>
+          <div class="match-def-opts">
+            <button class="mopt" onclick="matchPick('arb',this,'wrong','Not this. Waiting is what risk-takers might do — arbitrageurs act immediately on the gap.')">Waits for prices to converge naturally</button>
+            <button class="mopt" onclick="matchPick('arb',this,'wrong','Not this. A hedger manages existing business exposure.')">Reduces existing business exposure</button>
+            <button class="mopt" onclick="matchPick('arb',this,'cert','Correct. The arbitrageur exploits temporary mispricing through simultaneous offsetting trades.')">Exploits simultaneous price discrepancies</button>
+          </div>
+        </div>
+        <div class="feedback" id="m-arb-fb"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ACTIVITY 5: SAME MOVE, THREE REACTIONS ── -->
+  <div class="activity" id="act5">
+    <div class="activity-head">
+      <div class="act-num">5</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity 5 · Same event, different hats</div>
+        <div class="act-title">A futures price falls sharply. Who sees this as good news?</div>
+      </div>
+      <div class="act-check" id="act5-check"></div>
+    </div>
+    <div class="activity-body">
+      <div class="prompt">Nifty futures fall 300 points. For each trader, pick the most likely reaction. The same market move — three different meanings.</div>
+
+      <div class="reaction-grid">
+
+        <div class="trader-card">
+          <div class="tc-label" style="color:var(--amber)">Speculator</div>
+          <div class="tc-body">
+            <div class="tc-scenario">Was long Nifty futures — entered because she expected the market to rise.</div>
+            <div class="reaction-opts">
+              <button class="ropt" onclick="checkReact('r1',this,false,'Not this. A long position loses when price falls — the directional view was wrong.')">Satisfied — the trade is working as planned</button>
+              <button class="ropt" onclick="checkReact('r1',this,true,'Correct. Long + falling price = loss. The speculator\'s directional view was wrong.')">Disappointed — the directional view was wrong</button>
+              <button class="ropt" onclick="checkReact('r1',this,false,'Not this. The speculator has no exposure to hedge — they entered purely for profit.')">Satisfied — the hedge is offsetting the loss</button>
+            </div>
+            <div class="feedback" id="r1-feedback"></div>
+          </div>
+        </div>
+
+        <div class="trader-card">
+          <div class="tc-label" style="color:var(--teal)">Hedger</div>
+          <div class="tc-body">
+            <div class="tc-scenario">Was short futures — entered to protect a long underlying position from a price fall.</div>
+            <div class="reaction-opts">
+              <button class="ropt" onclick="checkReact('r2',this,false,'Not this. The hedger\'s short gains, but the point is not profit — it is that the overall exposure is protected.')">Disappointed — the futures leg lost value</button>
+              <button class="ropt" onclick="checkReact('r2',this,true,'Correct. The short futures position gains as prices fall, offsetting the loss in the underlying. The hedge worked.')">Satisfied — the short hedge offset the fall in the underlying</button>
+              <button class="ropt" onclick="checkReact('r2',this,false,'Not this. The hedger entered specifically to protect against this scenario — they are not caught off guard.')">Surprised — did not expect this to happen</button>
+            </div>
+            <div class="feedback" id="r2-feedback"></div>
+          </div>
+        </div>
+
+        <div class="trader-card">
+          <div class="tc-label" style="color:var(--violet)">Arbitrageur</div>
+          <div class="tc-body">
+            <div class="tc-scenario">Entered offsetting positions because the same asset was priced differently — the spread has now closed.</div>
+            <div class="reaction-opts">
+              <button class="ropt" onclick="checkReact('r3',this,false,'Not this. The arbitrageur does not care about direction — they locked in the spread from the start.')">Disappointed — the market moved the wrong way</button>
+              <button class="ropt" onclick="checkReact('r3',this,false,'Not this. The arbitrageur was not exposed to directional risk — the spread was locked in at entry.')">Surprised — expected prices to stay different</button>
+              <button class="ropt" onclick="checkReact('r3',this,true,'Correct. The spread closed as expected — the arbitrageur locked in the profit when they entered.')">Satisfied — the mispricing narrowed as expected</button>
+            </div>
+            <div class="feedback" id="r3-feedback"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="explanation" id="act5-expl" style="display:none">
+        <strong>This is one of the deepest ideas in the module.</strong> The same market event has no single meaning. Its meaning depends entirely on the trader's motive, their prior exposure, and what they were trying to achieve. The number on the screen is the same for everyone — what it means is completely different.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CONCEPT CHECK ── -->
+  <div class="activity" id="checks">
+    <div class="activity-head">
+      <div class="act-num">✓</div>
+      <div class="act-meta">
+        <div class="act-tag">Concept check · 5 questions</div>
+        <div class="act-title">Quick reinforcement before the module quiz</div>
+      </div>
+      <div class="act-check" id="checks-check"></div>
+    </div>
+    <div class="activity-body">
+
+      <div style="margin-bottom:20px">
+        <div class="prompt" style="border-left-color:var(--text3)">True or False: Arbitrage depends mainly on correctly forecasting market direction.</div>
+        <div class="options" id="cq1-opts">
+          <button class="opt" onclick="checkMCQ('cq1',this,false,'This is False. Arbitrage is based on price inconsistency, not directional prediction.')"><span class="opt-letter">True</span></button>
+          <button class="opt" onclick="checkMCQ('cq1',this,true,'Correct — False. Arbitrage starts with a price gap, not a market view.')"><span class="opt-letter">False</span></button>
+        </div>
+        <div class="feedback" id="cq1-feedback"></div>
+      </div>
+
+      <div style="margin-bottom:20px">
+        <div class="prompt" style="border-left-color:var(--text3)">Which trader type is most likely to react immediately when the same asset trades at different prices in two markets?</div>
+        <div class="options" id="cq2-opts">
+          <button class="opt" onclick="checkMCQ('cq2',this,false,'Not this. A hedger is managing an existing exposure, not hunting price gaps.')"><span class="opt-letter">A</span>Hedger</button>
+          <button class="opt" onclick="checkMCQ('cq2',this,false,'Not this. A speculator needs a directional view — a price gap between markets is not their signal.')"><span class="opt-letter">B</span>Speculator</button>
+          <button class="opt" onclick="checkMCQ('cq2',this,true,'Correct. Arbitrageurs act on price discrepancies across related markets.')"><span class="opt-letter">C</span>Arbitrageur</button>
+        </div>
+        <div class="feedback" id="cq2-feedback"></div>
+      </div>
+
+      <div style="margin-bottom:20px">
+        <div class="prompt" style="border-left-color:var(--text3)">The best description of arbitrage is:</div>
+        <div class="options" id="cq3-opts">
+          <button class="opt" onclick="checkMCQ('cq3',this,false,'Not this. Taking a view on direction is speculation.')"><span class="opt-letter">A</span>Taking a view on future market direction</button>
+          <button class="opt" onclick="checkMCQ('cq3',this,false,'Not this. Reducing existing exposure is hedging.')"><span class="opt-letter">B</span>Reducing exposure from existing business operations</button>
+          <button class="opt" onclick="checkMCQ('cq3',this,true,'Correct. Arbitrage exploits simultaneous price discrepancies through offsetting trades.')"><span class="opt-letter">C</span>Using simultaneous trades to exploit temporary mispricing</button>
+          <button class="opt" onclick="checkMCQ('cq3',this,false,'Not this. Long holding periods are unrelated to arbitrage logic.')"><span class="opt-letter">D</span>Holding an asset for a long time</button>
+        </div>
+        <div class="feedback" id="cq3-feedback"></div>
+      </div>
+
+      <div style="margin-bottom:20px">
+        <div class="prompt" style="border-left-color:var(--text3)">True or False: The same fall in futures price may be seen differently by different traders.</div>
+        <div class="options" id="cq4-opts">
+          <button class="opt" onclick="checkMCQ('cq4',this,true,'Correct — True. Meaning depends on the trader\'s motive and prior position.')"><span class="opt-letter">True</span></button>
+          <button class="opt" onclick="checkMCQ('cq4',this,false,'Not this. The same price move can mean profit, protection, or a successful arbitrage — depending on the trader.')"><span class="opt-letter">False</span></button>
+        </div>
+        <div class="feedback" id="cq4-feedback"></div>
+      </div>
+
+      <div>
+        <div class="prompt" style="border-left-color:var(--text3)">In practice, arbitrage opportunities may be difficult to exploit because:</div>
+        <div class="options" id="cq5-opts">
+          <button class="opt" onclick="checkMCQ('cq5',this,false,'Not this. Price gaps do exist — they just may be hard to exploit efficiently.')"><span class="opt-letter">A</span>Price gaps between markets never really exist</button>
+          <button class="opt" onclick="checkMCQ('cq5',this,true,'Correct. Real markets involve timing constraints, transaction costs, and execution speed requirements.')"><span class="opt-letter">B</span>Real markets have frictions — timing, costs, and execution speed matter</button>
+          <button class="opt" onclick="checkMCQ('cq5',this,false,'Not this. Arbitrage is legal and widely practiced in financial markets.')"><span class="opt-letter">C</span>Arbitrage is illegal in most jurisdictions</button>
+          <button class="opt" onclick="checkMCQ('cq5',this,false,'Not this. The theory of arbitrage applies to many asset classes beyond equities.')"><span class="opt-letter">D</span>Arbitrage only works for equities, not other assets</button>
+        </div>
+        <div class="feedback" id="cq5-feedback"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TAKEAWAY -->
+  <div class="takeaway">
+    <div class="takeaway-title">Session 1.3 — Remember This</div>
+    <div class="takeaway-list">
+      <div class="takeaway-item">Arbitrage starts with price inconsistency — not directional prediction</div>
+      <div class="takeaway-item">Arbitrage is different from speculation because no market view is needed</div>
+      <div class="takeaway-item">Hedgers, speculators, and arbitrageurs can all use similar instruments for different purposes</div>
+      <div class="takeaway-item">The same market event means different things depending on why you entered</div>
+      <div class="takeaway-item">Theory matters first — then ask what is practically possible in real markets</div>
+    </div>
+  </div>
+
+  <div class="next-section">
+    <div class="next-info">
+      <h3>◎ Markets Layer — next</h3>
+      <p>Concepts complete. Now read a live NSE futures screen and connect theory to real market mechanics.</p>
+    </div>
+    <a class="btn-next" href="nse-contract.html">Enter Markets →</a>
+  </div>
+
+</div>
+
+<script>
+/* ── PROGRESS ── */
+const completed = new Set();
+function updateProgress(){
+  const pct = Math.round((completed.size/5)*100);
+  document.getElementById('progress-fill').style.width=pct+'%';
+  document.getElementById('progress-pct').textContent=completed.size+' / 5 activities';
+}
+function markDone(id){
+  completed.add(id);
+  const el=document.getElementById(id);
+  if(el){el.classList.add('done');const c=document.getElementById(id+'-check');if(c)c.innerHTML='✓'}
+  updateProgress();
+}
+
+/* ── MCQ ── */
+function checkMCQ(groupId, btn, isCorrect, msg){
+  const opts=document.querySelectorAll('#'+groupId+'-opts .opt');
+  opts.forEach(o=>o.disabled=true);
+  btn.classList.add(isCorrect?'correct':'wrong');
+  if(!isCorrect) opts.forEach(o=>{ if(o.onclick&&o.onclick.toString().includes('true,')) o.classList.add('correct') });
+  const fb=document.getElementById(groupId+'-feedback');
+  if(fb){fb.className='feedback show '+(isCorrect?'fb-correct':'fb-wrong');fb.innerHTML='<span class="fb-icon">'+(isCorrect?'✓':'✗')+'</span>'+msg}
+  const expl=document.getElementById(groupId+'-expl');
+  if(expl) expl.className='explanation show';
+  const map={a1:'act1',a2:'act2'};
+  if(map[groupId]&&isCorrect) markDone(map[groupId]);
+}
+
+/* ── DRAG-TO-BUCKET (three-way) ── */
+let dragTarget=null;
+function initDrag3(sourceId){
+  document.querySelectorAll('#'+sourceId+' .drag-card').forEach(card=>{
+    card.addEventListener('dragstart', e=>{ dragTarget=card; card.classList.add('dragging'); e.dataTransfer.effectAllowed='move' });
+    card.addEventListener('dragend', ()=>card.classList.remove('dragging'));
+    card.addEventListener('click', ()=>{
+      if(card.classList.contains('in-bucket')) return;
+      document.querySelectorAll('.drag-card.tap-active').forEach(c=>c.classList.remove('tap-active'));
+      card.classList.toggle('tap-active');
+    });
+  });
+  document.querySelectorAll('.bucket').forEach(bucket=>{
+    bucket.addEventListener('dragover', e=>{ e.preventDefault(); bucket.classList.add('drag-over') });
+    bucket.addEventListener('dragleave', ()=>bucket.classList.remove('drag-over'));
+    bucket.addEventListener('drop', e=>{ e.preventDefault(); bucket.classList.remove('drag-over'); if(dragTarget) dropCard(dragTarget, bucket) });
+    bucket.addEventListener('click', ()=>{ const active=document.querySelector('.drag-card.tap-active'); if(active) dropCard(active, bucket) });
+  });
+}
+function dropCard(card, bucket){
+  const itemsEl=bucket.querySelector('.bucket-items');
+  if(!itemsEl) return;
+  const item=document.createElement('div');
+  item.className='bucket-item';
+  item.textContent=card.textContent.trim().substring(0,60)+(card.textContent.trim().length>60?'…':'');
+  item.dataset.id=card.dataset.id;
+  item.dataset.correct=card.dataset.correct;
+  itemsEl.appendChild(item);
+  card.style.display='none';
+  card.classList.remove('tap-active');
+  card.classList.add('in-bucket');
+}
+function checkBuckets3(actId, prefix, sourceId, expected){
+  let allCorrect=true;
+  for(const [bucket, ids] of Object.entries(expected)){
+    const itemsEl=document.getElementById(prefix+'-'+bucket+'-items');
+    if(!itemsEl) continue;
+    itemsEl.querySelectorAll('.bucket-item').forEach(item=>{
+      if(!ids.includes(item.dataset.id)){
+        allCorrect=false;
+        item.style.background='rgba(248,113,113,0.1)';item.style.borderColor='rgba(248,113,113,0.25)';item.style.color='var(--red)';
+      }
+    });
+  }
+  const allIds=Object.values(expected).flat();
+  const placed=[];
+  document.querySelectorAll('#'+prefix+'-hedge-items .bucket-item, #'+prefix+'-spec-items .bucket-item, #'+prefix+'-arb-items .bucket-item').forEach(i=>placed.push(i.dataset.id));
+  if(placed.length<allIds.length) allCorrect=false;
+  const fb=document.getElementById(actId+'-feedback');
+  const expl=document.getElementById(actId+'-expl');
+  if(allCorrect){
+    fb.className='feedback show fb-correct';fb.innerHTML='<span class="fb-icon">✓</span> Correct. Motive determines the label.';
+    if(expl) expl.className='explanation show';
+    markDone(actId);
+  } else {
+    fb.className='feedback show fb-wrong';fb.innerHTML='<span class="fb-icon">✗</span> Some items are misclassified. Red items need to move.';
+  }
+}
+
+/* ── MATCH THE FOLLOWING ── */
+const matchCorrect = {hedger:false, spec:false, arb:false};
+function matchPick(hat, btn, result, msg){
+  const row=btn.closest('.match-row');
+  row.querySelectorAll('.mopt').forEach(b=>b.disabled=true);
+  btn.classList.add(result==='cert'?'mopt-correct':'mopt-wrong');
+  if(result!=='cert') row.querySelectorAll('.mopt').forEach(b=>{ if(b.onclick&&b.onclick.toString().includes("'cert',")) b.classList.add('mopt-correct') });
+  const fb=document.getElementById('m-'+hat+'-fb');
+  if(fb){fb.className='feedback show '+(result==='cert'?'fb-correct':'fb-wrong');fb.innerHTML='<span class="fb-icon">'+(result==='cert'?'✓':'✗')+'</span>'+msg}
+  if(result==='cert') matchCorrect[hat]=true;
+  if(Object.values(matchCorrect).every(Boolean)) markDone('act4');
+}
+
+/* ── REACTIONS ── */
+const reactCorrect = {r1:false, r2:false, r3:false};
+function checkReact(id, btn, isCorrect, msg){
+  const container=btn.closest('.tc-body');
+  container.querySelectorAll('.ropt').forEach(b=>b.disabled=true);
+  btn.classList.add(isCorrect?'correct':'wrong');
+  if(!isCorrect) container.querySelectorAll('.ropt').forEach(b=>{ if(b.onclick&&b.onclick.toString().includes('true,')) b.classList.add('correct') });
+  const fb=document.getElementById(id+'-feedback');
+  if(fb){fb.className='feedback show '+(isCorrect?'fb-correct':'fb-wrong');fb.innerHTML='<span class="fb-icon">'+(isCorrect?'✓':'✗')+'</span>'+msg}
+  if(isCorrect) reactCorrect[id]=true;
+  if(Object.values(reactCorrect).filter(Boolean).length>=2){
+    document.getElementById('act5-expl').className='explanation show';
+    markDone('act5');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  initDrag3('bucket3-source');
+  updateProgress();
+});
+</script>
+</body>
+</html>

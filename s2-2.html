@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Session 2.2 — Build the Fair Price · DerivativesLab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0f1117;--bg2:#161b26;--bg3:#1e2535;--bg4:#252e42;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --amber:#f5a623;--amber2:#ffc75a;--teal:#2dd4bf;
+  --green:#4ade80;--red:#f87171;--blue:#60a5fa;--violet:#a78bfa;--coral:#fb923c;
+  --text:#e8eaf0;--text2:#8b91a8;--text3:#555e78;
+  --serif:'DM Serif Display',Georgia,serif;
+  --mono:'DM Mono','Courier New',monospace;
+  --sans:'DM Sans',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+a{text-decoration:none;color:inherit}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:56px;background:rgba(15,17,23,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--mono);font-size:0.82rem;color:var(--amber);letter-spacing:0.04em}
+.nav-logo span{color:var(--text2)}
+.nav-pill{display:flex;align-items:center;gap:10px}
+.nav-session{font-family:var(--mono);font-size:0.72rem;color:var(--text3)}
+.nav-next{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;background:var(--bg3);border:1px solid var(--border2);font-size:0.78rem;font-weight:600;color:var(--text2);transition:color .15s,border-color .15s}
+.nav-next:hover{color:var(--blue);border-color:rgba(96,165,250,0.3)}
+
+.shell{max-width:900px;margin:0 auto;padding:80px 24px 80px}
+
+.progress-meta{display:flex;justify-content:space-between;margin-bottom:6px}
+.progress-label{font-family:var(--mono);font-size:0.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em}
+.progress-bar{height:2px;background:var(--bg3);margin-bottom:28px;border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:var(--blue);border-radius:2px;transition:width .5s ease}
+
+.s-hero{padding:36px 40px;border-radius:28px;background:var(--bg2);border:1px solid var(--border2);margin-bottom:28px;position:relative;overflow:hidden}
+.s-hero::before{content:'';position:absolute;bottom:-40px;right:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(96,165,250,0.08) 0%,transparent 70%);pointer-events:none}
+.crumb{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:0.68rem;color:var(--text3);margin-bottom:14px}
+.crumb a{color:var(--text3)}.crumb a:hover{color:var(--blue)}
+.s-kicker{font-family:var(--mono);font-size:0.68rem;color:var(--blue);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px}
+.s-hero h1{font-family:var(--serif);font-size:clamp(1.8rem,3vw,2.6rem);line-height:1.1;margin-bottom:8px}
+.s-hero p{color:var(--text2);font-size:0.9rem;max-width:520px}
+.s-outcomes{display:flex;flex-direction:column;gap:5px;margin-top:14px}
+.s-out{display:flex;align-items:flex-start;gap:8px;font-size:0.82rem;color:var(--text2)}
+.s-out::before{content:'→';color:var(--blue);font-family:var(--mono);flex-shrink:0}
+
+/* ACTIVITY */
+.activity{background:var(--bg2);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-bottom:16px;transition:border-color .2s}
+.activity.done{border-color:rgba(74,222,128,0.25)}
+.activity-head{display:flex;align-items:center;gap:14px;padding:18px 22px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
+.act-num{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:10px;flex-shrink:0;background:var(--bg3);font-family:var(--mono);font-size:0.75rem;color:var(--text3);border:1px solid var(--border);transition:all .2s}
+.activity.done .act-num{background:rgba(74,222,128,0.1);color:var(--green);border-color:rgba(74,222,128,0.25)}
+.act-meta{flex:1}
+.act-tag{font-family:var(--mono);font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px}
+.act-title{font-size:0.95rem;font-weight:600}
+.act-check{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.65rem}
+.activity.done .act-check{background:var(--green);border-color:var(--green);color:#0f1117}
+.activity-body{padding:22px 24px}
+
+/* STEP BUILDER */
+.step-list{display:flex;flex-direction:column;gap:0}
+.step{border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:border-color .3s}
+.step+.step{margin-top:10px}
+.step.active{border-color:rgba(96,165,250,0.35)}
+.step.locked{opacity:.45;pointer-events:none}
+.step-head{display:flex;align-items:center;gap:14px;padding:16px 20px;background:var(--bg3)}
+.step-badge{width:28px;height:28px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:0.72rem;font-weight:600;background:var(--bg4);border:1px solid var(--border);color:var(--text3);transition:all .3s}
+.step.active .step-badge{background:rgba(96,165,250,0.12);border-color:rgba(96,165,250,0.3);color:var(--blue)}
+.step.completed .step-badge{background:rgba(74,222,128,0.12);border-color:rgba(74,222,128,0.3);color:var(--green)}
+.step-label{font-size:0.88rem;font-weight:600;flex:1}
+.step-value{font-family:var(--mono);font-size:0.88rem;color:var(--blue);font-weight:600}
+.step-body{padding:18px 20px;border-top:1px solid var(--border)}
+
+.step-explain{font-size:0.88rem;color:var(--text2);line-height:1.65;margin-bottom:14px}
+.step-explain strong{color:var(--text)}
+
+.calc-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);font-size:0.88rem}
+.calc-row:last-child{border-bottom:none;padding-bottom:0}
+.calc-row .label{color:var(--text2)}
+.calc-row .val{font-family:var(--mono);font-weight:600}
+.val.blue{color:var(--blue)}
+.val.red{color:var(--red)}
+.val.green{color:var(--green)}
+.val.amber{color:var(--amber)}
+
+.confirm-btn{margin-top:14px;padding:9px 18px;border-radius:10px;background:var(--blue);color:#0f1117;font-weight:600;font-size:0.82rem;cursor:pointer;border:none;font-family:var(--sans);transition:opacity .15s}
+.confirm-btn:hover{opacity:.88}
+
+/* RUNNING TOTAL BAR */
+.running-total{background:var(--bg3);border:1px solid var(--border2);border-radius:14px;padding:14px 18px;margin-bottom:16px}
+.rt-label{font-family:var(--mono);font-size:0.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px}
+.rt-formula{font-family:var(--mono);font-size:0.88rem;color:var(--text);line-height:1.6}
+.rt-formula .fixed{color:var(--text2)}
+.rt-formula .active{color:var(--blue)}
+.rt-formula .result{color:var(--green);font-weight:600}
+
+/* SIGNAL BOX */
+.signal-box{border-radius:14px;padding:16px 18px;margin-top:14px;display:none}
+.signal-box.show{display:block}
+.signal-box.over{background:rgba(248,113,113,0.07);border:1px solid rgba(248,113,113,0.25)}
+.signal-box.under{background:rgba(74,222,128,0.07);border:1px solid rgba(74,222,128,0.25)}
+.signal-box.fair{background:rgba(96,165,250,0.07);border:1px solid rgba(96,165,250,0.25)}
+.signal-title{font-weight:700;font-size:0.9rem;margin-bottom:6px}
+.signal-box.over .signal-title{color:var(--red)}
+.signal-box.under .signal-title{color:var(--green)}
+.signal-box.fair .signal-title{color:var(--blue)}
+.signal-body{font-size:0.85rem;color:var(--text2);line-height:1.6}
+
+/* FREE PLAY */
+.freeplay-section{background:var(--bg2);border:1px solid rgba(96,165,250,0.2);border-radius:20px;overflow:hidden;margin-bottom:16px}
+.freeplay-head{padding:18px 22px;border-bottom:1px solid var(--border);background:rgba(96,165,250,0.04)}
+.freeplay-kicker{font-family:var(--mono);font-size:0.65rem;color:var(--blue);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px}
+.freeplay-title{font-size:0.95rem;font-weight:600}
+.freeplay-body{padding:22px 24px}
+
+.slider-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.slider-item{display:flex;flex-direction:column;gap:6px}
+.slider-label{display:flex;justify-content:space-between;align-items:center}
+.slider-name{font-size:0.8rem;color:var(--text2)}
+.slider-val{font-family:var(--mono);font-size:0.82rem;font-weight:600;color:var(--blue)}
+input[type=range]{width:100%;accent-color:var(--blue);cursor:pointer}
+
+.results-panel{background:var(--bg3);border:1px solid var(--border2);border-radius:14px;padding:18px 20px}
+.rp-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:0.88rem}
+.rp-row:last-child{border-bottom:none;padding-bottom:0}
+.rp-label{color:var(--text2)}
+.rp-val{font-family:var(--mono);font-weight:600}
+
+.convergence-insight{background:rgba(96,165,250,0.06);border:1px solid rgba(96,165,250,0.2);border-radius:12px;padding:13px 15px;margin-top:14px;font-size:0.83rem;color:var(--text2);line-height:1.6}
+.convergence-insight strong{color:var(--blue)}
+
+/* SESSION NAV */
+.session-nav{display:flex;justify-content:space-between;align-items:center;margin-top:32px;padding-top:24px;border-top:1px solid var(--border)}
+.sn-back{display:inline-flex;align-items:center;gap:7px;padding:10px 18px;border-radius:10px;background:var(--bg3);border:1px solid var(--border2);font-size:0.85rem;font-weight:600;color:var(--text2);transition:color .15s}
+.sn-back:hover{color:var(--text)}
+.sn-next{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:10px;background:var(--blue);color:#0f1117;font-size:0.85rem;font-weight:600;transition:opacity .15s}
+.sn-next:hover{opacity:.88}
+.sn-info{font-family:var(--mono);font-size:0.72rem;color:var(--text3);text-align:center}
+
+@media(max-width:700px){
+  .s-hero{padding:24px 20px}
+  .activity-body,.freeplay-body{padding:16px}
+  .slider-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">DERIVATIVES<span>LAB</span></a>
+  <div class="nav-pill">
+    <span class="nav-session">Module 2 · Session 2.2 of 3</span>
+    <a class="nav-next" href="s2-3.html">Next: Session 2.3 →</a>
+  </div>
+</nav>
+
+<div class="shell">
+
+  <div class="progress-meta">
+    <span class="progress-label">Session Progress</span>
+    <span class="progress-label" id="progressTxt">0 of 3 complete</span>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="s-hero">
+    <div class="crumb"><a href="index.html">Home</a> <span>/</span> <a href="module2.html">Module 2</a> <span>/</span> <span>Session 2.2</span></div>
+    <div class="s-kicker">Session 2.2 · The Derivation</div>
+    <h1>Build the Fair Price</h1>
+    <p>Two choices — buy Nifty spot today, or buy a futures contract. For a rational investor to be indifferent between them, the futures price must equal exactly one number. Build it step by step, then take the formula for a free-play spin.</p>
+    <div class="s-outcomes">
+      <div class="s-out">Derive the cost-of-carry formula by reasoning through two equivalent choices</div>
+      <div class="s-out">Calculate fair futures value given spot, rate, dividend yield, and days to expiry</div>
+      <div class="s-out">Identify whether a screen price is overpriced, underpriced, or fair</div>
+      <div class="s-out">See convergence happen: drag DTE to zero and watch fair value meet spot</div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY 1: STEP BUILDER -->
+  <div class="activity" id="act1">
+    <div class="activity-head" onclick="toggleAct('act1')">
+      <div class="act-num" id="act1num">1</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity · Guided Derivation</div>
+        <div class="act-title">The Two-Choice Comparison — Derive Fair Value</div>
+      </div>
+      <div class="act-check" id="act1check"></div>
+    </div>
+    <div class="activity-body" id="act1body">
+
+      <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:14px;padding:16px 18px;margin-bottom:20px;font-size:0.88rem;color:var(--text2);line-height:1.65">
+        <strong style="color:var(--text)">The Setup:</strong> You want Nifty 50 exposure for the next 30 days. You have exactly ₹22,00,000 available. You have two equally valid ways to get this exposure. Confirm each step to build the fair price.
+      </div>
+
+      <div class="running-total" id="runningTotal">
+        <div class="rt-label">Fair Value Building Up</div>
+        <div class="rt-formula" id="rtFormula">
+          <span class="fixed">Fair Value = </span><span class="active">₹22,000</span><span class="fixed"> + ??? − ???</span>
+        </div>
+      </div>
+
+      <div class="step-list">
+
+        <!-- Step 1 -->
+        <div class="step active" id="step1">
+          <div class="step-head">
+            <div class="step-badge">1</div>
+            <div class="step-label">Start: Nifty Spot Today</div>
+            <div class="step-value" id="step1val">₹22,000</div>
+          </div>
+          <div class="step-body">
+            <div class="step-explain">Both choices start from the same underlying: the Nifty 50 index at <strong>₹22,000</strong> per unit. One lot = 50 units = ₹11,00,000 contract value at this price.</div>
+            <div style="display:flex;flex-direction:column;gap:6px;font-size:0.85rem;margin-bottom:14px">
+              <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--bg4);border-radius:10px;border:1px solid var(--border)">
+                <span style="color:var(--blue);font-family:var(--mono);font-size:0.8rem;flex-shrink:0">A</span>
+                <span style="color:var(--text2)"><strong style="color:var(--text)">Buy spot now</strong> — Pay ₹22,00,000. Own the stocks. Receive dividends. Capital is fully deployed.</span>
+              </div>
+              <div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;background:var(--bg4);border-radius:10px;border:1px solid var(--border)">
+                <span style="color:var(--green);font-family:var(--mono);font-size:0.8rem;flex-shrink:0">B</span>
+                <span style="color:var(--text2)"><strong style="color:var(--text)">Buy futures</strong> — Post margin (~₹1,10,000). The remaining ₹20,90,000 stays in a T-bill earning interest.</span>
+              </div>
+            </div>
+            <button class="confirm-btn" onclick="confirmStep(1)">Confirmed — Next Step →</button>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step locked" id="step2">
+          <div class="step-head">
+            <div class="step-badge">2</div>
+            <div class="step-label">Add: Financing Cost (the futures buyer earns this)</div>
+            <div class="step-value" id="step2val">+ ???</div>
+          </div>
+          <div class="step-body">
+            <div class="step-explain">
+              The futures buyer keeps their ₹22,00,000 in T-bills for 30 days. The spot buyer tied up all their capital and earns nothing on it. This interest advantage must be priced in — futures should cost <strong>more</strong> than spot to offset the interest the futures buyer earns.
+            </div>
+            <div style="background:var(--bg4);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:14px">
+              <div class="calc-row"><span class="label">Risk-free rate (91-day T-bill)</span><span class="val blue">6.50% / year</span></div>
+              <div class="calc-row"><span class="label">Days to expiry</span><span class="val amber">30 days</span></div>
+              <div class="calc-row"><span class="label">Daily rate (6.5% ÷ 365)</span><span class="val blue">0.01781% / day</span></div>
+              <div class="calc-row"><span class="label">Interest on ₹22,00,000 for 30 days</span><span class="val blue">₹22,00,000 × 6.5% × 30/365</span></div>
+              <div class="calc-row" style="border-top:1px solid var(--border2);margin-top:4px;padding-top:12px"><span class="label" style="font-weight:600;color:var(--text)">Financing cost per unit</span><span class="val blue" style="font-size:1rem">+ ₹117.53</span></div>
+            </div>
+            <div style="font-size:0.83rem;color:var(--text2);margin-bottom:14px">Running fair value so far: ₹22,000 + ₹117.53 = <strong style="color:var(--blue)">₹22,117.53</strong></div>
+            <button class="confirm-btn" onclick="confirmStep(2)">Confirmed — Next Step →</button>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="step locked" id="step3">
+          <div class="step-head">
+            <div class="step-badge">3</div>
+            <div class="step-label">Subtract: Dividends Foregone (spot holder earns, futures holder doesn't)</div>
+            <div class="step-value" id="step3val">− ???</div>
+          </div>
+          <div class="step-body">
+            <div class="step-explain">
+              The spot buyer receives Nifty dividends during the 30 days. The futures buyer gets nothing until expiry. This dividend advantage of holding spot means futures should cost <strong>less</strong> — subtract the dividend income from the fair price.
+            </div>
+            <div style="background:var(--bg4);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:14px">
+              <div class="calc-row"><span class="label">Nifty dividend yield (estimated)</span><span class="val amber">1.20% / year</span></div>
+              <div class="calc-row"><span class="label">Dividend income for 30 days</span><span class="val red">₹22,000 × 1.2% × 30/365</span></div>
+              <div class="calc-row" style="border-top:1px solid var(--border2);margin-top:4px;padding-top:12px"><span class="label" style="font-weight:600;color:var(--text)">Dividend adjustment per unit</span><span class="val red" style="font-size:1rem">− ₹21.70</span></div>
+            </div>
+            <div style="font-size:0.83rem;color:var(--text2);margin-bottom:14px">Running fair value: ₹22,117.53 − ₹21.70 = <strong style="color:var(--green)">₹22,095.83</strong></div>
+            <button class="confirm-btn" onclick="confirmStep(3)">Confirmed — Show Fair Value →</button>
+          </div>
+        </div>
+
+        <!-- Final -->
+        <div class="step locked" id="step4">
+          <div class="step-head">
+            <div class="step-badge">✓</div>
+            <div class="step-label">Fair Futures Price</div>
+            <div class="step-value" id="step4val" style="color:var(--green)">₹22,095.83</div>
+          </div>
+          <div class="step-body">
+            <div style="background:var(--bg3);border:1px solid rgba(96,165,250,0.25);border-radius:14px;padding:18px 20px;margin-bottom:16px">
+              <div style="font-family:var(--mono);font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px">The Formula You Just Built</div>
+              <div style="font-family:var(--mono);font-size:0.92rem;color:var(--blue);margin-bottom:8px">Fair Value = S × [1 + (r − d) × T/365]</div>
+              <div style="font-family:var(--mono);font-size:0.82rem;color:var(--text2);margin-bottom:4px">= 22,000 × [1 + (0.065 − 0.012) × 30/365]</div>
+              <div style="font-family:var(--mono);font-size:0.82rem;color:var(--text2);margin-bottom:4px">= 22,000 × [1 + 0.053 × 0.0822]</div>
+              <div style="font-family:var(--mono);font-size:0.92rem;color:var(--green);font-weight:600">= ₹22,095.83</div>
+            </div>
+
+            <div style="font-size:0.82rem;color:var(--text2);margin-bottom:16px">Where: <span style="color:var(--text)">S</span> = spot price, <span style="color:var(--text)">r</span> = risk-free rate, <span style="color:var(--text)">d</span> = dividend yield, <span style="color:var(--text)">T</span> = days to expiry</div>
+
+            <div style="background:var(--bg4);border:1px solid var(--border2);border-radius:12px;padding:14px 16px;margin-bottom:16px">
+              <div style="font-family:var(--mono);font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px">Now check the screen</div>
+              <div style="font-size:0.88rem;color:var(--text2);margin-bottom:10px">NSE shows the near-month Nifty futures at <strong style="color:var(--amber)">₹22,380</strong>.</div>
+              <div class="calc-row"><span class="label">Screen price</span><span class="val amber">₹22,380</span></div>
+              <div class="calc-row"><span class="label">Fair value</span><span class="val green">₹22,095.83</span></div>
+              <div class="calc-row" style="border-top:1px solid var(--border2);padding-top:10px;margin-top:4px"><span class="label" style="font-weight:600;color:var(--text)">Deviation</span><span class="val red" style="font-size:1rem">+₹284.17 OVERPRICED</span></div>
+            </div>
+
+            <div style="background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2);border-radius:12px;padding:13px 15px;font-size:0.85rem;color:var(--text2);margin-bottom:16px">
+              The futures are ₹284 more expensive than fair value. What should a rational trader do? That question is exactly what Session 2.3 answers.
+            </div>
+
+            <button class="confirm-btn" onclick="completeAct1()">Complete — Move to Free Play →</button>
+          </div>
+        </div>
+
+      </div><!-- end step-list -->
+    </div>
+  </div>
+
+  <!-- ACTIVITY 2: FREE PLAY SLIDERS -->
+  <div class="freeplay-section" id="act2" style="display:none">
+    <div class="freeplay-head">
+      <div class="freeplay-kicker">Activity 2 · Free Play · <span id="freeplayAnchor"></span></div>
+      <div class="freeplay-title">What Moves the Fair Price? — Explore with Sliders</div>
+    </div>
+    <div class="freeplay-body">
+      <p style="font-size:0.88rem;color:var(--text2);margin-bottom:18px">All parameters are now unlocked. Drag any slider and watch fair value update instantly. Try the challenges below.</p>
+
+      <div class="slider-grid">
+        <div class="slider-item">
+          <div class="slider-label">
+            <span class="slider-name">Spot Price (₹)</span>
+            <span class="slider-val" id="fpSpotVal">22,000</span>
+          </div>
+          <input type="range" id="fpSpot" min="15000" max="30000" step="100" value="22000" oninput="updateFP()">
+        </div>
+        <div class="slider-item">
+          <div class="slider-label">
+            <span class="slider-name">Screen Futures Price (₹)</span>
+            <span class="slider-val" id="fpScreenVal">22,380</span>
+          </div>
+          <input type="range" id="fpScreen" min="15000" max="30000" step="100" value="22380" oninput="updateFP()">
+        </div>
+        <div class="slider-item">
+          <div class="slider-label">
+            <span class="slider-name">Risk-Free Rate (% p.a.)</span>
+            <span class="slider-val" id="fpRateVal">6.50%</span>
+          </div>
+          <input type="range" id="fpRate" min="2" max="15" step="0.1" value="6.5" oninput="updateFP()">
+        </div>
+        <div class="slider-item">
+          <div class="slider-label">
+            <span class="slider-name">Dividend Yield (% p.a.)</span>
+            <span class="slider-val" id="fpDivVal">1.20%</span>
+          </div>
+          <input type="range" id="fpDiv" min="0" max="8" step="0.1" value="1.2" oninput="updateFP()">
+        </div>
+        <div class="slider-item" style="grid-column:1/-1">
+          <div class="slider-label">
+            <span class="slider-name">Days to Expiry</span>
+            <span class="slider-val" id="fpDTEVal">30 days</span>
+          </div>
+          <input type="range" id="fpDTE" min="0" max="90" step="1" value="30" oninput="updateFP()">
+        </div>
+      </div>
+
+      <div class="results-panel">
+        <div class="rp-row"><span class="rp-label">Spot Price</span><span class="rp-val" id="rp-spot" style="color:var(--text)">₹22,000</span></div>
+        <div class="rp-row"><span class="rp-label">Financing cost (r × T)</span><span class="rp-val" id="rp-carry" style="color:var(--blue)">+ ₹117.53</span></div>
+        <div class="rp-row"><span class="rp-label">Dividend income (d × T)</span><span class="rp-val" id="rp-div" style="color:var(--red)">− ₹21.70</span></div>
+        <div class="rp-row" style="border-top:2px solid var(--border2);padding-top:12px;margin-top:4px"><span class="rp-label" style="font-weight:600;color:var(--text)">Fair Value</span><span class="rp-val" id="rp-fv" style="color:var(--green);font-size:1rem">₹22,095.83</span></div>
+        <div class="rp-row"><span class="rp-label">Screen Price</span><span class="rp-val" id="rp-screen" style="color:var(--amber)">₹22,380</span></div>
+        <div class="rp-row"><span class="rp-label">Deviation</span><span class="rp-val" id="rp-dev">+₹284.17</span></div>
+        <div class="rp-row"><span class="rp-label">Basis (Spot − Futures)</span><span class="rp-val" id="rp-basis" style="color:var(--text2)">−380</span></div>
+        <div class="rp-row"><span class="rp-label">Fair Basis (Spot − Fair Value)</span><span class="rp-val" id="rp-fbasis" style="color:var(--text2)">−95.83</span></div>
+      </div>
+
+      <div class="signal-box" id="signalBox"></div>
+
+      <div class="convergence-insight" id="convergenceInsight" style="display:none">
+        <strong>Convergence in action:</strong> With DTE = 0, fair value exactly equals spot. The basis is zero. This is not a coincidence — it is enforced by the exchange on settlement day and by arbitrageurs every trading second before that.
+      </div>
+
+      <!-- CHALLENGES -->
+      <div style="margin-top:20px;background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:16px 18px">
+        <div style="font-family:var(--mono);font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px">Try These</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:0.85rem;color:var(--text2)">
+          <div style="display:flex;gap:8px"><span style="color:var(--blue);font-family:var(--mono);flex-shrink:0">01</span> Drag DTE to 0. What happens to fair value? Why must this be true?</div>
+          <div style="display:flex;gap:8px"><span style="color:var(--blue);font-family:var(--mono);flex-shrink:0">02</span> Raise dividend yield above the interest rate. What happens to fair value — does it go above or below spot?</div>
+          <div style="display:flex;gap:8px"><span style="color:var(--blue);font-family:var(--mono);flex-shrink:0">03</span> Set screen price equal to fair value. What is the deviation? What does this tell an arbitrageur?</div>
+          <div style="display:flex;gap:8px"><span style="color:var(--blue);font-family:var(--mono);flex-shrink:0">04</span> Set DTE = 90 (far-month contract). How does the deviation between spot and fair value grow?</div>
+        </div>
+      </div>
+
+      <button onclick="completeAct2()" style="margin-top:16px;padding:10px 20px;border-radius:10px;background:var(--blue);color:#0f1117;font-weight:600;font-size:0.85rem;cursor:pointer;border:none;font-family:var(--sans)">Mark Complete ✓</button>
+    </div>
+  </div>
+
+  <!-- ACTIVITY 3: NSE CALIBRATION -->
+  <div class="activity" id="act3" style="display:none">
+    <div class="activity-head" onclick="toggleAct('act3')">
+      <div class="act-num" id="act3num">3</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity · Calibration Check</div>
+        <div class="act-title">Is the Screen Price Reasonable? — A Quick Sanity Test</div>
+      </div>
+      <div class="act-check" id="act3check"></div>
+    </div>
+    <div class="activity-body" id="act3body">
+      <p style="font-size:0.88rem;color:var(--text2);margin-bottom:16px">Use what you've built to classify each scenario. Enter the implied carry rate — the rate that would justify the screen price — and state whether the futures are fairly priced.</p>
+
+      <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:18px" id="calibChecks">
+        <!-- dynamically rendered -->
+      </div>
+
+      <button onclick="completeAct3()" id="act3CompleteBtn" style="padding:10px 20px;border-radius:10px;background:var(--blue);color:#0f1117;font-weight:600;font-size:0.85rem;cursor:pointer;border:none;font-family:var(--sans);display:none">Mark Complete ✓</button>
+    </div>
+  </div>
+
+  <div class="session-nav">
+    <a class="sn-back" href="s2-1.html">← Session 2.1</a>
+    <div class="sn-info">Session 2.2 of 3</div>
+    <a class="sn-next" href="s2-3.html">Session 2.3: Pick Your Hat →</a>
+  </div>
+
+</div>
+
+<script>
+let stepsCompleted = 0;
+let activitiesDone = 0;
+const totalActs = 3;
+
+function pct() {
+  document.getElementById('progressFill').style.width = Math.round(activitiesDone/totalActs*100)+'%';
+  document.getElementById('progressTxt').textContent = activitiesDone+' of '+totalActs+' complete';
+}
+
+function toggleAct(id) {
+  const b = document.getElementById(id+'body');
+  if(b) b.style.display = b.style.display==='none'?'block':'none';
+}
+
+// ── STEP BUILDER ──────────────────────────────────────────────────────────
+const rtStates = [
+  'Fair Value = <span class="active">₹22,000</span><span class="fixed"> + ??? − ???</span>',
+  'Fair Value = <span class="fixed">₹22,000</span><span class="active"> + ₹117.53</span><span class="fixed"> − ???</span>',
+  'Fair Value = <span class="fixed">₹22,000 + ₹117.53</span><span class="active"> − ₹21.70</span>',
+  'Fair Value = <span class="fixed">₹22,000 + ₹117.53 − ₹21.70 = </span><span class="result">₹22,095.83 ✓</span>'
+];
+
+function confirmStep(n) {
+  document.getElementById('step'+n).classList.remove('active');
+  document.getElementById('step'+n).classList.add('completed');
+  stepsCompleted = n;
+  document.getElementById('rtFormula').innerHTML = rtStates[n];
+
+  const next = document.getElementById('step'+(n+1));
+  if(next) {
+    next.classList.remove('locked');
+    next.classList.add('active');
+    if(n===3){
+      document.getElementById('step4val').textContent='₹22,095.83';
+    }
+  }
+  if(n===1){ document.getElementById('step2val').textContent='+ ₹117.53'; }
+  if(n===2){ document.getElementById('step3val').textContent='− ₹21.70'; }
+}
+
+function completeAct1() {
+  activitiesDone++;
+  document.getElementById('act1').classList.add('done');
+  document.getElementById('act1check').textContent='✓';
+  pct();
+  document.getElementById('act2').style.display='block';
+  document.getElementById('act3').style.display='block';
+  updateFP();
+  buildCalibChecks();
+  document.getElementById('act2').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function completeAct2() {
+  activitiesDone++;
+  document.getElementById('act2').style.borderColor='rgba(74,222,128,0.25)';
+  pct();
+}
+
+function completeAct3() {
+  activitiesDone++;
+  document.getElementById('act3').classList.add('done');
+  document.getElementById('act3check').textContent='✓';
+  pct();
+}
+
+// ── FREE PLAY ─────────────────────────────────────────────────────────────
+function fmt(n){ return n.toLocaleString('en-IN',{maximumFractionDigits:2,minimumFractionDigits:2}); }
+function fmtSgn(n){ return (n>=0?'+':'')+fmt(n); }
+
+function updateFP() {
+  const S   = +document.getElementById('fpSpot').value;
+  const scr = +document.getElementById('fpScreen').value;
+  const r   = +document.getElementById('fpRate').value/100;
+  const d   = +document.getElementById('fpDiv').value/100;
+  const T   = +document.getElementById('fpDTE').value;
+
+  document.getElementById('fpSpotVal').textContent  = S.toLocaleString('en-IN');
+  document.getElementById('fpScreenVal').textContent= scr.toLocaleString('en-IN');
+  document.getElementById('fpRateVal').textContent  = (+document.getElementById('fpRate').value).toFixed(2)+'%';
+  document.getElementById('fpDivVal').textContent   = (+document.getElementById('fpDiv').value).toFixed(2)+'%';
+  document.getElementById('fpDTEVal').textContent   = T+' days';
+
+  const carry = S * r * (T/365);
+  const div   = S * d * (T/365);
+  const fv    = S + carry - div;
+  const dev   = scr - fv;
+  const basis = S - scr;
+  const fbasis= S - fv;
+
+  document.getElementById('rp-spot').textContent   = '₹'+fmt(S);
+  document.getElementById('rp-carry').textContent  = '+₹'+fmt(carry);
+  document.getElementById('rp-div').textContent    = '−₹'+fmt(div);
+  document.getElementById('rp-fv').textContent     = '₹'+fmt(fv);
+  document.getElementById('rp-screen').textContent = '₹'+fmt(scr);
+  document.getElementById('rp-basis').textContent  = fmtSgn(basis);
+  document.getElementById('rp-fbasis').textContent = fmtSgn(fbasis);
+
+  const devEl = document.getElementById('rp-dev');
+  devEl.textContent = fmtSgn(dev);
+  const sig = document.getElementById('signalBox');
+
+  if(Math.abs(dev) < 50) {
+    devEl.style.color = 'var(--green)';
+    sig.className = 'signal-box show fair';
+    sig.innerHTML = '<div class="signal-title">Fair — No Arbitrage</div><div class="signal-body">Screen price is within ±₹50 of fair value. Transaction costs would eat any potential profit. The market is efficiently priced at this moment.</div>';
+  } else if(dev > 0) {
+    devEl.style.color = 'var(--red)';
+    sig.className = 'signal-box show over';
+    sig.innerHTML = `<div class="signal-title">Overpriced — Futures Rich by ₹${fmt(dev)}</div><div class="signal-body">Futures are trading above fair value. An arbitrageur would: <strong style="color:var(--text)">buy spot + short futures</strong>. The trade locks in ~₹${fmt(dev*50)} per lot before transaction costs.</div>`;
+  } else {
+    devEl.style.color = 'var(--green)';
+    sig.className = 'signal-box show under';
+    sig.innerHTML = `<div class="signal-title">Underpriced — Futures Cheap by ₹${fmt(Math.abs(dev))}</div><div class="signal-body">Futures are trading below fair value. An arbitrageur would: <strong style="color:var(--text)">short spot + buy futures</strong>. Note: in Indian equity markets, sustained underpricing is rare due to short-selling restrictions.</div>`;
+  }
+
+  const conv = document.getElementById('convergenceInsight');
+  conv.style.display = T===0 ? 'block' : 'none';
+}
+
+// ── CALIBRATION CHECKS ────────────────────────────────────────────────────
+const calibScenarios = [
+  { spot:22000, futures:22190, r:6.5, d:1.2, T:30, label:'Scenario A' },
+  { spot:22000, futures:21850, r:6.5, d:1.2, T:30, label:'Scenario B' },
+  { spot:22000, futures:22095, r:6.5, d:1.2, T:30, label:'Scenario C' }
+];
+
+function buildCalibChecks() {
+  const container = document.getElementById('calibChecks');
+  container.innerHTML = '';
+  calibScenarios.forEach((sc, i) => {
+    const fv = sc.spot * (1 + (sc.r/100 - sc.d/100) * sc.T/365);
+    const dev = sc.futures - fv;
+    const isOver = dev > 30;
+    const isUnder = dev < -30;
+    const isFair = !isOver && !isUnder;
+
+    const div = document.createElement('div');
+    div.style.cssText='background:var(--bg3);border:1px solid var(--border2);border-radius:14px;padding:16px 18px';
+    div.innerHTML=`
+      <div style="font-family:var(--mono);font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">${sc.label}</div>
+      <div style="display:flex;gap:24px;flex-wrap:wrap;margin-bottom:12px;font-size:0.85rem;color:var(--text2)">
+        <span>Spot: <strong style="color:var(--text)">₹${sc.spot.toLocaleString()}</strong></span>
+        <span>Futures: <strong style="color:var(--amber)">₹${sc.futures.toLocaleString()}</strong></span>
+        <span>Rate: ${sc.r}% · Div: ${sc.d}% · DTE: ${sc.T}d</span>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button onclick="calibAns(${i},'over')" id="ca${i}over" style="padding:8px 14px;border-radius:9px;border:1.5px solid var(--border2);background:var(--bg4);font-family:var(--sans);font-size:0.82rem;font-weight:600;color:var(--text2);cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor='var(--red)';this.style.color='var(--red)'" onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text2)'">Overpriced</button>
+        <button onclick="calibAns(${i},'fair')" id="ca${i}fair" style="padding:8px 14px;border-radius:9px;border:1.5px solid var(--border2);background:var(--bg4);font-family:var(--sans);font-size:0.82rem;font-weight:600;color:var(--text2);cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text2)'">Fairly Priced</button>
+        <button onclick="calibAns(${i},'under')" id="ca${i}under" style="padding:8px 14px;border-radius:9px;border:1.5px solid var(--border2);background:var(--bg4);font-family:var(--sans);font-size:0.82rem;font-weight:600;color:var(--text2);cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor='var(--green)';this.style.color='var(--green)'" onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text2)'">Underpriced</button>
+      </div>
+      <div id="caReveal${i}" style="display:none;margin-top:12px;padding:12px 14px;border-radius:10px;font-size:0.83rem"></div>`;
+    container.appendChild(div);
+  });
+}
+
+let calibDone = 0;
+function calibAns(i, choice) {
+  const sc = calibScenarios[i];
+  const fv = sc.spot * (1 + (sc.r/100 - sc.d/100) * sc.T/365);
+  const dev = sc.futures - fv;
+  const correct = (choice==='over'&&dev>30)||(choice==='under'&&dev<-30)||(choice==='fair'&&Math.abs(dev)<=30);
+
+  ['over','fair','under'].forEach(c=>{
+    const btn=document.getElementById('ca'+i+c);
+    btn.disabled=true; btn.style.opacity='0.5'; btn.style.cursor='default';
+    btn.onmouseover=null; btn.onmouseout=null;
+  });
+  const choiceBtn=document.getElementById('ca'+i+choice);
+  choiceBtn.style.opacity='1';
+  choiceBtn.style.borderColor=correct?'var(--green)':'var(--red)';
+  choiceBtn.style.color=correct?'var(--green)':'var(--red)';
+  choiceBtn.style.background=correct?'rgba(74,222,128,0.08)':'rgba(248,113,113,0.08)';
+
+  const rev=document.getElementById('caReveal'+i);
+  rev.style.display='block';
+  rev.style.cssText+= correct
+    ?';background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);color:var(--green)'
+    :';background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2);color:var(--red)';
+  rev.innerHTML=`<strong>${correct?'✓ Correct.':'✗ Not quite.'}</strong> Fair value = ₹${fv.toFixed(2)}. Screen = ₹${sc.futures}. Deviation = ${(dev>=0?'+':'')+dev.toFixed(2)}. ${Math.abs(dev)<=30?'Within the no-arb band — fairly priced.':dev>30?'Futures rich — buy spot, short futures.':'Futures cheap — rare in Indian equity markets.'}`;
+
+  calibDone++;
+  if(calibDone===calibScenarios.length) {
+    document.getElementById('act3CompleteBtn').style.display='inline-flex';
+  }
+}
+
+// Handle ?freeplay hash
+if(window.location.hash==='#freeplay'){
+  document.getElementById('act2').style.display='block';
+  updateFP();
+}
+</script>
+</body>
+</html>

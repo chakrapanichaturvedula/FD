@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>OI Simulator · DerivativesLab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0f1117;--bg2:#161b26;--bg3:#1e2535;--bg4:#252e42;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --amber:#f5a623;--amber2:#ffc75a;--teal:#2dd4bf;
+  --green:#4ade80;--red:#f87171;--violet:#a78bfa;
+  --text:#e8eaf0;--text2:#8b91a8;--text3:#555e78;
+  --serif:'DM Serif Display',Georgia,serif;
+  --mono:'DM Mono','Courier New',monospace;
+  --sans:'DM Sans',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+a{text-decoration:none;color:inherit}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:56px;background:rgba(15,17,23,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--mono);font-size:0.82rem;color:var(--amber)}
+.nav-logo span{color:var(--text2)}
+.nav-pill{display:flex;align-items:center;gap:8px}
+.nav-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;background:var(--bg3);border:1px solid var(--border2);font-size:0.78rem;font-weight:600;color:var(--text2);transition:color .15s,border-color .15s}
+.nav-btn:hover{color:var(--violet);border-color:rgba(167,139,250,0.3)}
+.shell{max-width:960px;margin:0 auto;padding:80px 24px 80px}
+.hero{padding:28px 32px;border-radius:20px;background:var(--bg2);border:1px solid var(--border2);margin-bottom:20px}
+.crumb{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:0.68rem;color:var(--text3);margin-bottom:12px}
+.crumb a{color:var(--text3)}.crumb a:hover{color:var(--violet)}
+.kicker{font-family:var(--mono);font-size:0.66rem;color:var(--violet);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px}
+.hero h1{font-family:var(--serif);font-size:clamp(1.6rem,3vw,2.2rem);line-height:1.1;margin-bottom:6px}
+.hero p{color:var(--text2);font-size:0.88rem;max-width:580px}
+
+/* BALANCE INDICATOR */
+.balance-bar{display:flex;align-items:center;gap:16px;padding:12px 16px;border-radius:12px;background:var(--bg3);border:1px solid var(--border2);margin-bottom:16px;flex-wrap:wrap}
+.bal-item{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:80px}
+.bal-label{font-family:var(--mono);font-size:0.58rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em}
+.bal-val{font-family:var(--mono);font-size:1rem;font-weight:500}
+.bal-divider{width:1px;height:36px;background:var(--border);flex-shrink:0}
+.bal-status{flex:1;text-align:center;font-family:var(--mono);font-size:0.78rem;font-weight:500;padding:6px 12px;border-radius:8px;transition:all .2s}
+.bal-status.balanced{background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.25);color:var(--green)}
+.bal-status.unbalanced{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.25);color:var(--red)}
+.bal-status.neutral{background:var(--bg4);border:1px solid var(--border);color:var(--text3)}
+
+/* OI CASES REFERENCE */
+.cases-card{background:rgba(167,139,250,0.04);border:1px solid rgba(167,139,250,0.15);border-radius:14px;padding:14px 18px;margin-bottom:20px}
+.cases-title{font-family:var(--mono);font-size:0.62rem;color:var(--violet);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px}
+.cases-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.case-row{display:flex;align-items:flex-start;gap:8px;font-size:0.78rem;color:var(--text2);line-height:1.4}
+.case-badge{flex-shrink:0;padding:2px 7px;border-radius:5px;font-family:var(--mono);font-size:0.62rem;font-weight:500;white-space:nowrap}
+.badge-up{background:rgba(74,222,128,0.12);color:var(--green)}
+.badge-dn{background:rgba(248,113,113,0.1);color:var(--red)}
+.badge-nc{background:rgba(245,166,35,0.1);color:var(--amber)}
+
+/* TRADER GRID */
+.trader-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}
+.trader-card{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:14px;transition:border-color .2s}
+.trader-card.active-long{border-color:rgba(74,222,128,0.45)}
+.trader-card.active-short{border-color:rgba(248,113,113,0.45)}
+.trader-card.active-flat{border-color:var(--border2)}
+.tname{font-family:var(--serif);font-size:1.1rem;margin-bottom:2px}
+.tsub{font-family:var(--mono);font-size:0.58rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px}
+.tpos{font-family:var(--mono);font-size:0.72rem;min-height:18px;margin-bottom:10px;transition:color .2s}
+
+.side-toggle{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;margin-bottom:10px}
+.st-btn{padding:6px 2px;border-radius:7px;border:1.5px solid var(--border);background:var(--bg3);font-size:0.7rem;font-weight:600;cursor:pointer;text-align:center;transition:all .15s;font-family:var(--sans);color:var(--text3)}
+.st-btn.long.active{border-color:rgba(74,222,128,0.5);background:rgba(74,222,128,0.1);color:var(--green)}
+.st-btn.flat.active{border-color:rgba(167,139,250,0.4);background:rgba(167,139,250,0.07);color:var(--violet)}
+.st-btn.short.active{border-color:rgba(248,113,113,0.5);background:rgba(248,113,113,0.1);color:var(--red)}
+
+.qty-wrap{display:none;align-items:center;gap:6px}
+.qty-wrap.visible{display:flex}
+.qty-lbl{font-family:var(--mono);font-size:0.58rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em}
+.qty-stepper{display:flex;border:1px solid var(--border2);border-radius:8px;overflow:hidden}
+.qty-step{width:26px;height:26px;background:var(--bg3);border:none;color:var(--text2);font-size:1rem;cursor:pointer;transition:background .1s;flex-shrink:0}
+.qty-step:hover{background:var(--bg4);color:var(--text)}
+.qty-val{width:32px;text-align:center;font-family:var(--mono);font-size:0.82rem;color:var(--text);background:transparent;border:none;border-left:1px solid var(--border);border-right:1px solid var(--border);height:26px;outline:none}
+
+/* COMPUTE BUTTON */
+.compute-row{display:flex;gap:10px;margin-bottom:20px}
+.compute-btn{flex:1;padding:12px;border-radius:12px;background:var(--amber);color:#0f1117;font-size:0.92rem;font-weight:700;border:none;cursor:pointer;font-family:var(--sans);transition:all .15s}
+.compute-btn:hover:not(:disabled){background:var(--amber2);transform:translateY(-1px)}
+.compute-btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.reset-btn{padding:12px 20px;border-radius:12px;background:var(--bg3);border:1px solid var(--border2);font-size:0.82rem;font-weight:600;color:var(--text3);cursor:pointer;font-family:var(--sans);transition:all .15s}
+.reset-btn:hover{color:var(--text2)}
+
+/* IMBALANCE WARNING */
+.imbalance-warn{display:none;padding:12px 16px;border-radius:12px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);color:var(--red);font-size:0.84rem;margin-bottom:16px;line-height:1.6}
+.imbalance-warn.show{display:block}
+.imbalance-warn strong{color:var(--red)}
+
+/* RESULT PANEL */
+.result-panel{background:var(--bg2);border:1px solid var(--border2);border-radius:18px;overflow:hidden;margin-bottom:16px;display:none}
+.rp-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border)}
+.rp-title{font-family:var(--mono);font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em}
+.oi-display{display:flex;align-items:baseline;gap:8px}
+.oi-number{font-family:var(--mono);font-size:2.4rem;font-weight:500;color:var(--teal);transition:all .3s}
+.oi-delta{font-family:var(--mono);font-size:0.78rem;padding:2px 8px;border-radius:6px;font-weight:500}
+.oi-delta.up{background:rgba(74,222,128,0.12);color:var(--green)}
+.oi-delta.dn{background:rgba(248,113,113,0.1);color:var(--red)}
+.oi-delta.nc{background:var(--bg4);color:var(--text3)}
+.rp-body{padding:16px 20px}
+
+/* POSITION TABLE */
+.pos-table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:0.82rem}
+.pos-table th{font-family:var(--mono);font-size:0.58rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;padding:6px 10px;text-align:left;border-bottom:1px solid var(--border)}
+.pos-table td{padding:8px 10px;border-bottom:1px solid var(--border)}
+.pos-table tr:last-child td{border-bottom:none}
+.c-long{color:var(--green);font-weight:600;font-family:var(--mono)}
+.c-short{color:var(--red);font-weight:600;font-family:var(--mono)}
+.c-flat{color:var(--text3);font-family:var(--mono)}
+.c-teal{color:var(--teal);font-family:var(--mono)}
+
+/* OI BREAKDOWN */
+.breakdown{background:var(--bg3);border-radius:10px;padding:12px 16px;margin-bottom:12px}
+.bd-title{font-family:var(--mono);font-size:0.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px}
+.bd-row{display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:4px}
+.bd-row:last-child{margin-bottom:0}
+.bd-divider{height:1px;background:var(--border);margin:6px 0}
+.bd-total{font-weight:600}
+.bd-total .bd-row{font-size:0.9rem}
+
+/* EXPLANATION */
+.explain{background:rgba(167,139,250,0.05);border:1px solid rgba(167,139,250,0.15);border-radius:10px;padding:12px 14px;font-size:0.83rem;color:var(--text2);line-height:1.7}
+.explain strong{color:var(--violet)}
+
+/* HISTORY */
+.hist-section{margin-bottom:16px;display:none}
+.hist-label{font-family:var(--mono);font-size:0.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px}
+.hist-table{width:100%;border-collapse:collapse;font-size:0.78rem}
+.hist-table th{font-family:var(--mono);font-size:0.56rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;padding:5px 10px;text-align:left;border-bottom:1px solid var(--border)}
+.hist-table td{padding:7px 10px;border-bottom:1px solid var(--border)}
+.hist-table tr:last-child td{border-bottom:none}
+.hist-table tr:nth-child(even){background:rgba(255,255,255,0.02)}
+
+/* NEXT */
+.next-card{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-radius:18px;background:var(--bg2);border:1px solid var(--border);gap:16px}
+.next-card h3{font-family:var(--serif);font-size:1rem;margin-bottom:3px}
+.next-card p{font-size:0.78rem;color:var(--text2)}
+.btn-next{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border-radius:11px;background:var(--amber);color:#0f1117;font-weight:600;font-size:0.84rem;white-space:nowrap;transition:background .15s}
+.btn-next:hover{background:var(--amber2)}
+
+@media(max-width:800px){.trader-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:500px){.trader-grid{grid-template-columns:1fr 1fr};.cases-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="index.html" style="text-decoration:none">DERIVATIVES<span>LAB</span></a>
+  <div class="nav-pill">
+    <a class="nav-btn" href="index.html">← Home</a>
+    <a class="nav-btn" href="module1.html">Module 1</a>
+    <a class="nav-btn" href="mtm-simulator.html">MTM Sim →</a>
+  </div>
+</nav>
+
+<div class="shell">
+  <div class="hero">
+    <div class="crumb"><a href="index.html">Home</a><span>/</span><a href="module1.html">Module 1</a><span>/</span><span style="color:var(--violet)">Trading Desk</span><span>/</span><span>OI Simulator</span></div>
+    <div class="kicker">Trading Desk · Simulator 1 of 2</div>
+    <h1>Open Interest Simulator</h1>
+    <p>Five traders — A, B, C, D, E — are the entire market. Every long must be matched by a short within the group. The simulator enforces this. If a round is unbalanced, you cannot compute — you must adjust until both sides match.</p>
+  </div>
+
+  <!-- CASES REFERENCE -->
+  <div class="cases-card">
+    <div class="cases-title">The four OI cases — always refer back to these</div>
+    <div class="cases-grid">
+      <div class="case-row"><span class="case-badge badge-up">OI ↑</span>New buyer + New seller create a contract</div>
+      <div class="case-row"><span class="case-badge badge-dn">OI ↓</span>Existing long + Existing short both close</div>
+      <div class="case-row"><span class="case-badge badge-nc">No change</span>New buyer + Existing long closing (hand-off)</div>
+      <div class="case-row"><span class="case-badge badge-nc">No change</span>Existing short closing + New seller (hand-off)</div>
+    </div>
+  </div>
+
+  <!-- LIVE BALANCE INDICATOR -->
+  <div class="balance-bar" id="balanceBar">
+    <div class="bal-item"><div class="bal-label">Round Long Δ</div><div class="bal-val" id="balLong" style="color:var(--green)">0</div></div>
+    <div class="bal-divider"></div>
+    <div class="bal-item"><div class="bal-label">Round Short Δ</div><div class="bal-val" id="balShort" style="color:var(--red)">0</div></div>
+    <div class="bal-divider"></div>
+    <div class="bal-status neutral" id="balStatus">Set positions to begin</div>
+    <div class="bal-divider"></div>
+    <div class="bal-item"><div class="bal-label">Current OI</div><div class="bal-val" id="currentOI" style="color:var(--teal)">0</div></div>
+  </div>
+
+  <!-- TRADER CARDS -->
+  <div class="trader-grid" id="traderGrid">
+    <!-- Generated by JS -->
+  </div>
+
+  <!-- IMBALANCE WARNING -->
+  <div class="imbalance-warn" id="imbalanceWarn"></div>
+
+  <!-- COMPUTE + RESET -->
+  <div class="compute-row">
+    <button class="compute-btn" id="computeBtn" onclick="computeRound()">Compute Open Interest →</button>
+    <button class="reset-btn" onclick="resetAll()">Reset All</button>
+  </div>
+
+  <!-- RESULT -->
+  <div class="result-panel" id="resultPanel">
+    <div class="rp-head">
+      <div class="rp-title">Open Interest after Round <span id="roundLabel">1</span></div>
+      <div class="oi-display">
+        <div class="oi-number" id="oiResult">0</div>
+        <div class="oi-delta nc" id="oiDelta">—</div>
+      </div>
+    </div>
+    <div class="rp-body">
+      <table class="pos-table">
+        <thead><tr><th>Trader</th><th>Previous</th><th>This round</th><th>New position</th><th>Longs</th><th>Shorts</th></tr></thead>
+        <tbody id="posBody"></tbody>
+      </table>
+      <div class="breakdown">
+        <div class="bd-title">OI calculation</div>
+        <div id="bdRows"></div>
+      </div>
+      <div class="explain" id="explainBox"></div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="hist-section" id="histSection">
+    <div class="hist-label">Round history</div>
+    <table class="hist-table">
+      <thead><tr><th>Round</th><th>Trades</th><th>Long total</th><th>Short total</th><th>OI</th><th>Change</th></tr></thead>
+      <tbody id="histBody"></tbody>
+    </table>
+  </div>
+
+  <!-- NEXT -->
+  <div class="next-card">
+    <div><h3>Next: MTM &amp; Margin Simulator</h3><p>Set entry price, margins, and position — run 5 days of P&amp;L and trigger a margin call</p></div>
+    <a class="btn-next" href="mtm-simulator.html">Continue →</a>
+  </div>
+</div>
+
+<script>
+const TRADERS = ['A','B','C','D','E'];
+let netPos = {A:0,B:0,C:0,D:0,E:0};
+let sides = {A:'flat',B:'flat',C:'flat',D:'flat',E:'flat'};
+let roundNum = 0;
+let history = [];
+let previousOI = 0;
+
+// ── BUILD TRADER CARDS ──
+function buildGrid(){
+  const grid = document.getElementById('traderGrid');
+  grid.innerHTML = TRADERS.map(t => `
+    <div class="trader-card" id="card-${t}">
+      <div class="tname">Trader ${t}</div>
+      <div class="tsub">Net position</div>
+      <div class="tpos" id="pos-${t}">Flat</div>
+      <div class="side-toggle">
+        <button class="st-btn long" onclick="setSide('${t}','long')">Long</button>
+        <button class="st-btn flat active" onclick="setSide('${t}','flat')">Flat</button>
+        <button class="st-btn short" onclick="setSide('${t}','short')">Short</button>
+      </div>
+      <div class="qty-wrap" id="qty-wrap-${t}">
+        <div class="qty-lbl">Lots</div>
+        <div class="qty-stepper">
+          <button class="qty-step" onclick="stepQty('${t}',-1)">−</button>
+          <input class="qty-val" id="qty-${t}" type="number" min="1" max="10" value="1" oninput="updateBalance()"/>
+          <button class="qty-step" onclick="stepQty('${t}',+1)">+</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// ── SIDE TOGGLE ──
+function setSide(t, side){
+  sides[t] = side;
+  const card = document.getElementById('card-'+t);
+  card.className = 'trader-card' + (side==='long'?' active-long':side==='short'?' active-short':' active-flat');
+  card.querySelectorAll('.st-btn').forEach(b => { b.classList.remove('active'); if(b.classList.contains(side)) b.classList.add('active'); });
+  const qw = document.getElementById('qty-wrap-'+t);
+  qw.classList.toggle('visible', side !== 'flat');
+  updateBalance();
+}
+
+function stepQty(t, d){
+  const el = document.getElementById('qty-'+t);
+  el.value = Math.max(1, Math.min(10, (parseInt(el.value)||1)+d));
+  updateBalance();
+}
+
+// ── LIVE BALANCE INDICATOR ──
+function updateBalance(){
+  let longDelta = 0, shortDelta = 0;
+  TRADERS.forEach(t => {
+    if(sides[t]==='long') longDelta += parseInt(document.getElementById('qty-'+t).value)||1;
+    if(sides[t]==='short') shortDelta += parseInt(document.getElementById('qty-'+t).value)||1;
+  });
+  document.getElementById('balLong').textContent = longDelta > 0 ? '+'+longDelta : longDelta;
+  document.getElementById('balShort').textContent = shortDelta > 0 ? '+'+shortDelta : shortDelta;
+  const diff = longDelta - shortDelta;
+  const status = document.getElementById('balStatus');
+  const btn = document.getElementById('computeBtn');
+  const warn = document.getElementById('imbalanceWarn');
+  if(longDelta === 0 && shortDelta === 0){
+    status.className='bal-status neutral'; status.textContent='No trades this round';
+    btn.disabled = false; warn.className='imbalance-warn';
+  } else if(diff === 0){
+    status.className='bal-status balanced'; status.textContent='✓ Balanced — ready to compute';
+    btn.disabled = false; warn.className='imbalance-warn';
+  } else {
+    const side = diff > 0 ? 'long' : 'short';
+    const abs = Math.abs(diff);
+    status.className='bal-status unbalanced'; status.textContent=`✗ ${abs} more ${side} — needs counterparty`;
+    btn.disabled = true;
+    warn.className='imbalance-warn show';
+    warn.innerHTML=`<strong>Market imbalance — cannot compute.</strong> This round has ${longDelta} long contract${longDelta!==1?'s':''} and ${shortDelta} short contract${shortDelta!==1?'s':''}. Every long needs a short. Adjust traders until both sides are equal.`;
+  }
+}
+
+// ── COMPUTE ──
+function fmt(n){ return new Intl.NumberFormat('en-IN').format(n) }
+function posLabel(n){
+  if(n===0) return '<span class="c-flat">Flat 0</span>';
+  if(n>0) return `<span class="c-long">Long ${fmt(n)}</span>`;
+  return `<span class="c-short">Short ${fmt(Math.abs(n))}</span>`;
+}
+
+function computeRound(){
+  roundNum++;
+  const prev = {...netPos};
+  const actions = {};
+  TRADERS.forEach(t => {
+    const side = sides[t];
+    const qty = side==='flat' ? 0 : parseInt(document.getElementById('qty-'+t).value)||1;
+    const delta = side==='long' ? qty : side==='short' ? -qty : 0;
+    actions[t] = { side, qty: Math.abs(delta), delta };
+    netPos[t] += delta;
+  });
+
+  const totalLong = TRADERS.reduce((s,t) => s + Math.max(0, netPos[t]), 0);
+  const totalShort = TRADERS.reduce((s,t) => s + Math.max(0, -netPos[t]), 0);
+  const oi = totalLong; // guaranteed equal to totalShort because round was balanced
+  const oiChange = oi - previousOI;
+
+  updatePosDisplays();
+  renderResult(prev, actions, oi, oiChange, totalLong, totalShort);
+  addHistory(roundNum, actions, oi, oiChange, totalLong, totalShort);
+  previousOI = oi;
+  document.getElementById('currentOI').textContent = fmt(oi);
+
+  // Reset round deltas
+  TRADERS.forEach(t => setSide(t,'flat'));
+  updateBalance();
+}
+
+function updatePosDisplays(){
+  TRADERS.forEach(t => {
+    const el = document.getElementById('pos-'+t);
+    const n = netPos[t];
+    el.style.color = n>0?'var(--green)':n<0?'var(--red)':'var(--text3)';
+    el.textContent = n===0 ? 'Flat' : n>0 ? `Long ${fmt(n)}` : `Short ${fmt(Math.abs(n))}`;
+  });
+}
+
+function renderResult(prev, actions, oi, oiChange, totalLong, totalShort){
+  document.getElementById('roundLabel').textContent = roundNum;
+  document.getElementById('oiResult').textContent = fmt(oi);
+  const deltaEl = document.getElementById('oiDelta');
+  if(oiChange>0){ deltaEl.className='oi-delta up'; deltaEl.textContent='+'+fmt(oiChange)+' ↑'; }
+  else if(oiChange<0){ deltaEl.className='oi-delta dn'; deltaEl.textContent=fmt(oiChange)+' ↓'; }
+  else { deltaEl.className='oi-delta nc'; deltaEl.textContent='no change'; }
+
+  // Position table
+  document.getElementById('posBody').innerHTML = TRADERS.map(t => {
+    const a = actions[t];
+    const actionStr = a.delta===0 ? 'Flat / no trade'
+      : a.delta>0 ? `Long +${fmt(a.qty)}`
+      : `Short −${fmt(a.qty)}`;
+    const l = Math.max(0,netPos[t]);
+    const s = Math.max(0,-netPos[t]);
+    return `<tr>
+      <td style="font-weight:500">Trader ${t}</td>
+      <td>${posLabel(prev[t])}</td>
+      <td style="font-family:var(--mono);font-size:0.78rem;color:var(--text2)">${actionStr}</td>
+      <td>${posLabel(netPos[t])}</td>
+      <td class="c-${l>0?'long':'flat'}">${fmt(l)}</td>
+      <td class="c-${s>0?'short':'flat'}">${fmt(s)}</td>
+    </tr>`;
+  }).join('');
+
+  // Breakdown
+  const bdRows = TRADERS.map(t => {
+    const n = netPos[t];
+    const side = n>0?'Long':n<0?'Short':'Flat';
+    const col = n>0?'var(--green)':n<0?'var(--red)':'var(--text3)';
+    return `<div class="bd-row"><span style="color:var(--text2)">Trader ${t} net</span><span style="color:${col};font-family:var(--mono)">${side} ${fmt(Math.abs(n))}</span></div>`;
+  }).join('') + `
+    <div class="bd-divider"></div>
+    <div class="bd-row"><span style="color:var(--text2)">Total open long</span><span class="c-long">${fmt(totalLong)}</span></div>
+    <div class="bd-row"><span style="color:var(--text2)">Total open short</span><span class="c-short">${fmt(totalShort)}</span></div>
+    <div class="bd-divider"></div>
+    <div class="bd-row bd-total"><span style="color:var(--text)">Open Interest</span><span class="c-teal">${fmt(oi)}</span></div>`;
+  document.getElementById('bdRows').innerHTML = bdRows;
+
+  // Explanation
+  const parts = [];
+  TRADERS.forEach(t => {
+    const a = actions[t]; const p = prev[t]; const n = netPos[t];
+    if(a.delta===0) return;
+    if(p===0 && n!==0) parts.push(`<strong>Trader ${t}</strong> opened a new ${a.delta>0?'long':'short'} position → new contract in market`);
+    else if(p!==0 && n===0) parts.push(`<strong>Trader ${t}</strong> squared off completely → contract removed from market`);
+    else if(Math.sign(a.delta)===Math.sign(n)) parts.push(`<strong>Trader ${t}</strong> added to ${n>0?'long':'short'} position`);
+    else parts.push(`<strong>Trader ${t}</strong> partially reduced ${p>0?'long':'short'} position`);
+  });
+  let expl = parts.length ? parts.join(' · ') : 'No trades this round — OI unchanged.';
+  expl += `<br><br>Open Interest: <strong style="color:var(--teal)">${fmt(oi)}</strong> open contracts. Total long = Total short = ${fmt(oi)}. OI ${oiChange>0?'rose by '+fmt(oiChange):oiChange<0?'fell by '+fmt(Math.abs(oiChange)):'unchanged'} this round.`;
+  document.getElementById('explainBox').innerHTML = expl;
+
+  document.getElementById('resultPanel').style.display = 'block';
+  document.getElementById('histSection').style.display = 'block';
+}
+
+function addHistory(round, actions, oi, oiChange, tL, tS){
+  const trades = TRADERS.filter(t=>actions[t].delta!==0)
+    .map(t=>`${t}:${actions[t].delta>0?'+':'-'}${fmt(actions[t].qty)}`).join(' ') || 'No trades';
+  const deltaColor = oiChange>0?'var(--green)':oiChange<0?'var(--red)':'var(--text3)';
+  const deltaText = oiChange>0?'+'+fmt(oiChange):oiChange<0?fmt(oiChange):'—';
+  const row = document.createElement('tr');
+  row.innerHTML = `
+    <td style="font-family:var(--mono)">${round}</td>
+    <td style="font-family:var(--mono);font-size:0.76rem;color:var(--text2)">${trades}</td>
+    <td class="c-long">${fmt(tL)}</td>
+    <td class="c-short">${fmt(tS)}</td>
+    <td class="c-teal" style="font-weight:600">${fmt(oi)}</td>
+    <td style="color:${deltaColor};font-family:var(--mono)">${deltaText}</td>`;
+  document.getElementById('histBody').prepend(row);
+}
+
+function resetAll(){
+  netPos = {A:0,B:0,C:0,D:0,E:0};
+  sides = {A:'flat',B:'flat',C:'flat',D:'flat',E:'flat'};
+  roundNum = 0; previousOI = 0; history = [];
+  buildGrid();
+  updateBalance();
+  document.getElementById('resultPanel').style.display='none';
+  document.getElementById('histSection').style.display='none';
+  document.getElementById('histBody').innerHTML='';
+  document.getElementById('currentOI').textContent='0';
+}
+
+buildGrid();
+updateBalance();
+</script>
+</body>
+</html>

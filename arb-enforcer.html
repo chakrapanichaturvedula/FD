@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Arb Enforcer — Convergence Watch · DerivativesLab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0f1117;--bg2:#161b26;--bg3:#1e2535;--bg4:#252e42;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --amber:#f5a623;--blue:#60a5fa;--green:#4ade80;--red:#f87171;--violet:#a78bfa;
+  --text:#e8eaf0;--text2:#8b91a8;--text3:#555e78;
+  --serif:'DM Serif Display',Georgia,serif;
+  --mono:'DM Mono','Courier New',monospace;
+  --sans:'DM Sans',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+a{text-decoration:none;color:inherit}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:56px;background:rgba(15,17,23,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--mono);font-size:0.82rem;color:var(--amber);letter-spacing:0.04em}
+.nav-logo span{color:var(--text2)}
+.nav-back{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;background:var(--bg3);border:1px solid var(--border2);font-size:0.78rem;font-weight:600;color:var(--text2);transition:color .15s}
+.nav-back:hover{color:var(--text)}
+.shell{max-width:1000px;margin:0 auto;padding:80px 24px 80px}
+
+.page-hero{padding:36px 40px;border-radius:28px;background:var(--bg2);border:1px solid var(--border2);margin-bottom:24px;position:relative;overflow:hidden}
+.page-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:220px;height:220px;background:radial-gradient(circle,rgba(167,139,250,0.07) 0%,transparent 70%);pointer-events:none}
+.crumb{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:0.68rem;color:var(--text3);margin-bottom:14px}
+.crumb a{color:var(--text3)}.crumb a:hover{color:var(--blue)}
+.page-kicker{font-family:var(--mono);font-size:0.68rem;color:var(--violet);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px}
+.page-hero h1{font-family:var(--serif);font-size:clamp(1.8rem,3vw,2.4rem);line-height:1.1;margin-bottom:8px}
+.page-hero p{color:var(--text2);font-size:0.9rem;max-width:560px}
+
+/* STAT BAR */
+.stat-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px}
+.stat-card{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:14px 16px;text-align:center}
+.stat-label{font-family:var(--mono);font-size:0.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:5px}
+.stat-val{font-family:var(--mono);font-size:1.1rem;font-weight:700}
+
+/* MAIN CHART AREA */
+.chart-area{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;overflow:hidden;margin-bottom:16px}
+.chart-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.chart-title{font-family:var(--mono);font-size:0.72rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em}
+.legend{display:flex;gap:14px;flex-wrap:wrap}
+.leg{display:flex;align-items:center;gap:6px;font-size:0.78rem;color:var(--text2)}
+.leg-line{width:22px;height:3px;border-radius:2px}
+.leg-dash{width:22px;height:0;border-top:2px dashed;border-radius:0}
+canvas{display:block;width:100%}
+.chart-foot{padding:14px 20px;border-top:1px solid var(--border)}
+
+/* EVENT LOG */
+.event-log{background:var(--bg3);border-radius:10px;padding:0;max-height:80px;overflow-y:auto;font-family:var(--mono);font-size:0.75rem}
+.log-line{padding:5px 12px;border-bottom:1px solid var(--border);color:var(--text3);display:flex;gap:8px}
+.log-line:last-child{border-bottom:none}
+.log-line .log-day{color:var(--text3);flex-shrink:0;width:40px}
+.log-line .log-msg{color:var(--text2)}
+.log-line.arb-event .log-msg{color:var(--red)}
+.log-line.conv-event .log-msg{color:var(--green)}
+.log-line.misprice .log-msg{color:var(--amber)}
+
+/* CONTROLS */
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.ctrl-panel{background:var(--bg2);border:1px solid var(--border2);border-radius:18px;padding:18px 20px}
+.ctrl-title{font-family:var(--mono);font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:14px}
+.ctrl-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.cbtn{padding:9px 16px;border-radius:9px;border:1.5px solid var(--border2);background:var(--bg3);font-family:var(--sans);font-size:0.82rem;font-weight:600;color:var(--text2);cursor:pointer;transition:all .15s}
+.cbtn:hover{color:var(--text);border-color:var(--border2)}
+.cbtn.primary{background:var(--blue);color:#0f1117;border-color:var(--blue)}
+.cbtn.primary:hover{opacity:.88}
+.cbtn.danger{background:rgba(248,113,113,0.1);color:var(--red);border-color:rgba(248,113,113,0.3)}
+.cbtn.danger:hover{background:rgba(248,113,113,0.18)}
+.cbtn.violet{background:rgba(167,139,250,0.1);color:var(--violet);border-color:rgba(167,139,250,0.3)}
+.cbtn.violet:hover{background:rgba(167,139,250,0.18)}
+.cbtn:disabled{opacity:.35;cursor:not-allowed}
+.speed-row{display:flex;align-items:center;gap:10px;font-size:0.8rem;color:var(--text2)}
+.speed-row input{accent-color:var(--blue);flex:1}
+
+.param-grid{display:flex;flex-direction:column;gap:10px}
+.param-row{display:flex;align-items:center;gap:10px}
+.param-label{font-size:0.78rem;color:var(--text2);width:140px;flex-shrink:0}
+.param-val{font-family:var(--mono);font-size:0.8rem;color:var(--blue);width:50px;text-align:right}
+.param-row input[type=range]{flex:1;accent-color:var(--blue)}
+
+/* INSIGHT BOX */
+.insight{background:var(--bg2);border:1px solid var(--border2);border-radius:18px;padding:20px 24px}
+.insight-title{font-family:var(--mono);font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:14px}
+.insight-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.insight-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
+.insight-num{font-family:var(--mono);font-size:1.5rem;font-weight:700;margin-bottom:4px}
+.insight-desc{font-size:0.78rem;color:var(--text2);line-height:1.5}
+
+@media(max-width:700px){
+  .stat-bar{grid-template-columns:1fr 1fr}
+  .controls{grid-template-columns:1fr}
+  .insight-grid{grid-template-columns:1fr}
+  .page-hero{padding:24px 20px}
+}
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="index.html">DERIVATIVES<span>LAB</span></a>
+  <a class="nav-back" href="module2.html">← Module 2</a>
+</nav>
+
+<div class="shell">
+  <div class="page-hero">
+    <div class="crumb"><a href="index.html">Home</a> <span>/</span> <a href="module2.html">Module 2</a> <span>/</span> <span>Arb Enforcer</span></div>
+    <div class="page-kicker">⬡ Trading Desk · Convergence Watch</div>
+    <h1>Arb Enforcer</h1>
+    <p>Watch spot, futures, and fair value converge over 30 days. Hit <strong style="color:var(--red)">Inject Mispricing</strong> at any point to push futures off fair value — an arb bot fires within seconds and pulls it back. Enforcement made visible.</p>
+  </div>
+
+  <!-- STAT BAR -->
+  <div class="stat-bar">
+    <div class="stat-card">
+      <div class="stat-label">Days Left</div>
+      <div class="stat-val" id="stDTE" style="color:var(--blue)">30</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Spot</div>
+      <div class="stat-val" id="stSpot" style="color:var(--text)">22,000</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Futures</div>
+      <div class="stat-val" id="stFut" style="color:var(--amber)">22,198</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Basis</div>
+      <div class="stat-val" id="stBasis" style="color:var(--text2)">−198</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">vs Fair</div>
+      <div class="stat-val" id="stDev" style="color:var(--green)">0</div>
+    </div>
+  </div>
+
+  <!-- CHART -->
+  <div class="chart-area">
+    <div class="chart-head">
+      <div class="chart-title">Basis Convergence — 30-Day Countdown to Expiry</div>
+      <div class="legend">
+        <div class="leg"><div class="leg-line" style="background:rgba(232,234,240,0.7)"></div><span>Spot</span></div>
+        <div class="leg"><div class="leg-line" style="background:var(--amber)"></div><span>Futures</span></div>
+        <div class="leg"><div class="leg-dash" style="border-color:var(--green)"></div><span>Fair Value</span></div>
+        <div class="leg"><div class="leg-line" style="background:var(--red)"></div><span>Arb event</span></div>
+      </div>
+    </div>
+    <canvas id="mainCanvas" height="260"></canvas>
+    <div class="chart-foot">
+      <div class="event-log" id="eventLog">
+        <div class="log-line"><span class="log-day">d30</span><span class="log-msg">Simulation ready. Press Play to begin convergence countdown.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls">
+    <div class="ctrl-panel">
+      <div class="ctrl-title">Playback Controls</div>
+      <div class="ctrl-btns">
+        <button class="cbtn primary" id="playBtn" onclick="togglePlay()">▶ Play</button>
+        <button class="cbtn" onclick="resetSim()">↺ Reset</button>
+        <button class="cbtn danger" id="injectBtn" onclick="inject()">⚡ Inject Mispricing</button>
+        <button class="cbtn violet" onclick="injectLarge()">💥 Large Shock</button>
+      </div>
+      <div class="speed-row">
+        <span>Speed</span>
+        <input type="range" id="speedSlider" min="1" max="5" value="2" step="1" oninput="updateSpeed()">
+        <span id="speedLabel" style="font-family:var(--mono);font-size:0.8rem;color:var(--blue);width:30px">2×</span>
+      </div>
+      <div style="margin-top:12px;font-size:0.78rem;color:var(--text3);line-height:1.6">
+        Press <strong style="color:var(--red)">Inject Mispricing</strong> at any time — even mid-play. Watch the arb bot respond. The larger the deviation, the faster and harder the correction.
+      </div>
+    </div>
+
+    <div class="ctrl-panel">
+      <div class="ctrl-title">Market Parameters</div>
+      <div class="param-grid">
+        <div class="param-row">
+          <span class="param-label">Spot Price (₹)</span>
+          <input type="range" min="18000" max="26000" step="100" value="22000" id="pSpot" oninput="updateParams()">
+          <span class="param-val" id="pSpotVal">22,000</span>
+        </div>
+        <div class="param-row">
+          <span class="param-label">Risk-free rate</span>
+          <input type="range" min="2" max="12" step="0.1" value="6.5" id="pRate" oninput="updateParams()">
+          <span class="param-val" id="pRateVal">6.5%</span>
+        </div>
+        <div class="param-row">
+          <span class="param-label">Dividend yield</span>
+          <input type="range" min="0" max="8" step="0.1" value="1.2" id="pDiv" oninput="updateParams()">
+          <span class="param-val" id="pDivVal">1.2%</span>
+        </div>
+        <div class="param-row">
+          <span class="param-label">Arb speed</span>
+          <input type="range" min="0.1" max="0.95" step="0.05" value="0.8" id="pArbSpeed" oninput="updateParams()">
+          <span class="param-val" id="pArbSpeedVal">80%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INSIGHTS -->
+  <div class="insight">
+    <div class="insight-title">Session Stats</div>
+    <div class="insight-grid">
+      <div class="insight-card">
+        <div class="insight-num" id="iInjections" style="color:var(--red)">0</div>
+        <div class="insight-desc">Mispricing injections this session</div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-num" id="iArbs" style="color:var(--green)">0</div>
+        <div class="insight-desc">Arb corrections triggered</div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-num" id="iMaxDev" style="color:var(--amber)">₹0</div>
+        <div class="insight-desc">Largest mispricing this session</div>
+      </div>
+    </div>
+    <div style="margin-top:16px;background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px 16px;font-size:0.85rem;color:var(--text2);line-height:1.65">
+      <strong style="color:var(--blue)">What enforces convergence?</strong> Not the exchange, not a rule. It is every trader like Mihir who sees a gap between screen price and fair value and immediately executes buy-spot/short-futures. Their collective action removes the mispricing within seconds. On expiry day, settlement is at spot — the exchange enforces the final step. Arbitrageurs enforce every step before that.
+    </div>
+  </div>
+</div>
+
+<script>
+// ── PARAMS ────────────────────────────────────────────────────────────────
+let S0 = 22000, RATE = 0.065, DIV = 0.012, ARB_DECAY = 0.80;
+const DAYS = 30, LOT = 50;
+
+function fairVal(daysLeft) {
+  return S0 * (1 + (RATE - DIV) * (daysLeft / 365));
+}
+
+// ── STATE ─────────────────────────────────────────────────────────────────
+let simDay = 0;       // 0..DAYS (floats for smooth animation)
+let futExtra = 0;     // additional mispricing on top of fair basis
+let playing = false;
+let frameTimer = null;
+let speedMs = 120;    // ms per tick
+let history = [];     // {day, spot, fut, fv}[]
+let arbActive = false;
+let injCount = 0, arbCount = 0, maxDev = 0;
+
+// ── LOGGING ───────────────────────────────────────────────────────────────
+function log(msg, cls='') {
+  const el = document.getElementById('eventLog');
+  const line = document.createElement('div');
+  line.className = 'log-line' + (cls?' '+cls:'');
+  const daysLeft = Math.max(0, DAYS - Math.floor(simDay));
+  line.innerHTML = `<span class="log-day">d${daysLeft}</span><span class="log-msg">${msg}</span>`;
+  el.appendChild(line);
+  el.scrollTop = el.scrollHeight;
+}
+
+// ── DRAW ──────────────────────────────────────────────────────────────────
+function draw() {
+  const canvas = document.getElementById('mainCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth || 800;
+  canvas.width = W; canvas.height = 260;
+  const pad = {l:56, r:20, t:16, b:36};
+  const cw = W - pad.l - pad.r;
+  const ch = 260 - pad.t - pad.b;
+
+  ctx.clearRect(0, 0, W, 260);
+
+  // Determine y range
+  const allVals = history.map(h => [h.spot, h.fut, h.fv]).flat();
+  allVals.push(fairVal(DAYS), S0);
+  const minV = Math.min(...allVals) - 80;
+  const maxV = Math.max(...allVals) + 80;
+  const range = maxV - minV;
+
+  const xOf = d => pad.l + (d / DAYS) * cw;
+  const yOf = v => pad.t + ch - ((v - minV) / range) * ch;
+
+  // Grid
+  const steps = 5;
+  for (let i = 0; i <= steps; i++) {
+    const v = minV + (range / steps) * i;
+    const y = yOf(v);
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(pad.l + cw, y); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,0.2)';
+    ctx.font = '10px DM Mono';
+    ctx.textAlign = 'right';
+    ctx.fillText(Math.round(v).toLocaleString('en-IN'), pad.l - 4, y + 4);
+  }
+  ctx.textAlign = 'left';
+
+  // Full fair value line (entire 30-day range, dashed)
+  ctx.strokeStyle = 'rgba(74,222,128,0.35)';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([5, 4]);
+  ctx.beginPath();
+  for (let d = 0; d <= DAYS; d++) {
+    const fv = fairVal(DAYS - d);
+    if (d === 0) ctx.moveTo(xOf(d), yOf(fv));
+    else ctx.lineTo(xOf(d), yOf(fv));
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Spot line (flat, full width faint)
+  ctx.strokeStyle = 'rgba(232,234,240,0.15)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(xOf(0), yOf(S0)); ctx.lineTo(xOf(DAYS), yOf(S0)); ctx.stroke();
+
+  if (history.length > 1) {
+    // Spot path
+    ctx.strokeStyle = 'rgba(232,234,240,0.65)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    history.forEach((h, i) => {
+      if (i === 0) ctx.moveTo(xOf(h.day), yOf(h.spot));
+      else ctx.lineTo(xOf(h.day), yOf(h.spot));
+    });
+    ctx.stroke();
+
+    // Fair value path
+    ctx.strokeStyle = 'rgba(74,222,128,0.75)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    history.forEach((h, i) => {
+      if (i === 0) ctx.moveTo(xOf(h.day), yOf(h.fv));
+      else ctx.lineTo(xOf(h.day), yOf(h.fv));
+    });
+    ctx.stroke();
+
+    // Futures path — colour by deviation
+    ctx.lineWidth = 2.5;
+    for (let i = 1; i < history.length; i++) {
+      const dev = history[i].fut - history[i].fv;
+      const alpha = Math.min(1, 0.6 + Math.abs(dev) / 500);
+      if (Math.abs(dev) > 80) {
+        ctx.strokeStyle = `rgba(248,113,113,${alpha})`;
+      } else {
+        ctx.strokeStyle = `rgba(245,166,35,${alpha})`;
+      }
+      ctx.beginPath();
+      ctx.moveTo(xOf(history[i-1].day), yOf(history[i-1].fut));
+      ctx.lineTo(xOf(history[i].day), yOf(history[i].fut));
+      ctx.stroke();
+    }
+  }
+
+  // Current day marker
+  if (simDay > 0 && simDay < DAYS) {
+    ctx.strokeStyle = 'rgba(96,165,250,0.25)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(xOf(simDay), pad.t); ctx.lineTo(xOf(simDay), pad.t + ch); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // Day labels
+  ctx.fillStyle = 'rgba(255,255,255,0.2)';
+  ctx.font = '10px DM Mono';
+  [0, 5, 10, 15, 20, 25, 30].forEach(d => {
+    ctx.fillText('d' + (DAYS - d), xOf(d) - 8, 260 - 6);
+  });
+
+  // Convergence circle at end
+  if (simDay >= DAYS - 0.5) {
+    ctx.fillStyle = 'var(--green)';
+    ctx.beginPath();
+    ctx.arc(xOf(DAYS), yOf(S0), 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(74,222,128,0.85)';
+    ctx.font = '11px DM Mono';
+    ctx.fillText('Converged', xOf(DAYS) + 8, yOf(S0) + 4);
+  }
+
+  // Update stats
+  const curFV = fairVal(DAYS - simDay);
+  const curFut = curFV + futExtra + Math.max(0, 198 * (1 - simDay / DAYS));
+  const curBasis = S0 - curFut;
+  const curDev = curFut - curFV;
+
+  document.getElementById('stDTE').textContent = Math.max(0, Math.ceil(DAYS - simDay));
+  document.getElementById('stSpot').textContent = S0.toLocaleString('en-IN');
+  document.getElementById('stFut').textContent = Math.round(curFut).toLocaleString('en-IN');
+  document.getElementById('stBasis').textContent = (curBasis >= 0 ? '+' : '') + Math.round(curBasis);
+  document.getElementById('stDev').textContent = (curDev >= 0 ? '+' : '') + Math.round(curDev);
+  document.getElementById('stDev').style.color = Math.abs(curDev) < 30 ? 'var(--green)' : curDev > 0 ? 'var(--red)' : 'var(--blue)';
+}
+
+// ── TICK ──────────────────────────────────────────────────────────────────
+function tick() {
+  if (!playing) return;
+  if (simDay >= DAYS) {
+    playing = false;
+    document.getElementById('playBtn').textContent = '▶ Play';
+    log('Expiry reached. Futures settled at spot. Basis = 0. Convergence complete.', 'conv-event');
+    document.getElementById('injectBtn').disabled = true;
+    return;
+  }
+
+  // Arb bot decay
+  if (arbActive && futExtra !== 0) {
+    futExtra *= (1 - ARB_DECAY * 0.15); // gradual decay each tick
+    if (Math.abs(futExtra) < 2) {
+      futExtra = 0;
+      arbActive = false;
+      arbCount++;
+      document.getElementById('iArbs').textContent = arbCount;
+      log('Arb bot completed correction. Mispricing eliminated.', 'conv-event');
+    }
+  }
+
+  simDay += 0.3;
+
+  const fv = fairVal(DAYS - simDay);
+  const naturalExtra = Math.max(0, 198 * (1 - simDay / DAYS));
+  const curFut = fv + futExtra + naturalExtra;
+
+  history.push({ day: simDay, spot: S0, fut: curFut, fv });
+
+  const dev = curFut - fv;
+  if (Math.abs(dev) > maxDev) {
+    maxDev = Math.abs(dev);
+    document.getElementById('iMaxDev').textContent = '₹' + Math.round(maxDev);
+  }
+
+  draw();
+  frameTimer = setTimeout(tick, speedMs);
+}
+
+// ── CONTROLS ──────────────────────────────────────────────────────────────
+function togglePlay() {
+  playing = !playing;
+  document.getElementById('playBtn').textContent = playing ? '⏸ Pause' : '▶ Play';
+  if (playing) {
+    if (simDay === 0) {
+      history = [{ day: 0, spot: S0, fut: fairVal(DAYS) + 198, fv: fairVal(DAYS) }];
+      log('Simulation started. Nifty futures at fair value + ₹198 initial premium.', '');
+    }
+    tick();
+  }
+}
+
+function resetSim() {
+  playing = false; simDay = 0; futExtra = 0; arbActive = false;
+  clearTimeout(frameTimer);
+  history = [];
+  document.getElementById('playBtn').textContent = '▶ Play';
+  document.getElementById('injectBtn').disabled = false;
+  document.getElementById('eventLog').innerHTML = '<div class="log-line"><span class="log-day">d30</span><span class="log-msg">Simulation reset. Press Play to begin.</span></div>';
+  draw();
+}
+
+function inject() {
+  if (simDay >= DAYS) return;
+  const shock = 200 + Math.random() * 100;
+  futExtra += shock;
+  arbActive = true;
+  injCount++;
+  document.getElementById('iInjections').textContent = injCount;
+  log(`Mispricing injected! +₹${Math.round(shock)} added to futures. Arb bot responding…`, 'arb-event');
+  if (!playing) { playing = true; document.getElementById('playBtn').textContent = '⏸ Pause'; tick(); }
+  draw();
+}
+
+function injectLarge() {
+  if (simDay >= DAYS) return;
+  const shock = 500 + Math.random() * 300;
+  futExtra += shock;
+  arbActive = true;
+  injCount++;
+  document.getElementById('iInjections').textContent = injCount;
+  log(`💥 Large shock! +₹${Math.round(shock)} injected. This will take longer to correct…`, 'arb-event');
+  if (!playing) { playing = true; document.getElementById('playBtn').textContent = '⏸ Pause'; tick(); }
+  draw();
+}
+
+function updateSpeed() {
+  const s = +document.getElementById('speedSlider').value;
+  document.getElementById('speedLabel').textContent = s + '×';
+  speedMs = Math.round(200 / s);
+}
+
+function updateParams() {
+  S0 = +document.getElementById('pSpot').value;
+  RATE = +document.getElementById('pRate').value / 100;
+  DIV = +document.getElementById('pDiv').value / 100;
+  ARB_DECAY = +document.getElementById('pArbSpeed').value;
+
+  document.getElementById('pSpotVal').textContent = S0.toLocaleString('en-IN');
+  document.getElementById('pRateVal').textContent = (+document.getElementById('pRate').value).toFixed(1) + '%';
+  document.getElementById('pDivVal').textContent = (+document.getElementById('pDiv').value).toFixed(1) + '%';
+  document.getElementById('pArbSpeedVal').textContent = Math.round(ARB_DECAY * 100) + '%';
+
+  if (!playing) draw();
+}
+
+// Init
+draw();
+</script>
+</body>
+</html>

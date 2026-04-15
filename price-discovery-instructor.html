@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Instructor · Price Discovery · DerivativesLab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0f1117;--bg2:#161b26;--bg3:#1e2535;--bg4:#252e42;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --amber:#f5a623;--amber2:#ffc75a;--teal:#2dd4bf;
+  --green:#4ade80;--red:#f87171;--violet:#a78bfa;--blue:#60a5fa;
+  --text:#e8eaf0;--text2:#8b91a8;--text3:#555e78;
+  --serif:'DM Serif Display',Georgia,serif;
+  --mono:'DM Mono','Courier New',monospace;
+  --sans:'DM Sans',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh}
+a{text-decoration:none;color:inherit}
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:52px;background:rgba(15,17,23,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--mono);font-size:0.82rem;color:var(--amber)}
+.nav-logo span{color:var(--text3)}
+.nav-links{display:flex;gap:6px}
+.nav-links a{padding:5px 12px;border-radius:8px;font-size:0.8rem;color:var(--text2);border:1px solid transparent;transition:all .15s}
+.nav-links a:hover{color:var(--text);border-color:var(--border2)}
+.badge-i{font-family:var(--mono);font-size:0.65rem;padding:3px 10px;border-radius:6px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);color:var(--red)}
+main{max-width:1100px;margin:0 auto;padding:24px 20px 60px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:800px){.grid2{grid-template-columns:1fr}}
+.mb16{margin-bottom:16px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:18px}
+.card-title{font-family:var(--mono);font-size:0.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px}
+
+/* AUTH */
+#authScreen{max-width:360px;margin:80px auto;text-align:center}
+.auth-card{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:32px 28px}
+.auth-title{font-family:var(--serif);font-size:1.4rem;margin-bottom:4px}
+.auth-sub{font-size:0.82rem;color:var(--text2);margin-bottom:20px}
+
+/* FORM */
+.fi{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.fi label{font-family:var(--mono);font-size:0.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em}
+.fi input,.fi select,.fi textarea{padding:9px 12px;border-radius:9px;background:var(--bg3);border:1.5px solid var(--border2);color:var(--text);font-family:var(--sans);font-size:0.86rem;outline:none;transition:border-color .15s;width:100%}
+.fi input:focus,.fi select:focus,.fi textarea:focus{border-color:var(--amber)}
+.fi textarea{resize:vertical;min-height:70px;line-height:1.5}
+.fi input[type=number]{font-family:var(--mono)}
+
+/* INSTRUMENT CARDS */
+.inst-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.ic{padding:10px 12px;border-radius:10px;border:1.5px solid var(--border2);background:var(--bg3);cursor:pointer;transition:all .15s;text-align:center}
+.ic:hover{border-color:rgba(45,212,191,0.3)}
+.ic.active{border-color:rgba(45,212,191,0.5);background:rgba(45,212,191,0.07)}
+.ic-name{font-size:0.88rem;font-weight:600;margin-bottom:2px}
+.ic-sub{font-size:0.68rem;color:var(--text3)}
+.ic.active .ic-name{color:var(--teal)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 18px;border-radius:9px;font-size:0.83rem;font-weight:600;cursor:pointer;border:none;font-family:var(--sans);transition:all .15s}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn:active:not(:disabled){transform:scale(0.97)}
+.btn-amber{background:var(--amber);color:#0f1117}.btn-amber:hover:not(:disabled){background:var(--amber2)}
+.btn-green{background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.3);color:var(--green)}.btn-green:hover:not(:disabled){background:rgba(74,222,128,0.25)}
+.btn-red{background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.3);color:var(--red)}.btn-red:hover:not(:disabled){background:rgba(248,113,113,0.22)}
+.btn-ghost{background:var(--bg3);border:1px solid var(--border2);color:var(--text2)}.btn-ghost:hover:not(:disabled){color:var(--text)}
+.btn-violet{background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.3);color:var(--violet)}.btn-violet:hover:not(:disabled){background:rgba(167,139,250,0.2)}
+.btn-full{width:100%;padding:12px}
+
+/* STATUS */
+.spill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:6px;font-family:var(--mono);font-size:0.62rem}
+.s-open{background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.25);color:var(--green)}
+.s-closed{background:var(--bg3);border:1px solid var(--border);color:var(--text3)}
+.s-waiting{background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.2);color:var(--blue)}
+.s-dot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:blink 1.2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* STATS */
+.stat-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px}
+@media(max-width:700px){.stat-row{grid-template-columns:repeat(3,1fr)}}
+.sbox{background:var(--bg3);border:1px solid var(--border);border-radius:11px;padding:12px;text-align:center}
+.sbox-val{font-family:var(--mono);font-size:1.3rem;font-weight:500;color:var(--amber)}
+.sbox-lbl{font-family:var(--mono);font-size:0.56rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-top:3px}
+
+/* GAME CODE BOX */
+.code-box{background:rgba(167,139,250,0.07);border:2px solid rgba(167,139,250,0.25);border-radius:14px;padding:16px 20px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.cb-label{font-family:var(--mono);font-size:0.6rem;color:var(--violet);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px}
+.cb-code{font-family:var(--mono);font-size:2.2rem;font-weight:500;color:var(--violet);letter-spacing:0.15em}
+.cb-url{font-family:var(--mono);font-size:0.68rem;color:var(--text3)}
+
+/* ORDER BOOK */
+.ob-split{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border-radius:8px;overflow:hidden}
+.ob-col{background:var(--bg2);padding:8px}
+.ob-hdr{font-family:var(--mono);font-size:0.6rem;text-align:center;padding:5px;border-radius:5px;margin-bottom:6px;letter-spacing:0.06em}
+.ob-hdr.bids{background:rgba(74,222,128,0.08);color:var(--green)}
+.ob-hdr.asks{background:rgba(248,113,113,0.08);color:var(--red)}
+.ob-row{display:flex;justify-content:space-between;align-items:center;padding:5px 8px;border-radius:5px;margin-bottom:2px;position:relative;overflow:hidden;font-family:var(--mono);font-size:0.76rem}
+.ob-bg{position:absolute;top:0;bottom:0;border-radius:5px}
+.ob-bid-bg{left:0;background:rgba(74,222,128,0.06)}
+.ob-ask-bg{right:0;background:rgba(248,113,113,0.06)}
+.ob-pb{color:var(--green);font-weight:500;position:relative}
+.ob-pa{color:var(--red);font-weight:500;position:relative}
+.ob-q{color:var(--text3);font-size:0.7rem;position:relative}
+.ob-who{color:var(--text3);font-size:0.62rem;position:relative}
+.ob-empty{text-align:center;padding:14px;color:var(--text3);font-size:0.78rem;font-style:italic}
+.spread-bar{text-align:center;padding:5px;font-family:var(--mono);font-size:0.68rem;color:var(--amber);background:rgba(245,166,35,0.05);border:1px solid rgba(245,166,35,0.1);border-radius:6px;margin-bottom:8px}
+
+/* STUDENT TABLE */
+.stud-tbl{width:100%;border-collapse:collapse;font-size:0.82rem}
+.stud-tbl th{font-family:var(--mono);font-size:0.56rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;padding:6px 10px;text-align:left;border-bottom:1px solid var(--border)}
+.stud-tbl td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+.stud-tbl tr:last-child td{border-bottom:none}
+.pos-long{color:var(--green);font-family:var(--mono);font-weight:500}
+.pos-short{color:var(--red);font-family:var(--mono);font-weight:500}
+.pos-flat{color:var(--text3);font-family:var(--mono)}
+.pnl-pos{color:var(--green);font-family:var(--mono)}
+.pnl-neg{color:var(--red);font-family:var(--mono)}
+.cap-row{display:flex;align-items:center;gap:5px}
+.cap-inp{width:90px;padding:5px 8px;border-radius:7px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:0.76rem;outline:none}
+.cap-inp:focus{border-color:var(--amber)}
+.cap-btn{padding:5px 9px;border-radius:7px;background:rgba(245,166,35,0.12);border:1px solid rgba(245,166,35,0.25);color:var(--amber);font-size:0.7rem;font-weight:600;cursor:pointer;font-family:var(--sans)}
+.cap-btn:hover{background:rgba(245,166,35,0.22)}
+
+/* TRADES */
+.trade-row{display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border-radius:8px;background:rgba(74,222,128,0.05);border-left:2px solid rgba(74,222,128,0.3);margin-bottom:4px;font-size:0.78rem}
+.t-price{font-family:var(--mono);font-weight:500;color:var(--green)}
+.t-detail{color:var(--text3);font-size:0.72rem}
+.t-time{font-family:var(--mono);font-size:0.65rem;color:var(--text3)}
+
+/* PRESETS */
+.preset-btn{padding:5px 10px;border-radius:7px;background:var(--bg4);border:1px solid var(--border2);font-size:0.74rem;color:var(--text2);cursor:pointer;font-family:var(--sans)}
+.preset-btn:hover{color:var(--text)}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:9px 18px;border-radius:9px;font-size:0.82rem;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;z-index:999;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="index.html">DERIVATIVES<span>LAB</span></a>
+  <div class="nav-links">
+    <a href="index.html">← Home</a>
+    <a href="price-discovery-projector.html" target="_blank">Projector ↗</a>
+    <a href="price-discovery.html" target="_blank">Student view ↗</a>
+    <a href="#" onclick="logout()" style="color:var(--text3)">Log out</a>
+  </div>
+  <div class="badge-i">INSTRUCTOR</div>
+</nav>
+
+<!-- AUTH -->
+<div id="authScreen">
+  <div class="auth-card">
+    <div class="auth-title">Instructor Access</div>
+    <p class="auth-sub">Enter password to access game controls</p>
+    <div class="fi"><label>Password</label><input id="pwInput" type="password" placeholder="Instructor password" onkeydown="if(event.key==='Enter')doAuth()"/></div>
+    <button class="btn btn-amber btn-full" onclick="doAuth()">Unlock →</button>
+  </div>
+</div>
+
+<!-- CONSOLE -->
+<div id="console" style="display:none">
+<main>
+
+  <!-- ══ SETUP — always first ══ -->
+  <div id="setupPanel">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+      <h2 style="font-family:var(--serif);font-size:1.6rem">New Game Setup</h2>
+      <button class="btn btn-ghost" id="resumeBtn" style="display:none" onclick="showControl()">Resume active game →</button>
+    </div>
+
+    <div class="grid2 mb16">
+      <!-- LEFT: Asset + structure -->
+      <div class="card">
+        <div class="card-title">Asset &amp; structure</div>
+        <div class="fi"><label>Asset name</label><input id="assetName" value="Nifty Index"/></div>
+        <div class="fi"><label>Symbol</label><input id="assetSymbol" value="NIFTY"/></div>
+        <div class="fi"><label>Reference price (₹)</label><input id="spotPrice" type="number" value="24800"/></div>
+        <div class="fi"><label>Number of rounds</label>
+          <select id="numRounds">
+            <option value="1">1 round</option>
+            <option value="2">2 rounds</option>
+            <option value="3" selected>3 rounds</option>
+            <option value="4">4 rounds</option>
+            <option value="5">5 rounds</option>
+          </select>
+        </div>
+        <div class="fi"><label>Starting capital per student (₹)</label><input id="defCapital" type="number" value="500000"/></div>
+        <div class="fi"><label>Position limit (per student)</label><input id="posLimit" type="number" value="10" min="1"/></div>
+      </div>
+
+      <!-- RIGHT: Instrument -->
+      <div class="card">
+        <div class="card-title">Instrument — select one</div>
+
+        <div class="inst-cards" id="instCards">
+          <div class="ic active" id="ic-spot" onclick="pickInst('spot',this)">
+            <div class="ic-name">Spot</div>
+            <div class="ic-sub">Shares · No expiry</div>
+          </div>
+          <div class="ic" id="ic-futures" onclick="pickInst('futures',this)">
+            <div class="ic-name">Futures</div>
+            <div class="ic-sub">Lots · Expiry date</div>
+          </div>
+          <div class="ic" id="ic-options" onclick="pickInst('options',this)">
+            <div class="ic-name">Options</div>
+            <div class="ic-sub">Lots · Strike · Module 3</div>
+          </div>
+        </div>
+
+        <!-- Spot info -->
+        <div id="cfg-spot" style="padding:10px;background:rgba(45,212,191,0.04);border:1px solid rgba(45,212,191,0.12);border-radius:9px;margin-bottom:12px">
+          <div style="font-family:var(--mono);font-size:0.6rem;color:var(--teal);margin-bottom:4px">SPOT CONTRACT</div>
+          <div style="font-size:0.82rem;color:var(--text2);line-height:1.5">Students trade directly in <strong style="color:var(--text)">shares</strong>. No lot size, no expiry. Price is whatever the market discovers. Settlement at round end.</div>
+        </div>
+
+        <!-- Futures config -->
+        <div id="cfg-futures" style="display:none;padding:10px;background:rgba(45,212,191,0.04);border:1px solid rgba(45,212,191,0.12);border-radius:9px;margin-bottom:12px">
+          <div style="font-family:var(--mono);font-size:0.6rem;color:var(--teal);margin-bottom:8px">FUTURES CONTRACT</div>
+          <div class="fi" style="margin-bottom:8px"><label>Lot size (shares per lot)</label><input id="lotSize" type="number" value="50" min="1"/></div>
+          <div class="fi" style="margin-bottom:8px"><label>Contract month</label>
+            <select id="futuresExpiry">
+              <option value="near">Near Month (current month)</option>
+              <option value="next">Next Month</option>
+              <option value="far">Far Month (month after next)</option>
+            </select>
+          </div>
+          <div class="fi" style="margin-bottom:0"><label>Expiry date shown to students</label><input id="expiryLabel" value="27-Jun-2026" placeholder="e.g. 27-Jun-2026"/></div>
+        </div>
+
+        <!-- Options config -->
+        <div id="cfg-options" style="display:none;padding:10px;background:rgba(167,139,250,0.05);border:1px solid rgba(167,139,250,0.15);border-radius:9px;margin-bottom:12px">
+          <div style="font-family:var(--mono);font-size:0.6rem;color:var(--violet);margin-bottom:8px">OPTIONS CONTRACT · Module 3</div>
+          <div class="fi" style="margin-bottom:8px"><label>Lot size</label><input id="optLotSize" type="number" value="50"/></div>
+          <div class="fi" style="margin-bottom:8px"><label>Strike price (₹)</label><input id="optStrike" type="number" value="24800"/></div>
+          <div class="fi" style="margin-bottom:8px"><label>Option type</label>
+            <select id="optType"><option value="call">Call Option</option><option value="put">Put Option</option></select>
+          </div>
+          <div class="fi" style="margin-bottom:0"><label>Expiry label</label><input id="optExpiry" value="Jun 2026"/></div>
+        </div>
+
+        <div class="fi"><label>Round 1 — information cue for students</label>
+          <textarea id="round1Cue" placeholder="What do students know at the start? e.g. 'Nifty is trading at ₹24,800. RBI policy decision pending.'"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-amber btn-full" id="createBtn" onclick="createGame()">Create Game &amp; Get Code →</button>
+  </div>
+
+  <!-- ══ CONTROL PANEL ══ -->
+  <div id="controlPanel" style="display:none">
+
+    <!-- Header -->
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+      <div>
+        <div style="font-family:var(--serif);font-size:1.4rem;margin-bottom:3px" id="cpAsset">—</div>
+        <div style="font-family:var(--mono);font-size:0.68rem;color:var(--text3)" id="cpMeta">—</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <div class="spill s-waiting" id="cpStatus"><div class="s-dot"></div><span id="cpStatusTxt">Waiting</span></div>
+        <button class="btn btn-ghost" onclick="showSetup()">+ New Game</button>
+        <a class="btn btn-ghost" href="price-discovery-projector.html" target="_blank">Projector ↗</a>
+      </div>
+    </div>
+
+    <!-- Game code -->
+    <div class="code-box">
+      <div>
+        <div class="cb-label">Game code — students enter this on their phones</div>
+        <div class="cb-code" id="cpCode">—</div>
+        <div class="cb-url">chakrapanichaturvedula.github.io/FD/price-discovery.html</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-family:var(--mono);font-size:0.6rem;color:var(--text3);margin-bottom:4px">Students joined</div>
+        <div style="font-family:var(--mono);font-size:2rem;color:var(--violet)" id="cpJoined">0</div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stat-row mb16">
+      <div class="sbox"><div class="sbox-val" id="statOrders">0</div><div class="sbox-lbl">Open orders</div></div>
+      <div class="sbox"><div class="sbox-val" id="statTrades">0</div><div class="sbox-lbl">Trades</div></div>
+      <div class="sbox"><div class="sbox-val" id="statOI">0</div><div class="sbox-lbl">Open interest</div></div>
+      <div class="sbox"><div class="sbox-val" id="statLTP">—</div><div class="sbox-lbl">LTP</div></div>
+      <div class="sbox"><div class="sbox-val" id="statSpread">—</div><div class="sbox-lbl">Spread</div></div>
+    </div>
+
+    <div class="grid2 mb16">
+
+      <!-- LEFT -->
+      <div style="display:flex;flex-direction:column;gap:14px">
+
+        <!-- Round control -->
+        <div class="card">
+          <div class="card-title">Round control</div>
+          <div style="display:flex;gap:5px;margin-bottom:12px" id="cpProgress"></div>
+
+          <!-- Cue box -->
+          <div style="background:rgba(245,166,35,0.05);border:1px solid rgba(245,166,35,0.15);border-radius:9px;padding:12px;margin-bottom:12px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+              <div style="font-family:var(--mono);font-size:0.58rem;color:var(--amber);text-transform:uppercase;letter-spacing:0.08em">Information cue</div>
+              <div id="cpInstBadge" style="font-family:var(--mono);font-size:0.62rem;padding:2px 8px;border-radius:5px;background:rgba(45,212,191,0.1);border:1px solid rgba(45,212,191,0.2);color:var(--teal)">SPOT</div>
+            </div>
+            <div style="font-size:0.86rem;color:var(--text);line-height:1.6" id="cpCue">—</div>
+          </div>
+
+          <!-- Round buttons -->
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+            <button class="btn btn-green" id="btnOpen" onclick="openRound()">▶ Open Round</button>
+            <button class="btn btn-red" id="btnClose" onclick="closeRound()" style="display:none">■ Close Round</button>
+            <button class="btn btn-ghost" id="btnPause" onclick="pauseRound()" style="display:none">⏸ Pause</button>
+            <button class="btn btn-red" onclick="endGame()" style="margin-left:auto">End Game</button>
+          </div>
+
+          <!-- Next round form (no instrument change — fixed at game creation) -->
+          <div id="nextRoundForm" style="display:none;padding:12px;background:var(--bg3);border-radius:10px;border:1px solid var(--border)">
+            <div style="font-family:var(--mono);font-size:0.58rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">Next round — information cue</div>
+            <textarea id="nextCueInput" style="width:100%;padding:9px 12px;border-radius:8px;background:var(--bg4);border:1.5px solid var(--border2);color:var(--text);font-size:0.84rem;outline:none;resize:vertical;min-height:60px;line-height:1.5;font-family:var(--sans);margin-bottom:8px" placeholder="New information for students in this round..."></textarea>
+            <button class="btn btn-amber" onclick="nextRound()">→ Start Next Round</button>
+          </div>
+
+          <!-- Settlement -->
+          <div id="settleCard" style="display:none;padding:12px;background:rgba(245,166,35,0.04);border:1px solid rgba(245,166,35,0.2);border-radius:10px;margin-top:8px">
+            <div style="font-family:var(--mono);font-size:0.58rem;color:var(--amber);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">Settle this round</div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <input id="settlePrice" type="number" style="flex:1;min-width:120px;padding:9px 12px;border-radius:8px;background:var(--bg3);border:1.5px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:0.9rem;outline:none" placeholder="Settlement price (₹)"/>
+              <button class="btn btn-amber" onclick="settleRound()">Settle →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Announcements -->
+        <div class="card">
+          <div class="card-title">Announcements</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+            <button class="preset-btn" onclick="sendAnn('📈 Fundamental value is HIGHER than current market price')">📈 Value higher</button>
+            <button class="preset-btn" onclick="sendAnn('📉 Fundamental value is LOWER than current market price')">📉 Value lower</button>
+            <button class="preset-btn" onclick="sendAnn('📰 No new information — trade on current signals')">😐 No news</button>
+          </div>
+          <div style="display:flex;gap:8px">
+            <input id="annInput" style="flex:1;padding:8px 12px;border-radius:8px;background:var(--bg3);border:1.5px solid var(--border2);color:var(--text);font-size:0.84rem;outline:none" placeholder="Custom message..."/>
+            <button class="btn btn-violet" onclick="sendCustomAnn()">Send 📢</button>
+          </div>
+        </div>
+
+        <!-- Order book -->
+        <div class="card">
+          <div class="card-title">Live order book</div>
+          <div class="spread-bar" id="obSpread">No orders yet</div>
+          <div class="ob-split">
+            <div class="ob-col"><div class="ob-hdr bids">BIDS</div><div id="obBids"></div></div>
+            <div class="ob-col"><div class="ob-hdr asks">ASKS</div><div id="obAsks"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div style="display:flex;flex-direction:column;gap:14px">
+
+        <!-- Students + capital -->
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+            <div class="card-title" style="margin-bottom:0">Students &amp; capital</div>
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-ghost" style="font-size:0.72rem;padding:5px 10px" onclick="equaliseAll()">Equalise all</button>
+              <button class="btn btn-ghost" style="font-size:0.72rem;padding:5px 10px" onclick="carryPnl()">Carry P&amp;L</button>
+            </div>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="stud-tbl">
+              <thead><tr><th>Student</th><th>Position</th><th>P&amp;L</th><th>Capital</th><th>Set capital</th></tr></thead>
+              <tbody id="studBody"></tbody>
+            </table>
+          </div>
+          <div style="margin-top:10px;padding:10px 12px;background:var(--bg3);border-radius:9px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <span style="font-family:var(--mono);font-size:0.62rem;color:var(--text3);white-space:nowrap">ADD ₹ TO ALL:</span>
+            <input id="bulkCapInput" type="number" class="cap-inp" style="width:110px;flex:1" placeholder="Amount"/>
+            <button class="cap-btn" onclick="bulkAdd()">Apply to all</button>
+          </div>
+        </div>
+
+        <!-- Recent trades -->
+        <div class="card">
+          <div class="card-title">Recent trades</div>
+          <div id="tradeLog" style="max-height:200px;overflow-y:auto"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="site-config.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+if(window.DLabConfig?.firebase?.apiKey) firebase.initializeApp(window.DLabConfig.firebase);
+</script>
+<script src="pd-firebase.js"></script>
+<script>
+const SECRET = 'IMTFD26_INSTRUCTOR';
+let gs = null;
+let _gameLoaded = false;
+let _authed = false;
+
+const fmt   = n => n==null?'—':new Intl.NumberFormat('en-IN').format(Math.round(n));
+const fmtRs = n => '₹'+fmt(n);
+const fmtSign = n => (n>=0?'+₹':'−₹')+fmt(Math.abs(n));
+function toast(m,d=2500){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),d)}
+
+/* ── AUTH — persists across refresh via sessionStorage ── */
+function doAuth(){
+  if(document.getElementById('pwInput').value.trim()===SECRET){
+    sessionStorage.setItem('pd_auth','1');
+    _activate();
+  } else { document.getElementById('pwInput').value=''; toast('Incorrect password'); }
+}
+document.getElementById('pwInput').addEventListener('keydown',e=>{ if(e.key==='Enter') doAuth(); });
+
+function _activate(){
+  _authed = true;
+  document.getElementById('authScreen').style.display='none';
+  document.getElementById('console').style.display='block';
+  PD.init(onState);
+  toast('Access granted ✓');
+}
+
+// On page load: check if already authed this session
+window.addEventListener('DOMContentLoaded', () => {
+  if(sessionStorage.getItem('pd_auth')==='1'){
+    _activate();
+  }
+});
+
+let selectedInst = 'spot';
+
+function logout(){
+  sessionStorage.removeItem('pd_auth');
+  PD.stopMatching();
+  location.reload();
+}
+
+// Warn before closing if matching engine is active
+window.addEventListener('beforeunload', e => {
+  if(gs?.status === 'open'){
+    e.preventDefault();
+    e.returnValue = 'The matching engine is running. Closing this tab will stop trade matching. Close anyway?';
+  }
+});
+function pickInst(inst, el){
+  selectedInst = inst;
+  document.querySelectorAll('#instCards .ic').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  ['spot','futures','options'].forEach(i=>{
+    document.getElementById('cfg-'+i).style.display = i===inst ? 'block' : 'none';
+  });
+}
+
+/* ── SETUP ── */
+function showSetup(){
+  _gameLoaded=false;
+  document.getElementById('setupPanel').style.display='block';
+  document.getElementById('controlPanel').style.display='none';
+}
+function showControl(){
+  _gameLoaded=true;   // mark as loaded so onState renders into control panel
+  document.getElementById('setupPanel').style.display='none';
+  document.getElementById('controlPanel').style.display='block';
+  // Immediately re-render with current game state if we have it
+  if(gs) onState(gs);
+}
+
+async function createGame(){
+  const assetName = document.getElementById('assetName').value.trim();
+  const roundCue  = document.getElementById('round1Cue').value.trim();
+  if(!assetName){ toast('Enter an asset name'); return; }
+  if(!roundCue){ toast('Enter a Round 1 cue'); return; }
+
+  // Build instrument config
+  let instConfig = { instrument: selectedInst };
+  if(selectedInst==='futures'){
+    instConfig.lotSize      = parseInt(document.getElementById('lotSize').value)||50;
+    instConfig.futuresExpiry= document.getElementById('futuresExpiry').value;
+    instConfig.expiryLabel  = document.getElementById('expiryLabel').value.trim();
+  } else if(selectedInst==='options'){
+    instConfig.lotSize      = parseInt(document.getElementById('optLotSize').value)||50;
+    instConfig.optStrike    = parseFloat(document.getElementById('optStrike').value)||0;
+    instConfig.optType      = document.getElementById('optType').value;
+    instConfig.expiryLabel  = document.getElementById('optExpiry').value.trim();
+  } else {
+    instConfig.lotSize = 1; // spot: qty = shares directly
+  }
+
+  const params = {
+    assetName,
+    assetSymbol:    document.getElementById('assetSymbol').value.trim().toUpperCase(),
+    spotPrice:      parseFloat(document.getElementById('spotPrice').value)||0,
+    numRounds:      parseInt(document.getElementById('numRounds').value)||3,
+    positionLimit:  parseInt(document.getElementById('posLimit').value)||10,
+    defaultCapital: parseFloat(document.getElementById('defCapital').value)||500000,
+    roundCue,
+    ...instConfig
+  };
+
+  const btn = document.getElementById('createBtn');
+  btn.disabled=true; btn.textContent='Creating…';
+  const r = await PD.createGame(params);
+  btn.disabled=false; btn.textContent='Create Game & Get Code →';
+
+  if(r?.error){ toast('Error: '+r.error); return; }
+  _gameLoaded=true;
+  toast('Game created ✓  Code: '+r.gameCode);
+  showControl();
+}
+
+/* ── ROUND CONTROLS ── */
+async function openRound(){ const r=await PD.openRound(); r?.error?toast('Error: '+r.error):toast('Round open — students can now trade'); }
+async function closeRound(){ const r=await PD.closeRound(); r?.error?toast('Error: '+r.error):toast('Round closed'); }
+async function pauseRound(){ const r=await PD.pauseRound(); r?.error?toast('Error: '+r.error):toast('Paused'); }
+async function endGame(){ if(!confirm('End the game?'))return; const r=await PD.endGame(); r?.error?toast(r.error):toast('Game ended'); }
+async function nextRound(){
+  const cue=document.getElementById('nextCueInput').value.trim();
+  if(!cue){ toast('Enter a cue for the next round'); return; }
+  const r=await PD.nextRound({roundCue:cue});
+  if(r?.error){ toast('Error: '+r.error); return; }
+  document.getElementById('nextCueInput').value='';
+  toast('Next round started ✓');
+}
+async function settleRound(){
+  const p=parseFloat(document.getElementById('settlePrice').value);
+  if(!p||p<=0){ toast('Enter a settlement price'); return; }
+  const r=await PD.settleRound({settlementPrice:p});
+  r?.error?toast(r.error):toast('Settled at ₹'+fmt(p)+' ✓');
+}
+
+/* ── ANNOUNCEMENTS ── */
+async function sendAnn(msg){ const r=await PD.announce(msg); r?.error?toast(r.error):toast('Sent ✓'); }
+async function sendCustomAnn(){ const m=document.getElementById('annInput').value.trim(); if(!m)return; await sendAnn(m); document.getElementById('annInput').value=''; }
+
+/* ── CAPITAL ── */
+async function adjustCap(studentId,name){
+  const inp=document.getElementById('cap-'+studentId);
+  const val=parseFloat(inp.value);
+  if(!val||val<1000){ toast('Minimum ₹1,000'); return; }
+  const r=await PD.adjustCapital(studentId,val,'Instructor adjustment');
+  if(r?.error){ toast(r.error); return; }
+  toast(name+': set to '+fmtRs(val)+' ✓'); inp.value='';
+}
+async function equaliseAll(){
+  if(!gs?.defaultCapital){ toast('No active game'); return; }
+  if(!confirm('Reset everyone to '+fmtRs(gs.defaultCapital)+'?'))return;
+  for(const s of (gs.students||[])) await PD.adjustCapital(s.id,gs.defaultCapital,'Equalised');
+  toast('All capital equalised ✓');
+}
+async function carryPnl(){
+  if(!confirm('Carry P&L forward?'))return;
+  for(const s of (gs.students||[])){
+    const nc=(s.capitalRemaining||0)+(s.unrealisedPnl||0);
+    if(nc>=1000) await PD.adjustCapital(s.id,nc,'P&L carried forward');
+  }
+  toast('P&L carried forward ✓');
+}
+async function bulkAdd(){
+  const d=parseFloat(document.getElementById('bulkCapInput').value);
+  if(!d||d<=0){ toast('Enter a positive amount'); return; }
+  for(const s of (gs.students||[])) await PD.adjustCapital(s.id,(s.capitalRemaining||0)+d,'Bulk top-up');
+  document.getElementById('bulkCapInput').value='';
+  toast('Added '+fmtRs(d)+' to all ✓');
+}
+
+/* ── ORDER BOOK RENDER ── */
+function renderOB(ob, isSpot){
+  function agg(arr){ const m={}; arr.forEach(o=>{ const q=parseInt(o.remainingQty??o.qty??o.originalQty??0)||0; if(!m[o.price])m[o.price]={price:o.price,qty:0,names:[]}; m[o.price].qty+=q; if(o.trader)m[o.price].names.push(o.trader); }); return Object.values(m); }
+  const bids=agg(ob.bids||[]).sort((a,b)=>b.price-a.price).slice(0,8);
+  const asks=agg(ob.asks||[]).sort((a,b)=>a.price-b.price).slice(0,8);
+  const maxQ=Math.max(...bids.map(b=>b.qty),...asks.map(a=>a.qty),1);
+  const unit=isSpot?'sh':'L';
+  function rows(arr,type){
+    if(!arr.length)return`<div class="ob-empty">No ${type}s</div>`;
+    return arr.map(r=>{const w=Math.round(r.qty/maxQ*65);
+      return`<div class="ob-row"><div class="ob-bg ${type==='bid'?'ob-bid-bg':'ob-ask-bg'}" style="width:${w}%"></div><span class="${type==='bid'?'ob-pb':'ob-pa'}">${fmtRs(r.price)}</span><span class="ob-q">${r.qty}${unit}</span><span class="ob-who">${r.names.slice(0,2).join(',')}</span></div>`;
+    }).join('');
+  }
+  document.getElementById('obBids').innerHTML=rows(bids,'bid');
+  document.getElementById('obAsks').innerHTML=rows(asks,'ask');
+  const topBid=bids[0]?.price, topAsk=asks[0]?.price;
+  document.getElementById('obSpread').textContent=(topBid&&topAsk)?`Bid: ${fmtRs(topBid)}  Ask: ${fmtRs(topAsk)}  Spread: ${fmtRs(topAsk-topBid)}`:'No orders';
+}
+
+/* ── STUDENT TABLE ── */
+function renderStudents(students, isSpot){
+  const tbody=document.getElementById('studBody');
+  if(!students?.length){ tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text3)">No students joined yet</td></tr>`; return; }
+  const unit=isSpot?'sh':'L';
+  tbody.innerHTML=students.map(s=>{
+    const pos=s.netPosition||0;
+    const posLabel=pos===0?`<span class="pos-flat">Flat</span>`:pos>0?`<span class="pos-long">+${fmt(pos)}${unit}</span>`:`<span class="pos-short">${fmt(Math.abs(pos))}${unit} short</span>`;
+    const pnl=(s.realisedPnl||0)+(s.unrealisedPnl||0);
+    const nm=(s.name||s.id).replace(/'/g,'');
+    return`<tr>
+      <td style="font-weight:500">${s.name||s.id}</td>
+      <td>${posLabel}</td>
+      <td><span class="${pnl>=0?'pnl-pos':'pnl-neg'}">${fmtSign(pnl)}</span></td>
+      <td style="font-family:var(--mono);font-size:0.78rem">${fmtRs(s.capitalRemaining||0)}</td>
+      <td><div class="cap-row"><input class="cap-inp" id="cap-${s.id}" type="number" placeholder="New ₹"/><button class="cap-btn" onclick="adjustCap('${s.id}','${nm}')">Set</button></div></td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── TRADE LOG ── */
+function renderTrades(trades, isSpot){
+  const el=document.getElementById('tradeLog');
+  if(!trades?.length){ el.innerHTML='<div style="text-align:center;padding:14px;color:var(--text3);font-size:0.78rem;font-style:italic">No trades yet</div>'; return; }
+  const unit=isSpot?'sh':'L';
+  el.innerHTML=trades.slice(0,20).map(t=>{
+    const time=t.executedAt?new Date(t.executedAt.seconds?t.executedAt.seconds*1000:t.executedAt).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}):'—';
+    return`<div class="trade-row"><span class="t-price">${fmtRs(t.price)}</span><span class="t-detail">${t.qty}${unit}</span><span class="t-time">${time}</span></div>`;
+  }).join('');
+}
+
+/* ── INSTRUMENT BADGE ── */
+function instBadgeText(data){
+  if(data.instrument==='futures'){
+    const m={near:'Near Month',next:'Next Month',far:'Far Month'};
+    return'FUTURES · '+(m[data.futuresExpiry]||'')+(data.expiryLabel?' · '+data.expiryLabel:'');
+  }
+  if(data.instrument==='options') return'OPTIONS · '+(data.optType||'Call').toUpperCase()+' · ₹'+(data.optStrike||'—');
+  return'SPOT';
+}
+
+/* ── STATE HANDLER ── */
+function onState(data){
+  gs=data;
+
+  if(!data||data.status==='no_game'||!data.assetName){
+    // No game exists — show setup
+    if(document.getElementById('controlPanel').style.display!=='none'){
+      showSetup();
+    }
+    return;
+  }
+
+  // Game exists. If we haven't explicitly loaded one yet:
+  if(!_gameLoaded){
+    // Auto-resume to control panel if game is actively running
+    if(data.status==='open'||data.status==='paused'){
+      _gameLoaded=true;
+      document.getElementById('setupPanel').style.display='none';
+      document.getElementById('controlPanel').style.display='block';
+      // Also restart matching engine if round is open
+      if(data.status==='open') PD.startMatching();
+      toast('Resumed: '+data.assetName+' ('+data.gameCode+')');
+    } else {
+      // Game exists but not running — show resume button
+      document.getElementById('resumeBtn').style.display='inline-flex';
+      document.getElementById('resumeBtn').textContent=
+        `Resume: ${data.assetName} (${data.gameCode||'—'}) →`;
+      return; // don't update control panel yet
+    }
+  }
+
+  // Control panel is visible — update everything
+  if(document.getElementById('controlPanel').style.display==='none') return;
+
+  const isSpot = (data.instrument||'spot')==='spot';
+
+  // Header
+  document.getElementById('cpAsset').textContent=data.assetName+(data.assetSymbol?' ('+data.assetSymbol+')':'');
+  const unitLabel=isSpot?'shares':'lots · lot '+fmt(data.lotSize||50)+' shares';
+  document.getElementById('cpMeta').textContent=
+    'Ref price: '+fmtRs(data.spotPrice||0)+' · '+unitLabel+
+    ' · Round '+(data.currentRound||0)+'/'+(data.numRounds||0)+
+    ' · Capital: '+fmtRs(data.defaultCapital||0);
+  document.getElementById('cpCode').textContent=data.gameCode||'—';
+  document.getElementById('cpJoined').textContent=(data.students||[]).length;
+
+  // Status
+  const sm={waiting:'s-waiting Waiting',open:'s-open Trading Open',closed:'s-closed Closed',ended:'s-closed Ended',paused:'s-waiting Paused'};
+  const [cls,...words]=(sm[data.status]||'s-waiting Waiting').split(' ');
+  document.getElementById('cpStatus').className='spill '+cls;
+  document.getElementById('cpStatusTxt').textContent=words.join(' ');
+
+  // Progress
+  const prog=document.getElementById('cpProgress');
+  prog.innerHTML='';
+  for(let i=1;i<=(data.numRounds||3);i++){
+    const r=data.currentRound||0;
+    const d=document.createElement('div');
+    d.style.cssText=`flex:1;height:4px;border-radius:3px;background:${i<r?'var(--green)':i===r?'var(--amber)':'var(--bg3)'}`;
+    prog.appendChild(d);
+  }
+
+  // Cue + instrument badge
+  document.getElementById('cpCue').textContent=data.roundCue||'—';
+  document.getElementById('cpInstBadge').textContent=instBadgeText(data);
+
+  // Stats
+  const ob=data.orderBook||{bids:[],asks:[]};
+  const md=data.marketData||{};
+  document.getElementById('statOrders').textContent=(ob.bids?.length||0)+(ob.asks?.length||0);
+  document.getElementById('statTrades').textContent=(data.trades||[]).length;
+  document.getElementById('statOI').textContent=fmt(data.openInterest||0);
+  document.getElementById('statLTP').textContent=md.ltp?fmtRs(md.ltp):'—';
+  const topBid=ob.bids?.length?Math.max(...ob.bids.map(b=>b.price)):null;
+  const topAsk=ob.asks?.length?Math.min(...ob.asks.map(a=>a.price)):null;
+  document.getElementById('statSpread').textContent=(topBid&&topAsk)?fmtRs(topAsk-topBid):'—';
+
+  // Buttons
+  const s=data.status;
+  document.getElementById('btnOpen').style.display=(s==='waiting'||s==='closed'||s==='paused')?'inline-flex':'none';
+  document.getElementById('btnClose').style.display=s==='open'?'inline-flex':'none';
+  document.getElementById('btnPause').style.display=s==='open'?'inline-flex':'none';
+  document.getElementById('nextRoundForm').style.display=(s==='closed'&&(data.currentRound||0)<(data.numRounds||3))?'block':'none';
+  document.getElementById('settleCard').style.display=s==='closed'?'block':'none';
+
+  renderOB(ob, isSpot);
+  renderStudents(data.students||[], isSpot);
+  renderTrades(data.trades||[], isSpot);
+}
+</script>
+</body>
+</html>
