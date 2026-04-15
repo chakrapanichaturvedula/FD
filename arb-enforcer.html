@@ -126,11 +126,11 @@ canvas{display:block;width:100%}
     </div>
     <div class="stat-card">
       <div class="stat-label">Futures</div>
-      <div class="stat-val" id="stFut" style="color:var(--amber)">22,198</div>
+      <div class="stat-val" id="stFut" style="color:var(--amber)">22,096</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">Basis</div>
-      <div class="stat-val" id="stBasis" style="color:var(--text2)">−198</div>
+      <div class="stat-val" id="stBasis" style="color:var(--text2)">0</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">vs Fair</div>
@@ -379,7 +379,7 @@ function draw() {
 
   // Update stats
   const curFV = fairVal(DAYS - simDay);
-  const curFut = curFV + futExtra + Math.max(0, 198 * (1 - simDay / DAYS));
+  const curFut = curFV + futExtra;
   const curBasis = S0 - curFut;
   const curDev = curFut - curFV;
 
@@ -417,8 +417,7 @@ function tick() {
   simDay += 0.3;
 
   const fv = fairVal(DAYS - simDay);
-  const naturalExtra = Math.max(0, 198 * (1 - simDay / DAYS));
-  const curFut = fv + futExtra + naturalExtra;
+  const curFut = fv + futExtra;
 
   history.push({ day: simDay, spot: S0, fut: curFut, fv });
 
@@ -438,8 +437,8 @@ function togglePlay() {
   document.getElementById('playBtn').textContent = playing ? '⏸ Pause' : '▶ Play';
   if (playing) {
     if (simDay === 0) {
-      history = [{ day: 0, spot: S0, fut: fairVal(DAYS) + 198, fv: fairVal(DAYS) }];
-      log('Simulation started. Nifty futures at fair value + ₹198 initial premium.', '');
+      history = [{ day: 0, spot: S0, fut: fairVal(DAYS), fv: fairVal(DAYS) }];
+      log('Simulation started. Futures = fair value. Hit "Inject Mispricing" to create a deviation.', '');
     }
     tick();
   }
