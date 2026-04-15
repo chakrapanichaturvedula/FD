@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Session 2.1 — Is This Fair? · DerivativesLab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0f1117;--bg2:#161b26;--bg3:#1e2535;--bg4:#252e42;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --amber:#f5a623;--amber2:#ffc75a;--teal:#2dd4bf;
+  --green:#4ade80;--red:#f87171;--blue:#60a5fa;--violet:#a78bfa;--coral:#fb923c;
+  --text:#e8eaf0;--text2:#8b91a8;--text3:#555e78;
+  --serif:'DM Serif Display',Georgia,serif;
+  --mono:'DM Mono','Courier New',monospace;
+  --sans:'DM Sans',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+a{text-decoration:none;color:inherit}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:56px;background:rgba(15,17,23,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--mono);font-size:0.82rem;color:var(--amber);letter-spacing:0.04em}
+.nav-logo span{color:var(--text2)}
+.nav-pill{display:flex;align-items:center;gap:10px}
+.nav-session{font-family:var(--mono);font-size:0.72rem;color:var(--text3)}
+.nav-next{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;background:var(--bg3);border:1px solid var(--border2);font-size:0.78rem;font-weight:600;color:var(--text2);transition:color .15s,border-color .15s}
+.nav-next:hover{color:var(--blue);border-color:rgba(96,165,250,0.3)}
+
+.shell{max-width:900px;margin:0 auto;padding:80px 24px 80px}
+
+.progress-meta{display:flex;justify-content:space-between;margin-bottom:6px}
+.progress-label{font-family:var(--mono);font-size:0.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em}
+.progress-bar{height:2px;background:var(--bg3);margin-bottom:28px;border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:var(--blue);border-radius:2px;transition:width .4s ease}
+
+.s-hero{padding:36px 40px;border-radius:28px;background:var(--bg2);border:1px solid var(--border2);margin-bottom:28px;position:relative;overflow:hidden}
+.s-hero::before{content:'';position:absolute;bottom:-40px;right:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(96,165,250,0.08) 0%,transparent 70%);pointer-events:none}
+.crumb{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:0.68rem;color:var(--text3);margin-bottom:14px}
+.crumb a{color:var(--text3);transition:color .15s}.crumb a:hover{color:var(--blue)}
+.s-kicker{font-family:var(--mono);font-size:0.68rem;color:var(--blue);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px}
+.s-hero h1{font-family:var(--serif);font-size:clamp(1.8rem,3vw,2.6rem);line-height:1.1;margin-bottom:8px}
+.s-hero p{color:var(--text2);font-size:0.9rem;max-width:520px}
+.s-outcomes{display:flex;flex-direction:column;gap:5px;margin-top:14px}
+.s-out{display:flex;align-items:flex-start;gap:8px;font-size:0.82rem;color:var(--text2)}
+.s-out::before{content:'→';color:var(--blue);font-family:var(--mono);flex-shrink:0}
+
+/* ACTIVITY CARD */
+.activity{background:var(--bg2);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-bottom:16px;transition:border-color .2s}
+.activity.done{border-color:rgba(74,222,128,0.25)}
+.activity-head{display:flex;align-items:center;gap:14px;padding:18px 22px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
+.act-num{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:10px;flex-shrink:0;background:var(--bg3);font-family:var(--mono);font-size:0.75rem;color:var(--text3);border:1px solid var(--border);transition:background .2s,color .2s,border-color .2s}
+.activity.done .act-num{background:rgba(74,222,128,0.1);color:var(--green);border-color:rgba(74,222,128,0.25)}
+.act-meta{flex:1}
+.act-tag{font-family:var(--mono);font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px}
+.act-title{font-size:0.95rem;font-weight:600}
+.act-check{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.65rem}
+.activity.done .act-check{background:var(--green);border-color:var(--green);color:#0f1117}
+.activity-body{padding:22px 24px}
+
+/* INTRO FRAME */
+.intro-frame{background:var(--bg3);border:1px solid var(--border2);border-radius:16px;padding:20px 24px;margin-bottom:20px}
+.intro-frame p{font-size:0.9rem;color:var(--text2);line-height:1.7}
+.intro-frame p+p{margin-top:10px}
+.intro-frame strong{color:var(--text)}
+
+/* CARD GAME */
+.card-progress{display:flex;gap:6px;margin-bottom:20px}
+.card-pip{height:4px;border-radius:3px;flex:1;background:var(--bg4);transition:background .3s}
+.card-pip.active{background:var(--blue)}
+.card-pip.done{background:var(--green)}
+
+.scenario-card{background:var(--bg3);border:1px solid var(--border2);border-radius:18px;padding:28px;margin-bottom:18px;min-height:160px;display:flex;flex-direction:column;gap:12px}
+.sc-label{font-family:var(--mono);font-size:0.65rem;color:var(--blue);text-transform:uppercase;letter-spacing:0.1em}
+.sc-scenario{font-size:1.05rem;font-weight:600;color:var(--text);line-height:1.5}
+.sc-scenario span{color:var(--amber)}
+.sc-question{font-size:0.88rem;color:var(--text2);margin-top:4px}
+
+.vote-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.vote-btn{flex:1;min-width:120px;padding:12px 16px;border-radius:12px;border:1.5px solid var(--border2);background:var(--bg3);cursor:pointer;font-family:var(--sans);font-size:0.85rem;font-weight:600;color:var(--text2);transition:all .15s;text-align:center}
+.vote-btn:hover:not(:disabled){color:var(--text);border-color:var(--border2);background:var(--bg4)}
+.vote-btn.cheap:hover:not(:disabled){border-color:var(--green);color:var(--green)}
+.vote-btn.fair:hover:not(:disabled){border-color:var(--blue);color:var(--blue)}
+.vote-btn.expensive:hover:not(:disabled){border-color:var(--red);color:var(--red)}
+.vote-btn:disabled{opacity:.5;cursor:default}
+.vote-btn.selected-correct{border-color:var(--green);background:rgba(74,222,128,0.08);color:var(--green)}
+.vote-btn.selected-wrong{border-color:var(--red);background:rgba(248,113,113,0.08);color:var(--red)}
+.vote-btn.reveal-correct{border-color:var(--green);background:rgba(74,222,128,0.06);color:var(--green)}
+
+.reveal-box{display:none;padding:16px 18px;border-radius:12px;margin-bottom:14px;font-size:0.88rem;line-height:1.65}
+.reveal-box.show{display:block}
+.reveal-box.correct{background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2)}
+.reveal-box.wrong{background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2)}
+.reveal-box .verdict{font-weight:700;margin-bottom:6px;font-size:0.9rem}
+.reveal-box.correct .verdict{color:var(--green)}
+.reveal-box.wrong .verdict{color:var(--red)}
+.reveal-box p{color:var(--text2)}
+.reveal-box p+p{margin-top:8px}
+.reveal-box .principle{display:inline-block;margin-top:10px;padding:5px 10px;border-radius:7px;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.2);color:var(--blue);font-family:var(--mono);font-size:0.72rem;letter-spacing:0.04em}
+
+.next-card-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:10px;background:var(--blue);color:#0f1117;font-weight:600;font-size:0.85rem;cursor:pointer;border:none;font-family:var(--sans);transition:opacity .15s;display:none}
+.next-card-btn:hover{opacity:.88}
+.next-card-btn.show{display:inline-flex}
+
+/* BRIDGE */
+.bridge-box{background:var(--bg3);border:1px solid rgba(96,165,250,0.25);border-radius:18px;padding:24px;margin-bottom:18px}
+.bridge-box h3{font-family:var(--serif);font-size:1.2rem;color:var(--blue);margin-bottom:10px}
+.bridge-box p{font-size:0.88rem;color:var(--text2);line-height:1.65}
+.bridge-box p+p{margin-top:8px}
+
+/* CONCEPT REVEAL */
+.concept-card{background:var(--bg3);border:1px solid var(--border2);border-radius:14px;padding:16px 18px;margin-top:12px}
+.concept-label{font-family:var(--mono);font-size:0.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px}
+.concept-formula{font-family:var(--mono);font-size:0.88rem;color:var(--blue);margin-bottom:4px}
+.concept-note{font-size:0.82rem;color:var(--text2)}
+
+/* SESSION NAV */
+.session-nav{display:flex;justify-content:space-between;align-items:center;margin-top:32px;padding-top:24px;border-top:1px solid var(--border)}
+.sn-back{display:inline-flex;align-items:center;gap:7px;padding:10px 18px;border-radius:10px;background:var(--bg3);border:1px solid var(--border2);font-size:0.85rem;font-weight:600;color:var(--text2);transition:color .15s}
+.sn-back:hover{color:var(--text)}
+.sn-next{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:10px;background:var(--blue);color:#0f1117;font-size:0.85rem;font-weight:600;transition:opacity .15s}
+.sn-next:hover{opacity:.88}
+.sn-info{font-family:var(--mono);font-size:0.72rem;color:var(--text3);text-align:center}
+
+@media(max-width:700px){
+  .s-hero{padding:24px 20px}
+  .activity-body{padding:16px 16px}
+  .vote-row{flex-direction:column}
+  .vote-btn{min-width:unset}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">DERIVATIVES<span>LAB</span></a>
+  <div class="nav-pill">
+    <span class="nav-session">Module 2 · Session 2.1 of 3</span>
+    <a class="nav-next" href="s2-2.html">Next: Session 2.2 →</a>
+  </div>
+</nav>
+
+<div class="shell">
+
+  <div class="progress-meta">
+    <span class="progress-label">Session Progress</span>
+    <span class="progress-label" id="progressTxt">0 of 7 complete</span>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="s-hero">
+    <div class="crumb"><a href="index.html">Home</a> <span>/</span> <a href="module2.html">Module 2</a> <span>/</span> <span>Session 2.1</span></div>
+    <div class="s-kicker">Session 2.1 · The Pen Game</div>
+    <h1>Is This Fair?</h1>
+    <p>No formula yet. Just reasoning. Work through six scenarios and vote on whether each forward price is too cheap, fair, or too expensive. You'll discover the rule yourself.</p>
+    <div class="s-outcomes">
+      <div class="s-out">Explain why a futures price can't deviate freely from spot price</div>
+      <div class="s-out">Identify the cost-of-carry bound from everyday logic</div>
+      <div class="s-out">Distinguish contango (futures &gt; spot) from backwardation (futures &lt; spot) and explain when each is correct</div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY 1: THE PEN GAME -->
+  <div class="activity" id="act1">
+    <div class="activity-head" onclick="toggleActivity('act1')">
+      <div class="act-num">1</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity · Flashcard Game</div>
+        <div class="act-title">The Pen Game — Vote on Each Price</div>
+      </div>
+      <div class="act-check" id="act1check"></div>
+    </div>
+    <div class="activity-body" id="act1body">
+      <div class="intro-frame">
+        <p>You are going to see six scenarios. Each one gives you a spot price and a forward/futures price. Your only job: vote on whether the forward price is <strong>Too Cheap</strong>, <strong>Fair</strong>, or <strong>Too Expensive</strong>.</p>
+        <p>No tricks. Use your gut. You already know the answer — you just don't know you know it yet.</p>
+      </div>
+
+      <div class="card-progress" id="cardPips"></div>
+      <div id="cardArea"></div>
+      <button class="next-card-btn" id="nextCardBtn" onclick="nextCard()">Next Scenario →</button>
+
+      <div id="allDoneBox" style="display:none;padding:20px;background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);border-radius:14px;text-align:center">
+        <div style="font-size:1.5rem;margin-bottom:8px">✓</div>
+        <div style="font-weight:600;color:var(--green);margin-bottom:6px">All six scenarios complete</div>
+        <div style="font-size:0.85rem;color:var(--text2)">You've just built the intuition behind the cost-of-carry model. The formula in Session 2.2 is just the maths for what you already know.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY 2: THE BRIDGE -->
+  <div class="activity" id="act2">
+    <div class="activity-head" onclick="toggleActivity('act2')">
+      <div class="act-num">2</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity · Bridge Exercise</div>
+        <div class="act-title">From Pen to Nifty — Apply the Same Logic</div>
+      </div>
+      <div class="act-check" id="act2check"></div>
+    </div>
+    <div class="activity-body" id="act2body">
+      <div class="bridge-box">
+        <h3>Same reasoning. Bigger numbers.</h3>
+        <p>Nifty 50 is at <strong style="color:var(--text)">₹22,000</strong> today. Someone offers you a Nifty futures contract expiring in <strong style="color:var(--text)">30 days</strong> at <strong style="color:var(--text)">₹22,800</strong>.</p>
+        <p>Before you look at any formula — is that too expensive, too cheap, or fair? What is your gut telling you?</p>
+      </div>
+
+      <div style="margin-bottom:16px">
+        <p style="font-size:0.88rem;color:var(--text2);margin-bottom:12px">Think about what you'd need to make the purchase at ₹22,800 worth it versus just buying spot at ₹22,000 today…</p>
+        <div class="vote-row" id="bridgeVotes">
+          <button class="vote-btn cheap" onclick="bridgeVote('cheap')">Too Cheap — buy it!</button>
+          <button class="vote-btn fair" onclick="bridgeVote('fair')">Roughly Fair</button>
+          <button class="vote-btn expensive" onclick="bridgeVote('expensive')">Too Expensive</button>
+        </div>
+      </div>
+
+      <div class="reveal-box" id="bridgeReveal"></div>
+
+      <div id="bridgeCalc" style="display:none">
+        <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:14px;padding:18px 20px;margin-top:14px">
+          <div style="font-family:var(--mono);font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px">What the numbers actually say</div>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:0.88rem">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+              <span style="color:var(--text2)">Nifty spot</span>
+              <span style="font-family:var(--mono);color:var(--text)">₹22,000</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+              <span style="color:var(--text2)">Financing cost (6.5% × 30/365)</span>
+              <span style="font-family:var(--mono);color:var(--blue)">+ ₹117.5</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+              <span style="color:var(--text2)">Dividends foregone (1.2% × 30/365)</span>
+              <span style="font-family:var(--mono);color:var(--red)">− ₹21.7</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0 4px">
+              <span style="font-weight:600;color:var(--text)">Fair futures price</span>
+              <span style="font-family:var(--mono);font-weight:600;color:var(--green)">≈ ₹22,095.8</span>
+            </div>
+          </div>
+          <div style="margin-top:14px;padding:10px 14px;background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2);border-radius:10px;font-size:0.82rem;color:var(--text2)">
+            The offer of <strong style="color:var(--red)">₹22,800</strong> is <strong style="color:var(--red)">₹704 above fair value</strong>. You could buy spot at ₹22,000, earn dividends, and replicate the exact same exposure for far less. Session 2.2 builds this formula step by step.
+          </div>
+        </div>
+        <button onclick="completeBridge()" style="margin-top:14px;padding:10px 20px;border-radius:10px;background:var(--blue);color:#0f1117;font-weight:600;font-size:0.85rem;cursor:pointer;border:none;font-family:var(--sans)">Got it — on to Session 2.2 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY 3: CONCEPT SUMMARY -->
+  <div class="activity" id="act3">
+    <div class="activity-head" onclick="toggleActivity('act3')">
+      <div class="act-num">3</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity · Concept Lock-In</div>
+        <div class="act-title">The Rules You Just Discovered</div>
+      </div>
+      <div class="act-check" id="act3check"></div>
+    </div>
+    <div class="activity-body" id="act3body">
+      <p style="font-size:0.88rem;color:var(--text2);margin-bottom:16px">Every answer you gave in the Pen Game was based on one of three rules. Here they are named:</p>
+
+      <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px">
+        <div class="concept-card">
+          <div class="concept-label">Rule 1 — Upper Bound</div>
+          <div class="concept-formula">Futures price ≤ Spot + Cost of Carry</div>
+          <div class="concept-note">If futures price exceeds this, anyone can buy spot and short futures for a guaranteed profit. Market forces push it back down.</div>
+        </div>
+        <div class="concept-card">
+          <div class="concept-label">Rule 2 — Lower Bound</div>
+          <div class="concept-formula">Futures price ≥ Spot + Cost of Carry − Benefits of Holding</div>
+          <div class="concept-note">If futures price falls below this, anyone can short spot and buy futures for a guaranteed profit. Market forces push it back up.</div>
+        </div>
+        <div class="concept-card">
+          <div class="concept-label">Rule 3 — Fair Value</div>
+          <div class="concept-formula">Fair Futures = Spot × (1 + rate − dividend_yield) × (DTE/365)</div>
+          <div class="concept-note">The only price that cannot be arbitraged. When an asset pays income (dividends, convenience yield), futures &lt; spot is completely normal — not bearish.</div>
+        </div>
+      </div>
+
+      <div style="background:rgba(96,165,250,0.06);border:1px solid rgba(96,165,250,0.2);border-radius:14px;padding:16px 18px;font-size:0.85rem;color:var(--text2);margin-bottom:18px">
+        <strong style="color:var(--blue)">Contango vs Backwardation in plain terms:</strong><br><br>
+        <strong style="color:var(--text)">Contango</strong> (futures &gt; spot): Normal for equity indices. You pay a financing premium because capital is deferred.<br><br>
+        <strong style="color:var(--text)">Backwardation</strong> (futures &lt; spot): Normal when the asset pays strong income or has high convenience yield. Holding the physical asset is worth more than holding the promise of it.
+      </div>
+
+      <button onclick="completeAct3()" style="padding:10px 20px;border-radius:10px;background:var(--blue);color:#0f1117;font-weight:600;font-size:0.85rem;cursor:pointer;border:none;font-family:var(--sans)">Mark Complete ✓</button>
+    </div>
+  </div>
+
+  <!-- SESSION NAV -->
+  <div class="session-nav">
+    <a class="sn-back" href="module2.html">← Module 2 Home</a>
+    <div class="sn-info">Session 2.1 of 3</div>
+    <a class="sn-next" href="s2-2.html">Session 2.2: Build the Fair Price →</a>
+  </div>
+
+</div>
+
+<script>
+// ── DATA ────────────────────────────────────────────────────────────────────
+const cards = [
+  {
+    label: "Scenario 1 of 6 · Everyday Object",
+    scenario: "A pen costs <span>₹10</span> today at the stationery shop. Someone offers you a contract: <span>\"I will deliver you this exact pen one month from now, for ₹100.\"</span>",
+    question: "Do you take this contract? Is ₹100 too cheap, fair, or too expensive?",
+    answer: "expensive",
+    verdict: "Too expensive — obviously.",
+    explanation: "You could walk to the shop today, buy the pen for ₹10, put it in your drawer, and use it in a month. Paying ₹100 for the same outcome is irrational. The pen-in-one-month is worth ₹10 plus whatever tiny carrying cost (maybe a few paise to store it). Nothing more.",
+    explanation2: "",
+    principle: "If futures price > spot + cost of carry → don't buy the futures"
+  },
+  {
+    label: "Scenario 2 of 6 · The Other Direction",
+    scenario: "Same pen. Same shop. Same ₹10 price. Now someone offers: <span>\"I will deliver you this pen one month from now for ₹2.\"</span>",
+    question: "You don't own a pen yet. Should you sign this contract?",
+    answer: "cheap",
+    verdict: "Too cheap — this can't survive.",
+    explanation: "Yes, you'd sign it instantly. Everyone would. Why buy the pen today at ₹10 when you can lock in a ₹2 delivery? But as everyone rushes to sign, the seller either runs out of pens or raises the price. A ₹2 forward in a ₹10 spot world disappears immediately.",
+    explanation2: "Markets can't sustain prices below cost either. The lower bound is enforced by demand flooding in.",
+    principle: "If futures price < spot + carry − benefits → the futures are too cheap, buy them"
+  },
+  {
+    label: "Scenario 3 of 6 · Exact Fair Value",
+    scenario: "Pen costs <span>₹10</span> today. You have ₹10 in your pocket. If you spend it now, you lose one month of interest. Bank rate is <span>6% per year</span> (≈ 0.5% per month). One month forward: <span>₹10.05</span>.",
+    question: "Is ₹10.05 too cheap, fair, or too expensive?",
+    answer: "fair",
+    verdict: "Fair — this is exactly the cost of carry.",
+    explanation: "If you buy the pen today, you tie up ₹10 of capital for one month. That capital could earn 0.5% in interest = ₹0.05. So the forward seller is asking you to reimburse their financing cost of ₹0.05. Neither side has an edge.",
+    explanation2: "Fair value = ₹10 + ₹10 × 0.5% = ₹10.05. This is the cost-of-carry formula in its simplest form.",
+    principle: "Fair futures price = Spot + Spot × rate × time"
+  },
+  {
+    label: "Scenario 4 of 6 · An Asset That Pays You",
+    scenario: "Pen costs <span>₹10</span> today. But this pen is magical — it drips <span>₹0.20 worth of free ink</span> during the month. If you hold the pen, you get the ink. If you hold the forward contract, you get nothing until delivery. Forward price: <span>₹9.85</span>.",
+    question: "Is ₹9.85 for the one-month forward too cheap, fair, or too expensive?",
+    answer: "fair",
+    verdict: "Fair — and futures below spot is perfectly normal here.",
+    explanation: "Holding the actual pen earns you ₹0.20 of ink during the month. The forward holder misses this income. So the forward is worth less than spot — specifically: spot + carry (₹0.05) − ink benefit (₹0.20) = ₹9.85.",
+    explanation2: "When the asset pays income — dividends, coupon, convenience yield — futures CAN and SHOULD be below spot. This is called backwardation. It is not bearish. It is mathematics.",
+    principle: "Backwardation = futures < spot — happens when income from holding the asset is large"
+  },
+  {
+    label: "Scenario 5 of 6 · A Storage-Cost Asset",
+    scenario: "You want a one-month forward on a <span>gold bar</span>. Spot price: <span>₹60,000</span>. The vault charges <span>₹300/month</span> to store it. Bank rate: 6%/year (₹300 interest on ₹60,000 for 30 days). Forward price: <span>₹60,600</span>.",
+    question: "Is ₹60,600 too cheap, fair, or too expensive?",
+    answer: "fair",
+    verdict: "Fair — storage cost assets are always in deep contango.",
+    explanation: "Gold pays no dividends and costs money to store. The forward holder avoids ₹300 in storage and foregoes ₹300 in interest. Total carry = ₹600. Fair forward = ₹60,000 + ₹600 = ₹60,600.",
+    explanation2: "This is why commodity futures are almost always above spot (contango). The 'carry' for oil, wheat, or gold includes physical storage — which can be large.",
+    principle: "Storage-cost assets: futures always in contango · income-paying assets: backwardation possible"
+  },
+  {
+    label: "Scenario 6 of 6 · Stock Market",
+    scenario: "Nifty 50 spot index: <span>₹22,000</span>. Risk-free rate: <span>6.5%/year</span>. Nifty dividend yield: <span>1.2%/year</span>. Days to expiry: <span>30 days</span>. Three Nifty futures prices are on offer — which one is roughly fair?",
+    question: "Which price is closest to fair value?",
+    answer: "fair",
+    isTriple: true,
+    options: ["₹22,095  ← this one", "₹21,800  ← this one", "₹22,600  ← this one"],
+    correctIdx: 0,
+    verdict: "₹22,095 is the fair value.",
+    explanation: "Carry = ₹22,000 × (6.5% − 1.2%) × 30/365 = ₹22,000 × 5.3% × 0.0822 = ≈ ₹95.8. Fair futures ≈ ₹22,096.",
+    explanation2: "₹21,800 would be too cheap — arbitrageurs would short spot and buy futures immediately. ₹22,600 would be too expensive — they'd buy spot and short futures. Only the fair value region survives in a competitive market.",
+    principle: "Nifty fair value = Spot × (1 + (r − d) × T/365)"
+  }
+];
+
+let currentCard = 0;
+let completedCards = 0;
+let activityProgress = {act1: false, act2: false, act3: false};
+
+function updateProgress() {
+  const done = Object.values(activityProgress).filter(Boolean).length;
+  const total = 7; // 6 cards + bridge + concepts
+  const pct = Math.round((completedCards + (activityProgress.act2?1:0) + (activityProgress.act3?1:0)) / total * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressTxt').textContent = (completedCards + (activityProgress.act2?1:0) + (activityProgress.act3?1:0)) + ' of ' + total + ' complete';
+}
+
+function buildPips() {
+  const container = document.getElementById('cardPips');
+  container.innerHTML = '';
+  cards.forEach((_, i) => {
+    const pip = document.createElement('div');
+    pip.className = 'card-pip' + (i === 0 ? ' active' : '');
+    pip.id = 'pip' + i;
+    container.appendChild(pip);
+  });
+}
+
+function renderCard(idx) {
+  const c = cards[idx];
+  const area = document.getElementById('cardArea');
+
+  if (c.isTriple) {
+    area.innerHTML = `
+      <div class="scenario-card">
+        <div class="sc-label">${c.label}</div>
+        <div class="sc-scenario">${c.scenario}</div>
+        <div class="sc-question">${c.question}</div>
+      </div>
+      <div class="vote-row" id="tripleVotes">
+        ${c.options.map((o,i) => `<button class="vote-btn fair" onclick="tripleVote(${i})" id="tv${i}">${o}</button>`).join('')}
+      </div>
+      <div class="reveal-box" id="revealBox"></div>`;
+  } else {
+    area.innerHTML = `
+      <div class="scenario-card">
+        <div class="sc-label">${c.label}</div>
+        <div class="sc-scenario">${c.scenario}</div>
+        <div class="sc-question">${c.question}</div>
+      </div>
+      <div class="vote-row" id="voteRow">
+        <button class="vote-btn cheap" onclick="vote('cheap')">Too Cheap</button>
+        <button class="vote-btn fair" onclick="vote('fair')">Fair Price</button>
+        <button class="vote-btn expensive" onclick="vote('expensive')">Too Expensive</button>
+      </div>
+      <div class="reveal-box" id="revealBox"></div>`;
+  }
+  document.getElementById('nextCardBtn').className = 'next-card-btn';
+}
+
+function vote(choice) {
+  const c = cards[currentCard];
+  const correct = choice === c.answer;
+  const btns = document.querySelectorAll('#voteRow .vote-btn');
+  btns.forEach(b => b.disabled = true);
+
+  btns.forEach(b => {
+    if (b.classList.contains(c.answer)) b.classList.add('reveal-correct');
+  });
+  document.querySelectorAll('#voteRow .vote-btn')[['cheap','fair','expensive'].indexOf(choice)].classList.add(correct ? 'selected-correct' : 'selected-wrong');
+
+  showReveal(correct);
+}
+
+function tripleVote(idx) {
+  const c = cards[currentCard];
+  const correct = idx === c.correctIdx;
+  const btns = document.querySelectorAll('#tripleVotes .vote-btn');
+  btns.forEach(b => b.disabled = true);
+  btns[c.correctIdx].classList.add('selected-correct');
+  if (!correct) btns[idx].classList.add('selected-wrong');
+  showReveal(correct);
+}
+
+function showReveal(correct) {
+  const c = cards[currentCard];
+  const box = document.getElementById('revealBox');
+  box.className = 'reveal-box show ' + (correct ? 'correct' : 'wrong');
+  box.innerHTML = `
+    <div class="verdict">${correct ? '✓ Correct.' : '✗ Not quite — but here\'s why.'}</div>
+    <p>${c.verdict}</p>
+    <p>${c.explanation}</p>
+    ${c.explanation2 ? `<p>${c.explanation2}</p>` : ''}
+    <span class="principle">${c.principle}</span>`;
+
+  completedCards++;
+  updateProgress();
+  const nextBtn = document.getElementById('nextCardBtn');
+  nextBtn.textContent = currentCard < cards.length - 1 ? 'Next Scenario →' : 'All Done ✓';
+  nextBtn.classList.add('show');
+
+  // Update pip
+  document.getElementById('pip' + currentCard).className = 'card-pip done';
+}
+
+function nextCard() {
+  if (currentCard < cards.length - 1) {
+    currentCard++;
+    document.getElementById('pip' + currentCard).className = 'card-pip active';
+    renderCard(currentCard);
+  } else {
+    document.getElementById('cardArea').innerHTML = '';
+    document.getElementById('nextCardBtn').className = 'next-card-btn';
+    document.getElementById('allDoneBox').style.display = 'block';
+    activityProgress.act1 = true;
+    document.getElementById('act1check').textContent = '✓';
+    document.getElementById('act1').classList.add('done');
+    updateProgress();
+  }
+}
+
+function toggleActivity(id) {
+  const body = document.getElementById(id + 'body');
+  body.style.display = body.style.display === 'none' ? 'block' : 'none';
+}
+
+// ── BRIDGE ────────────────────────────────────────────────────────────────
+function bridgeVote(choice) {
+  const btns = document.querySelectorAll('#bridgeVotes .vote-btn');
+  btns.forEach(b => b.disabled = true);
+
+  const reveal = document.getElementById('bridgeReveal');
+  reveal.className = 'reveal-box show ' + (choice === 'expensive' ? 'correct' : 'wrong');
+
+  if (choice === 'expensive') {
+    reveal.innerHTML = `<div class="verdict">✓ Correct — your instinct is right.</div><p>₹22,800 is way above what the financing cost justifies. Let's see the exact numbers.</p>`;
+  } else if (choice === 'cheap') {
+    reveal.innerHTML = `<div class="verdict">✗ Not quite.</div><p>₹22,800 is actually far above fair value. If futures were this cheap relative to spot, you'd buy spot — but at ₹800 premium over spot, the futures are expensive, not cheap.</p>`;
+  } else {
+    reveal.innerHTML = `<div class="verdict">✗ Not quite.</div><p>₹22,800 is ₹800 above spot. The actual fair value is only about ₹96 above spot. This futures price is much too expensive.</p>`;
+  }
+
+  document.getElementById('bridgeCalc').style.display = 'block';
+}
+
+function completeBridge() {
+  activityProgress.act2 = true;
+  document.getElementById('act2check').textContent = '✓';
+  document.getElementById('act2').classList.add('done');
+  updateProgress();
+  document.getElementById('act3body').style.display = 'block';
+}
+
+function completeAct3() {
+  activityProgress.act3 = true;
+  document.getElementById('act3check').textContent = '✓';
+  document.getElementById('act3').classList.add('done');
+  updateProgress();
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────
+buildPips();
+renderCard(0);
+// Start with act2 and act3 collapsed
+document.getElementById('act2body').style.display = 'none';
+document.getElementById('act3body').style.display = 'none';
+</script>
+</body>
+</html>

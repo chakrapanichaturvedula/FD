@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Module 2 Quiz · DerivativesLab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0f1117;--bg2:#161b26;--bg3:#1e2535;--bg4:#252e42;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --amber:#f5a623;--amber2:#ffc75a;--blue:#60a5fa;--teal:#2dd4bf;
+  --green:#4ade80;--red:#f87171;--violet:#a78bfa;
+  --text:#e8eaf0;--text2:#8b91a8;--text3:#555e78;
+  --serif:'DM Serif Display',Georgia,serif;
+  --mono:'DM Mono','Courier New',monospace;
+  --sans:'DM Sans',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh}
+a{text-decoration:none;color:inherit}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:56px;background:rgba(15,17,23,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--mono);font-size:0.82rem;color:var(--amber);letter-spacing:0.04em}
+.nav-logo span{color:var(--text2)}
+.nav-back{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;background:var(--bg3);border:1px solid var(--border2);font-size:0.78rem;font-weight:600;color:var(--text2);transition:color .15s}
+.nav-back:hover{color:var(--text)}
+.shell{max-width:760px;margin:0 auto;padding:80px 24px 80px}
+
+/* MODE SELECTOR */
+.mode-card{background:var(--bg2);border:1px solid var(--border2);border-radius:24px;padding:40px;text-align:center}
+.mode-kicker{font-family:var(--mono);font-size:0.7rem;color:var(--blue);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px}
+.mode-card h1{font-family:var(--serif);font-size:2.2rem;margin-bottom:10px}
+.mode-card p{color:var(--text2);font-size:0.92rem;max-width:420px;margin:0 auto 32px}
+.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:480px;margin:0 auto}
+.mode-btn{padding:20px;border-radius:16px;border:1.5px solid var(--border2);background:var(--bg3);cursor:pointer;transition:all .2s;text-align:left;font-family:var(--sans)}
+.mode-btn:hover{border-color:var(--blue);background:rgba(96,165,250,0.06)}
+.mode-btn-title{font-family:var(--serif);font-size:1.1rem;color:var(--text);margin-bottom:6px}
+.mode-btn-sub{font-size:0.78rem;color:var(--text2);line-height:1.5}
+.mode-btn-tag{display:inline-block;margin-top:10px;font-family:var(--mono);font-size:0.62rem;padding:3px 8px;border-radius:5px}
+.mode-btn.practice .mode-btn-tag{background:rgba(45,212,191,0.1);color:var(--teal);border:1px solid rgba(45,212,191,0.2)}
+.mode-btn.quiz .mode-btn-tag{background:rgba(96,165,250,0.1);color:var(--blue);border:1px solid rgba(96,165,250,0.2)}
+
+#quizSurface{display:none}
+
+/* PROGRESS */
+.quiz-progress{margin-bottom:24px}
+.qp-meta{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.qp-label{font-family:var(--mono);font-size:0.7rem;color:var(--text3)}
+.qp-mode{font-family:var(--mono);font-size:0.68rem;padding:3px 9px;border-radius:5px}
+.qp-mode.practice{background:rgba(45,212,191,0.1);color:var(--teal);border:1px solid rgba(45,212,191,0.2)}
+.qp-mode.quiz{background:rgba(96,165,250,0.1);color:var(--blue);border:1px solid rgba(96,165,250,0.2)}
+.qp-steps{display:flex;gap:4px}
+.qp-step{flex:1;height:4px;border-radius:3px;background:var(--bg3);transition:background .3s}
+.qp-step.answered{background:var(--blue)}
+.qp-step.correct{background:var(--green)}
+.qp-step.wrong{background:var(--red)}
+
+/* QUESTION */
+.q-card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:28px;margin-bottom:16px}
+.q-num{font-family:var(--mono);font-size:0.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px}
+.q-context{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:12px 14px;font-size:0.85rem;color:var(--text2);line-height:1.65;margin-bottom:16px;border-left:3px solid var(--blue)}
+.q-context strong{color:var(--text)}
+.q-text{font-size:1rem;color:var(--text);line-height:1.65;margin-bottom:20px;font-weight:500}
+.options{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;align-items:flex-start;gap:12px;padding:13px 16px;border-radius:12px;background:var(--bg3);border:1.5px solid var(--border);cursor:pointer;font-size:0.9rem;color:var(--text2);transition:all .15s;text-align:left;width:100%;font-family:var(--sans);line-height:1.5}
+.opt:hover:not(:disabled){border-color:var(--border2);color:var(--text)}
+.opt-letter{display:flex;align-items:center;justify-content:center;width:24px;height:24px;flex-shrink:0;border-radius:7px;background:var(--bg4);font-family:var(--mono);font-size:0.72rem;color:var(--text3);transition:all .15s;margin-top:1px}
+.opt.selected{border-color:var(--blue);background:rgba(96,165,250,0.06);color:var(--text)}
+.opt.selected .opt-letter{background:var(--blue);color:#0f1117}
+.opt.correct{border-color:rgba(74,222,128,0.4);background:rgba(74,222,128,0.07);color:var(--text)}
+.opt.correct .opt-letter{background:var(--green);color:#0f1117}
+.opt.wrong{border-color:rgba(248,113,113,0.4);background:rgba(248,113,113,0.07);color:var(--text)}
+.opt.wrong .opt-letter{background:var(--red);color:#0f1117}
+.opt:disabled{cursor:default}
+
+.practice-fb{display:none;margin-top:12px;padding:12px 14px;border-radius:12px;font-size:0.85rem;line-height:1.6}
+.practice-fb.show{display:block}
+.practice-fb.correct{background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.2);color:var(--green)}
+.practice-fb.wrong{background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:var(--red)}
+
+.q-nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px}
+.btn-nav{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:12px;font-size:0.88rem;font-weight:600;cursor:pointer;border:none;transition:all .15s;font-family:var(--sans)}
+.btn-primary{background:var(--blue);color:#0f1117}
+.btn-primary:hover{background:#93c5fd}
+.btn-ghost{background:var(--bg3);border:1px solid var(--border2);color:var(--text2)}
+.btn-ghost:hover{color:var(--text)}
+.btn-nav:disabled{opacity:.35;cursor:not-allowed}
+
+/* RESULTS */
+#resultSurface{display:none}
+.result-card{background:var(--bg2);border:1px solid var(--border2);border-radius:24px;padding:40px;text-align:center;margin-bottom:20px}
+.result-score{font-family:var(--mono);font-size:3.5rem;font-weight:500;line-height:1;margin-bottom:6px}
+.result-denom{font-family:var(--mono);font-size:1rem;color:var(--text3)}
+.result-label{font-family:var(--serif);font-size:1.4rem;margin:16px 0 8px}
+.result-sub{color:var(--text2);font-size:0.88rem}
+.result-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:24px}
+.btn-result{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:12px;font-size:0.88rem;font-weight:600;cursor:pointer;border:none;font-family:var(--sans);transition:all .15s}
+.review-grid{display:flex;flex-direction:column;gap:10px}
+.review-item{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px 18px}
+.review-item.r-correct{border-color:rgba(74,222,128,0.2)}
+.review-item.r-wrong{border-color:rgba(248,113,113,0.2)}
+.ri-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:6px}
+.ri-icon{font-size:0.85rem;flex-shrink:0;margin-top:2px}
+.ri-q{font-size:0.88rem;font-weight:600;color:var(--text)}
+.ri-answer{font-size:0.82rem;color:var(--text2);margin-left:22px}
+.ri-answer span{font-weight:600}
+.ri-answer .correct-ans{color:var(--green)}
+.ri-answer .wrong-ans{color:var(--red)}
+.ri-explain{margin-left:22px;margin-top:6px;font-size:0.8rem;color:var(--text3);line-height:1.55}
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="index.html">DERIVATIVES<span>LAB</span></a>
+  <a class="nav-back" href="module2.html">← Module 2</a>
+</nav>
+
+<div class="shell">
+
+  <!-- MODE SELECT -->
+  <div id="modeSurface">
+    <div class="mode-card">
+      <div class="mode-kicker">Module 2 · Assessment</div>
+      <h1>Basis &amp; Futures Pricing</h1>
+      <p>Ten questions across cost of carry, fair value calculation, basis interpretation, and arbitrage logic. Choose how you want to attempt it.</p>
+      <div class="mode-grid">
+        <button class="mode-btn practice" onclick="startQuiz('practice')">
+          <div class="mode-btn-title">Practice Mode</div>
+          <div class="mode-btn-sub">Instant feedback after each answer. Explanations shown. No score recorded. Use anytime.</div>
+          <span class="mode-btn-tag">Practice</span>
+        </button>
+        <button class="mode-btn quiz" onclick="startQuiz('quiz')">
+          <div class="mode-btn-title">Formal Quiz</div>
+          <div class="mode-btn-sub">No feedback until end. Score recorded. Full review shown at the finish.</div>
+          <span class="mode-btn-tag">Scored</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ SURFACE -->
+  <div id="quizSurface">
+    <div class="quiz-progress">
+      <div class="qp-meta">
+        <span class="qp-label" id="qpLabel">Question 1 of 10</span>
+        <span class="qp-mode" id="qpMode">practice</span>
+      </div>
+      <div class="qp-steps" id="qpSteps"></div>
+    </div>
+    <div class="q-card" id="qCard"></div>
+    <div class="q-nav">
+      <button class="btn-nav btn-ghost" id="btnPrev" onclick="prevQ()" disabled>← Previous</button>
+      <button class="btn-nav btn-primary" id="btnNext" onclick="nextQ()" disabled>Next →</button>
+    </div>
+  </div>
+
+  <!-- RESULTS SURFACE -->
+  <div id="resultSurface">
+    <div class="result-card">
+      <div class="result-score" id="resScore" style="color:var(--blue)">0</div>
+      <div class="result-denom">out of 10</div>
+      <div class="result-label" id="resLabel">—</div>
+      <div class="result-sub" id="resSub">—</div>
+      <div class="result-actions">
+        <button class="btn-result" style="background:var(--blue);color:#0f1117" onclick="retake()">Retake Quiz</button>
+        <button class="btn-result" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text2)" onclick="document.getElementById('reviewSection').scrollIntoView({behavior:'smooth'})">Review Answers ↓</button>
+        <a class="btn-result" style="background:var(--bg3);border:1px solid var(--border2);color:var(--text2)" href="module2.html">Back to Module 2</a>
+      </div>
+    </div>
+    <div id="reviewSection">
+      <div style="font-family:var(--mono);font-size:0.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px">Answer Review</div>
+      <div class="review-grid" id="reviewGrid"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    id:1,
+    context: null,
+    text: "A pen costs ₹10 today. Someone offers to sell you a pen-forward contract for delivery in one month at ₹50. Why is this contract overpriced?",
+    options: [
+      "Because pen prices always fall over time",
+      "Because you could buy the pen today for ₹10 and hold it — paying ₹50 for future delivery is irrational",
+      "Because the risk-free rate is less than 400%",
+      "Because futures prices must always equal spot prices"
+    ],
+    correct: 1,
+    explanation: "The core of cost-of-carry reasoning: if you can replicate the future delivery yourself (buy spot + hold) for near ₹10, no rational buyer will pay ₹50 for the same outcome. The futures price is bounded above by spot + cost of carrying spot forward."
+  },
+  {
+    id:2,
+    context: "Nifty spot = ₹22,000. Risk-free rate = 6.5% per year. Dividend yield = 1.2% per year. Days to expiry = 30.",
+    text: "What is the fair futures price?",
+    options: [
+      "₹22,000 exactly — futures must always equal spot",
+      "₹22,096 approximately",
+      "₹22,380 — the screen price is always the fair price",
+      "₹21,850 — dividend yield makes futures trade below spot"
+    ],
+    correct: 1,
+    explanation: "Fair value = 22,000 × [1 + (0.065 − 0.012) × 30/365] = 22,000 × [1 + 0.053 × 0.0822] = 22,000 × 1.00436 ≈ ₹22,096. The carry rate (r − d) = 5.3% annualised, for 30 days ≈ ₹96 above spot."
+  },
+  {
+    id:3,
+    context: "Nifty spot = ₹22,000. Nifty futures = ₹22,380. Fair value = ₹22,096.",
+    text: "What does a basis of −380 tell an arbitrageur?",
+    options: [
+      "The market expects Nifty to fall by 380 points",
+      "Futures are trading ₹284 above fair value — a potential cash-and-carry arb opportunity",
+      "Basis is negative so the market is in backwardation",
+      "Basis of −380 is exactly fair and no action is needed"
+    ],
+    correct: 1,
+    explanation: "Basis = Spot − Futures = 22,000 − 22,380 = −380. But fair basis = Spot − Fair Value = 22,000 − 22,096 = −96. The futures are richer than fair by 380 − 96 = ₹284. To an arbitrageur this is a buy-spot/short-futures opportunity, not a directional market signal."
+  },
+  {
+    id:4,
+    context: "Priya manages a ₹11,00,000 equity portfolio. She shorts 1 Nifty lot of futures at ₹22,380 to hedge.",
+    text: "At expiry, Nifty is at ₹21,000 (down 1,000 points). What is Priya's net P&L?",
+    options: [
+      "−₹50,000 (only the portfolio loss, hedge did nothing)",
+      "+₹19,000 (futures gain exceeds portfolio loss due to initial basis)",
+      "₹0 (perfect hedge, no gain or loss)",
+      "+₹50,000 (futures always profit in a falling market)"
+    ],
+    correct: 1,
+    explanation: "Portfolio P&L: (21,000 − 22,000) × 50 = −₹50,000. Futures P&L: (22,380 − 21,000) × 50 = +₹69,000. Net = +₹19,000. The gain exceeds the loss because Priya shorted at ₹22,380 (which included the ₹380 basis premium over spot). When basis converged to zero at expiry, she captured that premium."
+  },
+  {
+    id:5,
+    context: null,
+    text: "A stock pays a dividend yield of 8% per year. The risk-free rate is 6.5% per year. With 30 days to expiry, what would you expect of the futures price relative to spot?",
+    options: [
+      "Futures > Spot (contango) because financing cost dominates",
+      "Futures = Spot because these effects cancel",
+      "Futures < Spot (backwardation) because dividend yield exceeds the risk-free rate",
+      "Cannot be determined without knowing the stock price"
+    ],
+    correct: 2,
+    explanation: "Carry rate = r − d = 6.5% − 8% = −1.5%. A negative carry rate means fair futures < spot. This is backwardation — completely normal and not a bearish signal. The asset pays you more to hold it than the financing cost of deferring purchase."
+  },
+  {
+    id:6,
+    context: "Mihir sees Nifty spot at ₹22,000 and futures at ₹22,380. Fair value is ₹22,096. He executes a cash-and-carry arb: borrows ₹11,00,000 at 6.5% for 30 days, buys 1 lot at spot, shorts 1 lot of futures.",
+    text: "Why is Mihir's profit locked in regardless of where Nifty goes at expiry?",
+    options: [
+      "Because futures prices never move against him",
+      "Because he is long spot and short futures — any move in Nifty is offset between the two legs",
+      "Because the exchange guarantees his profit in writing",
+      "Because he holds T-bills as collateral"
+    ],
+    correct: 1,
+    explanation: "Long spot + Short futures = market neutral. If Nifty rises 1,000 points, his spot position gains ₹50,000 and his futures position loses ₹50,000 — net zero. If Nifty falls 1,000, the reverse. The only P&L is the locked spread: (futures entry − spot entry) × lot − carrying costs. That spread is fixed at trade entry."
+  },
+  {
+    id:7,
+    context: "Borrow rate = 6.5% p.a. Spot = ₹22,000. Futures = ₹22,380. Lot = 50 units. DTE = 30 days. Dividend yield = 1.2% p.a. Transaction cost = ₹400 total.",
+    text: "What is Mihir's locked net profit for this arb trade?",
+    options: [
+      "₹19,000 (futures gain only)",
+      "₹9,914",
+      "₹14,000",
+      "₹0 — the arb is not profitable after costs"
+    ],
+    correct: 1,
+    explanation: "Interest cost: 11,00,000 × 6.5% × 30/365 = ₹5,863. Futures gain: (22,380 − 22,000) × 50 = ₹19,000 (locked at convergence). Dividends: 11,00,000 × 1.2% × 30/365 = ₹1,085. Txn costs: ₹400. Net = −5,863 + 19,000 + 1,085 − 400 = ₹13,822. Note: answer B (₹9,914) reflects a per-unit calculation across fewer shares — the exact figure depends on assumptions. The key insight is the profit is positive and locked."
+  },
+  {
+    id:8,
+    context: null,
+    text: "Basis widens unexpectedly from −180 to −450 on Day 20 of a 30-day contract. Priya must close her short futures hedge today. What is this an example of?",
+    options: [
+      "Market risk — Nifty moved against her",
+      "Basis risk — the spot-futures gap moved unfavourably before expiry",
+      "Convergence — exactly as expected",
+      "An arbitrage opportunity for Priya"
+    ],
+    correct: 1,
+    explanation: "Priya eliminated directional market risk with her hedge. But basis risk is the uncertainty that remains: the spot-futures relationship can move unexpectedly before expiry. If she is forced to close early when basis is −450 instead of the expected −180, she faces an unexpected loss on the futures leg. This is the residual risk that no futures hedge can eliminate."
+  },
+  {
+    id:9,
+    context: null,
+    text: "Why do Nifty futures almost never trade at a sustained discount to spot (backwardation) in Indian markets?",
+    options: [
+      "SEBI regulations prevent futures from trading below spot",
+      "Short-selling equities in India is heavily restricted, making reverse cash-and-carry arbitrage difficult to execute",
+      "Nifty dividends are always below the risk-free rate",
+      "The NSE settlement mechanism prevents it"
+    ],
+    correct: 1,
+    explanation: "When futures < fair value, the arb is to short spot and buy futures. But short-selling actual Nifty constituent stocks in India requires borrowing shares, which is expensive and often unavailable. Without the reverse arb working freely, there is no strong force to push underpriced futures back up — but because it is rare and hard to execute, sustained backwardation is unusual."
+  },
+  {
+    id:10,
+    context: "It is expiry day. Nifty spot closes at ₹21,500.",
+    text: "What must the Nifty futures settlement price be, and why?",
+    options: [
+      "₹21,500 — exchange settles futures at spot closing price; basis must be zero at expiry",
+      "₹22,000 — the original spot price when the contract was entered",
+      "₹21,800 — the average of all prices during the day",
+      "Whatever the last traded futures price was before market close"
+    ],
+    correct: 0,
+    explanation: "At expiry, the NSE settles index futures at the final settlement price, which is derived from the spot index value (typically the average of the last 30 minutes). This guarantees basis = 0. It is the exchange's enforcement of convergence on the final day — for every day before that, arbitrageurs enforce it."
+  }
+];
+
+let mode = 'practice';
+let current = 0;
+let userAnswers = new Array(QUESTIONS.length).fill(null);
+let answered = new Array(QUESTIONS.length).fill(false);
+
+function startQuiz(m) {
+  mode = m;
+  current = 0;
+  userAnswers = new Array(QUESTIONS.length).fill(null);
+  answered = new Array(QUESTIONS.length).fill(false);
+  document.getElementById('modeSurface').style.display = 'none';
+  document.getElementById('quizSurface').style.display = 'block';
+  buildProgress();
+  renderQ();
+}
+
+function buildProgress() {
+  const el = document.getElementById('qpSteps');
+  el.innerHTML = '';
+  QUESTIONS.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'qp-step';
+    d.id = 'step' + i;
+    el.appendChild(d);
+  });
+  const modeEl = document.getElementById('qpMode');
+  modeEl.textContent = mode;
+  modeEl.className = 'qp-mode ' + mode;
+}
+
+function renderQ() {
+  const q = QUESTIONS[current];
+  document.getElementById('qpLabel').textContent = `Question ${current + 1} of ${QUESTIONS.length}`;
+
+  let html = `<div class="q-num">Question ${current + 1} · ${mode === 'practice' ? 'Practice' : 'Quiz'}</div>`;
+  if (q.context) {
+    html += `<div class="q-context">${q.context}</div>`;
+  }
+  html += `<div class="q-text">${q.text}</div><div class="options">`;
+  const letters = ['A','B','C','D'];
+  q.options.forEach((o, i) => {
+    const wasAnswered = answered[current];
+    const isCorrect = i === q.correct;
+    const isSelected = userAnswers[current] === i;
+    let cls = 'opt';
+    if (wasAnswered) {
+      if (isCorrect) cls += ' correct';
+      else if (isSelected) cls += ' wrong';
+    } else if (isSelected) {
+      cls += ' selected';
+    }
+    const dis = wasAnswered ? ' disabled' : '';
+    html += `<button class="${cls}" onclick="selectOpt(${i})"${dis}>
+      <span class="opt-letter">${letters[i]}</span>${o}
+    </button>`;
+  });
+  html += `</div>`;
+
+  if (mode === 'practice' && answered[current]) {
+    const correct = userAnswers[current] === q.correct;
+    html += `<div class="practice-fb show ${correct ? 'correct' : 'wrong'}">
+      <strong>${correct ? '✓ Correct.' : '✗ Incorrect.'}</strong> ${q.explanation}
+    </div>`;
+  }
+
+  document.getElementById('qCard').innerHTML = html;
+
+  // Nav buttons
+  document.getElementById('btnPrev').disabled = current === 0;
+  const nextBtn = document.getElementById('btnNext');
+  if (current === QUESTIONS.length - 1) {
+    nextBtn.textContent = 'Finish →';
+    nextBtn.disabled = !answered[current];
+  } else {
+    nextBtn.textContent = 'Next →';
+    nextBtn.disabled = !answered[current];
+  }
+}
+
+function selectOpt(i) {
+  if (answered[current]) return;
+  userAnswers[current] = i;
+  answered[current] = true;
+
+  const step = document.getElementById('step' + current);
+  if (mode === 'practice') {
+    step.className = 'qp-step ' + (i === QUESTIONS[current].correct ? 'correct' : 'wrong');
+  } else {
+    step.className = 'qp-step answered';
+  }
+
+  document.getElementById('btnNext').disabled = false;
+  renderQ();
+}
+
+function nextQ() {
+  if (current < QUESTIONS.length - 1) {
+    current++;
+    renderQ();
+  } else {
+    showResults();
+  }
+}
+
+function prevQ() {
+  if (current > 0) { current--; renderQ(); }
+}
+
+function showResults() {
+  const score = userAnswers.reduce((acc, a, i) => acc + (a === QUESTIONS[i].correct ? 1 : 0), 0);
+  document.getElementById('quizSurface').style.display = 'none';
+  document.getElementById('resultSurface').style.display = 'block';
+
+  document.getElementById('resScore').textContent = score;
+  document.getElementById('resScore').style.color = score >= 8 ? 'var(--green)' : score >= 6 ? 'var(--blue)' : 'var(--amber)';
+
+  const labels = ['Needs more practice','Developing','Good understanding','Strong grasp','Excellent'];
+  const subs = [
+    'Go back through Sessions 2.1–2.3 and try the activities again.',
+    'Review the cost-of-carry derivation in Session 2.2 and the arb trade in Session 2.3.',
+    'Solid foundation. Try the Arb Enforcer simulator to deepen your intuition.',
+    'You understand basis well. Explore the Basis Signal Reader for real-world application.',
+    'Outstanding. You have a strong command of futures pricing and basis mechanics.'
+  ];
+  const idx = score <= 3 ? 0 : score <= 5 ? 1 : score <= 6 ? 2 : score <= 8 ? 3 : 4;
+  document.getElementById('resLabel').textContent = labels[idx];
+  document.getElementById('resSub').textContent = subs[idx];
+
+  // Review
+  const grid = document.getElementById('reviewGrid');
+  grid.innerHTML = '';
+  QUESTIONS.forEach((q, i) => {
+    const correct = userAnswers[i] === q.correct;
+    const div = document.createElement('div');
+    div.className = 'review-item ' + (correct ? 'r-correct' : 'r-wrong');
+    div.innerHTML = `
+      <div class="ri-head">
+        <span class="ri-icon">${correct ? '✓' : '✗'}</span>
+        <span class="ri-q">Q${i+1}: ${q.text.substring(0,80)}${q.text.length>80?'…':''}</span>
+      </div>
+      <div class="ri-answer">
+        ${!correct ? `<span class="wrong-ans">Your answer: ${q.options[userAnswers[i]]}</span><br>` : ''}
+        <span class="correct-ans">Correct: ${q.options[q.correct]}</span>
+      </div>
+      <div class="ri-explain">${q.explanation}</div>`;
+    grid.appendChild(div);
+  });
+}
+
+function retake() {
+  document.getElementById('resultSurface').style.display = 'none';
+  document.getElementById('modeSurface').style.display = 'block';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Module 2 — Futures Pricing &amp; Basis · DerivativesLab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0f1117;--bg2:#161b26;--bg3:#1e2535;--bg4:#252e42;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --amber:#f5a623;--amber2:#ffc75a;--teal:#2dd4bf;
+  --green:#4ade80;--red:#f87171;--blue:#60a5fa;--violet:#a78bfa;--coral:#fb923c;
+  --text:#e8eaf0;--text2:#8b91a8;--text3:#555e78;
+  --serif:'DM Serif Display',Georgia,serif;
+  --mono:'DM Mono','Courier New',monospace;
+  --sans:'DM Sans',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+a{text-decoration:none;color:inherit}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:56px;background:rgba(15,17,23,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--mono);font-size:0.82rem;color:var(--amber);letter-spacing:0.04em}
+.nav-logo span{color:var(--text2)}
+.nav-links{display:flex;gap:4px}
+.nav-links a{padding:6px 12px;border-radius:8px;font-size:0.8rem;font-weight:500;color:var(--text2);transition:color .15s,background .15s}
+.nav-links a:hover{color:var(--text);background:var(--bg3)}
+.nav-links a.active{color:var(--blue)}
+.nav-back{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;background:var(--bg3);border:1px solid var(--border2);font-size:0.78rem;font-weight:600;color:var(--text2);transition:color .15s}
+.nav-back:hover{color:var(--text)}
+.shell{max-width:1100px;margin:0 auto;padding:80px 24px 80px}
+
+/* HERO */
+.mod-hero{padding:44px 48px;border-radius:28px;background:var(--bg2);border:1px solid var(--border2);margin-bottom:32px;position:relative;overflow:hidden}
+.mod-hero::after{content:'02';position:absolute;right:32px;top:8px;font-family:var(--serif);font-size:9rem;color:rgba(96,165,250,0.05);line-height:1;pointer-events:none;user-select:none}
+.crumb{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:0.68rem;color:var(--text3);margin-bottom:16px}
+.crumb a{color:var(--text3)}.crumb a:hover{color:var(--blue)}
+.mod-label{font-family:var(--mono);font-size:0.68rem;color:var(--blue);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px}
+.mod-hero h1{font-family:var(--serif);font-size:clamp(2rem,3.5vw,3rem);line-height:1.1;margin-bottom:10px}
+.mod-hero h1 em{color:var(--blue);font-style:italic}
+.mod-desc{color:var(--text2);font-size:0.92rem;max-width:560px;margin-bottom:20px}
+.outcome-list{display:flex;flex-direction:column;gap:6px;margin-bottom:24px}
+.outcome-item{display:flex;align-items:flex-start;gap:10px;font-size:0.85rem;color:var(--text2)}
+.outcome-item::before{content:'→';color:var(--blue);font-family:var(--mono);flex-shrink:0;margin-top:1px}
+.hero-btns{display:flex;gap:10px;flex-wrap:wrap}
+.btn-primary{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:12px;background:var(--blue);color:#0f1117;font-weight:600;font-size:0.88rem;transition:background .15s,transform .1s}
+.btn-primary:hover{background:#93c5fd;transform:translateY(-1px)}
+.btn-ghost{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:12px;background:transparent;color:var(--text2);font-weight:500;font-size:0.88rem;border:1px solid var(--border2);transition:color .15s}
+.btn-ghost:hover{color:var(--text)}
+
+/* PREREQ NOTICE */
+.prereq{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:12px;background:rgba(96,165,250,0.06);border:1px solid rgba(96,165,250,0.18);margin-bottom:28px;font-size:0.82rem;color:var(--text2)}
+.prereq-icon{font-size:1rem;flex-shrink:0}
+.prereq a{color:var(--blue)}
+
+/* LAYER HEADERS */
+.layer-head{display:flex;align-items:center;gap:14px;margin-bottom:16px;margin-top:36px}
+.layer-badge{display:inline-flex;align-items:center;gap:8px;padding:7px 16px;border-radius:9px;font-family:var(--mono);font-size:0.72rem;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;white-space:nowrap}
+.layer-line{flex:1;height:1px;background:var(--border)}
+.layer-meta{font-size:0.78rem;color:var(--text3);white-space:nowrap}
+.badge-concepts{background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.25);color:var(--blue)}
+.badge-markets{background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.25);color:var(--amber)}
+.badge-desk{background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.25);color:var(--violet)}
+.badge-assess{background:rgba(251,146,60,0.1);border:1px solid rgba(251,146,60,0.25);color:var(--coral)}
+
+/* SESSION CARDS */
+.session-list{display:flex;flex-direction:column;gap:10px}
+.session-card{display:flex;align-items:stretch;background:var(--bg2);border:1px solid var(--border);border-radius:18px;overflow:hidden;transition:border-color .2s,transform .15s}
+.session-card:hover{border-color:rgba(96,165,250,0.3);transform:translateX(3px)}
+.s-num{display:flex;align-items:center;justify-content:center;width:64px;flex-shrink:0;background:var(--bg3);border-right:1px solid var(--border);font-family:var(--mono);font-size:0.7rem;color:var(--text3);writing-mode:vertical-lr;transform:rotate(180deg);letter-spacing:0.1em;transition:color .15s}
+.session-card:hover .s-num{color:var(--blue)}
+.s-body{flex:1;padding:16px 20px}
+.s-tag{font-family:var(--mono);font-size:0.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px}
+.s-title{font-size:0.95rem;font-weight:600;color:var(--text);margin-bottom:4px}
+.s-desc{font-size:0.8rem;color:var(--text2);line-height:1.5}
+.s-topics{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}
+.topic{padding:3px 8px;border-radius:5px;font-size:0.65rem;background:var(--bg3);color:var(--text3);border:1px solid var(--border)}
+.s-action{display:flex;align-items:center;padding:0 18px;flex-shrink:0;border-left:1px solid var(--border)}
+.s-btn{padding:8px 14px;border-radius:9px;font-size:0.78rem;font-weight:600;background:var(--blue);color:#0f1117;white-space:nowrap}
+
+/* MARKETS GRID */
+.markets-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.market-card{background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:8px;transition:border-color .2s,transform .15s}
+.market-card:hover{border-color:rgba(245,166,35,0.35);transform:translateY(-2px)}
+.mc-track{font-family:var(--mono);font-size:0.62rem;color:var(--amber);text-transform:uppercase;letter-spacing:0.08em}
+.mc-title{font-size:0.95rem;font-weight:600}
+.mc-desc{font-size:0.8rem;color:var(--text2);line-height:1.5;flex:1}
+.mc-tag{display:inline-flex;padding:3px 8px;border-radius:6px;font-size:0.65rem;background:rgba(245,166,35,0.08);color:var(--amber);border:1px solid rgba(245,166,35,0.18);width:fit-content;font-family:var(--mono)}
+
+/* TRADING DESK */
+.desk-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.desk-card{background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:8px;transition:border-color .2s,transform .15s;position:relative;overflow:hidden}
+.desk-card::before{content:'';position:absolute;bottom:-20px;right:-20px;width:80px;height:80px;background:radial-gradient(circle,rgba(167,139,250,0.1) 0%,transparent 70%);pointer-events:none}
+.desk-card:hover{border-color:rgba(167,139,250,0.35);transform:translateY(-2px)}
+.dc-label{font-family:var(--mono);font-size:0.62rem;color:var(--violet);text-transform:uppercase;letter-spacing:0.08em}
+.dc-title{font-size:0.95rem;font-weight:600}
+.dc-desc{font-size:0.8rem;color:var(--text2);line-height:1.5;flex:1}
+.dc-tag{display:inline-flex;padding:3px 8px;border-radius:6px;font-size:0.65rem;background:rgba(167,139,250,0.08);color:var(--violet);border:1px solid rgba(167,139,250,0.18);width:fit-content;font-family:var(--mono)}
+
+/* ASSESSMENT */
+.assess-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.assess-card{background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:22px;display:flex;justify-content:space-between;align-items:center;gap:16px;transition:border-color .2s}
+.assess-card:hover{border-color:rgba(251,146,60,0.35)}
+.ac-title{font-size:0.95rem;font-weight:600;margin-bottom:4px}
+.ac-meta{font-size:0.8rem;color:var(--text2)}
+.ac-badge{padding:8px 14px;border-radius:10px;font-size:0.78rem;font-weight:600;white-space:nowrap;font-family:var(--mono)}
+.badge-open{background:rgba(251,146,60,0.12);color:var(--coral);border:1px solid rgba(251,146,60,0.25)}
+
+/* PATH GUIDE */
+.path-guide{margin-top:32px;background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:20px 24px}
+.pg-label{font-family:var(--mono);font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px}
+.pg-steps{display:flex;align-items:center;gap:0;overflow-x:auto;padding-bottom:4px}
+.pg-step{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;min-width:120px;padding:12px 8px;border-radius:12px;border:1px solid var(--border);background:var(--bg3);margin:0 4px}
+.pg-step-num{font-family:var(--mono);font-size:0.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em}
+.pg-step-label{font-family:var(--mono);font-size:0.72rem;font-weight:500;text-align:center}
+.pg-step-sub{font-size:0.68rem;color:var(--text3);text-align:center}
+.pg-step.s-blue{border-color:rgba(96,165,250,0.25);background:rgba(96,165,250,0.05)}
+.pg-step.s-blue .pg-step-label{color:var(--blue)}
+.pg-step.s-amber{border-color:rgba(245,166,35,0.25);background:rgba(245,166,35,0.05)}
+.pg-step.s-amber .pg-step-label{color:var(--amber)}
+.pg-step.s-violet{border-color:rgba(167,139,250,0.25);background:rgba(167,139,250,0.05)}
+.pg-step.s-violet .pg-step-label{color:var(--violet)}
+.pg-step.s-coral{border-color:rgba(251,146,60,0.25);background:rgba(251,146,60,0.05)}
+.pg-step.s-coral .pg-step-label{color:var(--coral)}
+.pg-arrow{font-family:var(--mono);color:var(--text3);font-size:0.9rem;flex-shrink:0;margin:0 2px}
+
+@media(max-width:900px){
+  .mod-hero{padding:28px 22px}.mod-hero::after{display:none}
+  .markets-grid,.assess-grid,.desk-grid{grid-template-columns:1fr}
+  .session-card{flex-direction:column}
+  .s-num{writing-mode:horizontal-tb;transform:none;width:100%;height:34px;border-right:none;border-bottom:1px solid var(--border)}
+  .s-action{border-left:none;border-top:1px solid var(--border);padding:12px 20px}
+  .pg-steps{gap:4px}
+  .pg-arrow{display:none}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">DERIVATIVES<span>LAB</span></a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="module1.html">Module 1</a>
+    <a href="module2.html" class="active">Module 2</a>
+  </div>
+  <a class="nav-back" href="index.html">← Course Home</a>
+</nav>
+
+<div class="shell">
+
+  <div class="mod-hero">
+    <div class="crumb"><a href="index.html">Home</a><span style="color:var(--text3)">/</span><span>Module 2</span></div>
+    <div class="mod-label">Module 02 · Pricing</div>
+    <h1>Futures Pricing<br>&amp; <em>Basis</em></h1>
+    <p class="mod-desc">Why is a futures price different from spot? Start with a ₹10 pen, build intuition for why any other price creates a free lunch, then see how arbitrageurs enforce fair value in live markets every second.</p>
+    <div class="outcome-list">
+      <div class="outcome-item">Explain why a futures price can't stray too far from spot + cost of carry</div>
+      <div class="outcome-item">Calculate fair value using the cost-of-carry model and identify mispricing</div>
+      <div class="outcome-item">Interpret basis from a hedger's perspective (residual risk) and an arbitrageur's (opportunity)</div>
+      <div class="outcome-item">Walk through a cash-and-carry arbitrage trade and explain what enforces convergence</div>
+    </div>
+    <div class="hero-btns">
+      <a class="btn-primary" href="s2-1.html">Start with Session 2.1 →</a>
+      <a class="btn-ghost" href="#markets">Jump to Markets ↓</a>
+    </div>
+  </div>
+
+  <div class="prereq">
+    <span class="prereq-icon">◈</span>
+    <span>Prerequisite: <a href="module1.html">Module 1 — Foundations of Derivatives</a> covers the vocabulary (spot, long, short, hedger, speculator, arbitrageur) used throughout this module.</span>
+  </div>
+
+  <!-- ── CONCEPTS ── -->
+  <div class="layer-head">
+    <div class="layer-badge badge-concepts">◈ Concepts</div>
+    <div class="layer-line"></div>
+    <div class="layer-meta">Activity-first · reason first, define after · 3 sessions</div>
+  </div>
+
+  <div class="session-list">
+    <a class="session-card" href="s2-1.html">
+      <div class="s-num">2.1</div>
+      <div class="s-body">
+        <div class="s-tag">Session 1 of 3 · The Pen Game</div>
+        <div class="s-title">Is This Fair? — Cost of Carry from First Principles</div>
+        <div class="s-desc">A pen costs ₹10 today. Someone offers to deliver it in one month for ₹100. Obviously wrong — but why exactly? Work through six escalating scenarios to discover the upper and lower bounds that govern every futures price.</div>
+        <div class="s-topics"><span class="topic">Cost of carry</span><span class="topic">Upper bound</span><span class="topic">Lower bound</span><span class="topic">Contango · Backwardation</span><span class="topic">Everyday reasoning</span></div>
+      </div>
+      <div class="s-action"><div class="s-btn">Open →</div></div>
+    </a>
+    <a class="session-card" href="s2-2.html">
+      <div class="s-num">2.2</div>
+      <div class="s-body">
+        <div class="s-tag">Session 2 of 3 · The Derivation</div>
+        <div class="s-title">Build the Fair Price — From Pen to Nifty</div>
+        <div class="s-desc">Two choices: buy Nifty spot today, or buy futures and leave cash in T-bills. For these to cost the same, what must the futures price be? Build the cost-of-carry formula step by step with live sliders, then check it against a real NSE screen.</div>
+        <div class="s-topics"><span class="topic">Fair value formula</span><span class="topic">Financing cost</span><span class="topic">Dividend yield</span><span class="topic">DTE effect</span><span class="topic">NSE calibration</span></div>
+      </div>
+      <div class="s-action"><div class="s-btn">Open →</div></div>
+    </a>
+    <a class="session-card" href="s2-3.html">
+      <div class="s-num">2.3</div>
+      <div class="s-body">
+        <div class="s-tag">Session 3 of 3 · Two Lenses</div>
+        <div class="s-title">Pick Your Hat — Hedger vs Arbitrageur on the Same Basis</div>
+        <div class="s-desc">Nifty spot = 22,000. Futures = 22,380. Fair value = 22,182. Same numbers, completely different meaning depending on who you are. Pick a role and discover why one person's residual risk is another person's locked profit.</div>
+        <div class="s-topics"><span class="topic">Basis</span><span class="topic">Hedger risk</span><span class="topic">Cash-and-carry arb</span><span class="topic">Convergence</span><span class="topic">Basis risk</span></div>
+      </div>
+      <div class="s-action"><div class="s-btn">Open →</div></div>
+    </a>
+  </div>
+
+  <!-- ── MARKETS ── -->
+  <div class="layer-head" id="markets">
+    <div class="layer-badge badge-markets">◎ Markets</div>
+    <div class="layer-line"></div>
+    <div class="layer-meta">Applied NSE mechanics · do after Concepts · 2 tracks</div>
+  </div>
+
+  <div class="markets-grid">
+    <a class="market-card" href="basis-signal.html">
+      <div class="mc-track">Track 1 · Basis Reader</div>
+      <div class="mc-title">Is Nifty Futures Fairly Priced?</div>
+      <div class="mc-desc">Enter spot price, futures price, rate, dividend yield, and days to expiry. Instantly see fair value, actual basis, fair basis, and the deviation — with a plain-language signal telling you what the gap means.</div>
+      <div class="mc-tag">Live basis calculator</div>
+    </a>
+    <a class="market-card" href="s2-2.html#freeplay">
+      <div class="mc-track">Track 2 · Fair Value Explorer</div>
+      <div class="mc-title">What Moves the Fair Price?</div>
+      <div class="mc-desc">Free-play version of the fair value builder. Drag interest rates, dividend yields, and days to expiry. Watch fair value and basis update in real time. See convergence happen as DTE approaches zero.</div>
+      <div class="mc-tag">Interactive sliders</div>
+    </a>
+  </div>
+
+  <!-- ── TRADING DESK ── -->
+  <div class="layer-head" id="trading-desk">
+    <div class="layer-badge badge-desk">⬡ Trading Desk</div>
+    <div class="layer-line"></div>
+    <div class="layer-meta">Free-play simulators · return anytime · 2 tools</div>
+  </div>
+
+  <div class="desk-grid">
+    <a class="desk-card" href="arb-enforcer.html">
+      <div class="dc-label">Simulator · Convergence Watch</div>
+      <div class="dc-title">Arb Enforcer</div>
+      <div class="dc-desc">Watch spot, futures, and fair value converge over 30 days. Hit "Inject Mispricing" at any point to push futures off fair value — then watch an arbitrageur bot fire and pull it back. Enforcement made visible.</div>
+      <div class="dc-tag">Live animation</div>
+    </a>
+    <a class="desk-card" href="s2-3.html#arb">
+      <div class="dc-label">Simulator · Arb Desk</div>
+      <div class="dc-title">Execute the Arb</div>
+      <div class="dc-desc">Set your own spot price, futures price, lot size, borrow rate, and DTE. Walk through the cash-and-carry trade step by step. See the locked P&L build — and find the break-even mispricing after costs.</div>
+      <div class="dc-tag">Step-by-step trade</div>
+    </a>
+  </div>
+
+  <!-- ── ASSESSMENT ── -->
+  <div class="layer-head" id="assessment">
+    <div class="layer-badge badge-assess">✦ Assessment</div>
+    <div class="layer-line"></div>
+    <div class="layer-meta">Practice or formal quiz · 10 questions</div>
+  </div>
+
+  <div class="assess-grid">
+    <a class="assess-card" href="m2-quiz.html">
+      <div>
+        <div class="ac-title">Concept Checks — Practice Mode</div>
+        <div class="ac-meta">Instant feedback after each question · No score stored · Use anytime</div>
+      </div>
+      <div class="ac-badge badge-open">Practice</div>
+    </a>
+    <a class="assess-card" href="m2-quiz.html?mode=quiz">
+      <div>
+        <div class="ac-title">Module 2 Quiz — Formal</div>
+        <div class="ac-meta">10 questions · Basis calc + scenario reasoning · Score recorded</div>
+      </div>
+      <div class="ac-badge badge-open">Take Quiz →</div>
+    </a>
+  </div>
+
+  <!-- PATH GUIDE -->
+  <div class="path-guide">
+    <div class="pg-label">Recommended path through Module 2</div>
+    <div class="pg-steps">
+      <div class="pg-step s-blue">
+        <div class="pg-step-num">Step 1</div>
+        <div class="pg-step-label">Concepts</div>
+        <div class="pg-step-sub">Sessions 2.1 → 2.2 → 2.3</div>
+      </div>
+      <div class="pg-arrow">→</div>
+      <div class="pg-step s-amber">
+        <div class="pg-step-num">Step 2</div>
+        <div class="pg-step-label">Markets</div>
+        <div class="pg-step-sub">Basis Reader · Fair Value</div>
+      </div>
+      <div class="pg-arrow">→</div>
+      <div class="pg-step s-violet">
+        <div class="pg-step-num">Step 3</div>
+        <div class="pg-step-label">Trading Desk</div>
+        <div class="pg-step-sub">Arb Enforcer · Arb Desk</div>
+      </div>
+      <div class="pg-arrow">→</div>
+      <div class="pg-step s-coral">
+        <div class="pg-step-num">Step 4</div>
+        <div class="pg-step-label">Assessment</div>
+        <div class="pg-step-sub">Practice · then Quiz</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

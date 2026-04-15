@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Session 2.3 — Pick Your Hat · DerivativesLab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0f1117;--bg2:#161b26;--bg3:#1e2535;--bg4:#252e42;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --amber:#f5a623;--amber2:#ffc75a;--teal:#2dd4bf;
+  --green:#4ade80;--red:#f87171;--blue:#60a5fa;--violet:#a78bfa;--coral:#fb923c;
+  --text:#e8eaf0;--text2:#8b91a8;--text3:#555e78;
+  --serif:'DM Serif Display',Georgia,serif;
+  --mono:'DM Mono','Courier New',monospace;
+  --sans:'DM Sans',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+a{text-decoration:none;color:inherit}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:56px;background:rgba(15,17,23,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--mono);font-size:0.82rem;color:var(--amber);letter-spacing:0.04em}
+.nav-logo span{color:var(--text2)}
+.nav-pill{display:flex;align-items:center;gap:10px}
+.nav-session{font-family:var(--mono);font-size:0.72rem;color:var(--text3)}
+.nav-next{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;background:var(--bg3);border:1px solid var(--border2);font-size:0.78rem;font-weight:600;color:var(--text2);transition:color .15s,border-color .15s}
+.nav-next:hover{color:var(--blue);border-color:rgba(96,165,250,0.3)}
+.shell{max-width:900px;margin:0 auto;padding:80px 24px 80px}
+.progress-meta{display:flex;justify-content:space-between;margin-bottom:6px}
+.progress-label{font-family:var(--mono);font-size:0.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em}
+.progress-bar{height:2px;background:var(--bg3);margin-bottom:28px;border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:var(--blue);border-radius:2px;transition:width .5s ease}
+.s-hero{padding:36px 40px;border-radius:28px;background:var(--bg2);border:1px solid var(--border2);margin-bottom:28px;position:relative;overflow:hidden}
+.s-hero::before{content:'';position:absolute;bottom:-40px;right:-40px;width:200px;height:200px;background:radial-gradient(circle,rgba(96,165,250,0.08) 0%,transparent 70%);pointer-events:none}
+.crumb{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:0.68rem;color:var(--text3);margin-bottom:14px}
+.crumb a{color:var(--text3)}.crumb a:hover{color:var(--blue)}
+.s-kicker{font-family:var(--mono);font-size:0.68rem;color:var(--blue);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px}
+.s-hero h1{font-family:var(--serif);font-size:clamp(1.8rem,3vw,2.6rem);line-height:1.1;margin-bottom:8px}
+.s-hero p{color:var(--text2);font-size:0.9rem;max-width:520px}
+.s-out{display:flex;align-items:flex-start;gap:8px;font-size:0.82rem;color:var(--text2);margin-top:6px}
+.s-out::before{content:'→';color:var(--blue);font-family:var(--mono);flex-shrink:0}
+
+/* SITUATION PANEL */
+.situation{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:24px 28px;margin-bottom:20px}
+.sit-label{font-family:var(--mono);font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px}
+.sit-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.sit-item{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px 16px;text-align:center}
+.sit-name{font-family:var(--mono);font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px}
+.sit-val{font-family:var(--mono);font-size:1.1rem;font-weight:600}
+.sit-val.spot{color:var(--text)}
+.sit-val.futures{color:var(--amber)}
+.sit-val.fv{color:var(--green)}
+.sit-sub{font-size:0.72rem;color:var(--text3);margin-top:3px}
+.sit-deviation{margin-top:14px;padding:10px 14px;background:rgba(248,113,113,0.07);border:1px solid rgba(248,113,113,0.2);border-radius:10px;font-size:0.83rem;display:flex;justify-content:space-between;align-items:center}
+.sit-deviation span{color:var(--text2)}
+.sit-deviation strong{color:var(--red);font-family:var(--mono)}
+
+/* ROLE PICKER */
+.role-intro{font-size:0.88rem;color:var(--text2);margin-bottom:18px;line-height:1.65}
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.role-card{border:2px solid var(--border2);border-radius:18px;padding:22px;cursor:pointer;transition:all .2s;background:var(--bg3);text-align:left}
+.role-card:hover{border-color:rgba(96,165,250,0.4);background:rgba(96,165,250,0.04);transform:translateY(-2px)}
+.role-card.hedger:hover{border-color:rgba(245,166,35,0.4);background:rgba(245,166,35,0.04)}
+.role-card.selected-hedger{border-color:var(--amber);background:rgba(245,166,35,0.06)}
+.role-card.selected-arb{border-color:var(--blue);background:rgba(96,165,250,0.06)}
+.role-icon{font-size:1.5rem;margin-bottom:10px}
+.role-name{font-family:var(--serif);font-size:1.1rem;margin-bottom:6px}
+.role-desc{font-size:0.82rem;color:var(--text2);line-height:1.5;margin-bottom:10px}
+.role-tag{display:inline-block;font-family:var(--mono);font-size:0.65rem;padding:3px 9px;border-radius:6px}
+.role-tag.hedger{background:rgba(245,166,35,0.1);color:var(--amber);border:1px solid rgba(245,166,35,0.25)}
+.role-tag.arb{background:rgba(96,165,250,0.1);color:var(--blue);border:1px solid rgba(96,165,250,0.25)}
+
+/* PATH SECTIONS */
+.path-section{display:none;margin-bottom:16px}
+.path-section.show{display:block}
+
+/* ACTIVITY CARD */
+.activity{background:var(--bg2);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-bottom:14px;transition:border-color .2s}
+.activity.done{border-color:rgba(74,222,128,0.25)}
+.activity-head{display:flex;align-items:center;gap:14px;padding:18px 22px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
+.act-num{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:10px;flex-shrink:0;background:var(--bg3);font-family:var(--mono);font-size:0.75rem;color:var(--text3);border:1px solid var(--border);transition:all .2s}
+.activity.done .act-num{background:rgba(74,222,128,0.1);color:var(--green);border-color:rgba(74,222,128,0.25)}
+.act-meta{flex:1}
+.act-tag{font-family:var(--mono);font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px}
+.act-title{font-size:0.95rem;font-weight:600}
+.act-check{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:0.65rem}
+.activity.done .act-check{background:var(--green);border-color:var(--green);color:#0f1117}
+.activity-body{padding:22px 24px}
+
+/* SCENARIO RUNNER */
+.scenario-tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.sc-tab{padding:7px 14px;border-radius:9px;border:1.5px solid var(--border2);background:var(--bg3);font-size:0.8rem;font-weight:600;color:var(--text2);cursor:pointer;transition:all .15s;font-family:var(--sans)}
+.sc-tab:hover{border-color:var(--border2);color:var(--text)}
+.sc-tab.active{border-color:var(--amber);color:var(--amber);background:rgba(245,166,35,0.06)}
+.sc-panel{display:none}.sc-panel.active{display:block}
+
+/* PNL TABLE */
+.pnl-table{width:100%;border-collapse:collapse;font-size:0.85rem;margin-bottom:14px}
+.pnl-table th{text-align:left;font-family:var(--mono);font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;padding:8px 12px;border-bottom:1px solid var(--border2)}
+.pnl-table td{padding:9px 12px;border-bottom:1px solid var(--border)}
+.pnl-table tr:last-child td{border-bottom:none;font-weight:600}
+.up{color:var(--green)}.down{color:var(--red)}.neu{color:var(--text2)}
+
+/* ARB STEPS */
+.arb-step{background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:10px;opacity:.4;pointer-events:none;transition:opacity .3s}
+.arb-step.active{opacity:1;pointer-events:auto;border-color:rgba(96,165,250,0.3)}
+.arb-step.done{opacity:1;pointer-events:none;border-color:rgba(74,222,128,0.25)}
+.arb-step-header{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.arb-step-num{font-family:var(--mono);font-size:0.72rem;color:var(--text3);background:var(--bg4);border:1px solid var(--border);border-radius:6px;padding:3px 8px}
+.arb-step.active .arb-step-num{color:var(--blue);border-color:rgba(96,165,250,0.3);background:rgba(96,165,250,0.08)}
+.arb-step.done .arb-step-num{color:var(--green);border-color:rgba(74,222,128,0.3);background:rgba(74,222,128,0.08)}
+.arb-step-title{font-size:0.9rem;font-weight:600}
+.arb-step-body{font-size:0.85rem;color:var(--text2);line-height:1.65;margin-bottom:10px}
+
+.ledger{background:var(--bg4);border:1px solid var(--border2);border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.ledger-title{font-family:var(--mono);font-size:0.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px}
+.ledger-row{display:flex;justify-content:space-between;align-items:center;font-size:0.82rem;padding:5px 0;border-bottom:1px solid var(--border)}
+.ledger-row:last-child{border-bottom:none;padding-bottom:0;padding-top:8px;font-weight:700;font-size:0.88rem}
+.ledger-row .lval{font-family:var(--mono)}
+.lval.pending{color:var(--text3)}
+.lval.pos{color:var(--green)}
+.lval.neg{color:var(--red)}
+.lval.locked{color:var(--blue)}
+
+.step-btn{padding:8px 16px;border-radius:9px;background:var(--blue);color:#0f1117;font-weight:600;font-size:0.82rem;cursor:pointer;border:none;font-family:var(--sans);transition:opacity .15s}
+.step-btn:hover{opacity:.88}
+
+/* CONVERGENCE WATCH */
+.conv-container{background:var(--bg3);border:1px solid var(--border2);border-radius:16px;padding:20px;margin-bottom:14px}
+.conv-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:gap}
+.conv-title{font-family:var(--mono);font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em}
+.conv-stats{display:flex;gap:16px;font-size:0.8rem}
+.conv-stat{text-align:center}
+.conv-stat-val{font-family:var(--mono);font-size:0.95rem;font-weight:600}
+.conv-stat-lbl{font-size:0.68rem;color:var(--text3)}
+canvas{width:100%;border-radius:10px;display:block}
+.conv-legend{display:flex;gap:16px;margin-top:12px;flex-wrap:wrap}
+.leg-item{display:flex;align-items:center;gap:6px;font-size:0.78rem;color:var(--text2)}
+.leg-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+.conv-controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.conv-btn{padding:8px 16px;border-radius:9px;border:1.5px solid var(--border2);background:var(--bg4);font-family:var(--sans);font-size:0.82rem;font-weight:600;color:var(--text2);cursor:pointer;transition:all .15s}
+.conv-btn:hover{color:var(--text);border-color:var(--border2)}
+.conv-btn.primary{background:var(--blue);color:#0f1117;border-color:var(--blue)}
+.conv-btn.primary:hover{opacity:.88}
+.conv-btn.inject{background:rgba(248,113,113,0.1);color:var(--red);border-color:rgba(248,113,113,0.3)}
+.conv-btn.inject:hover{background:rgba(248,113,113,0.18)}
+
+/* SYNTHESIS */
+.two-lens{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.lens-card{border-radius:14px;padding:16px 18px}
+.lens-card.hedger-lens{background:rgba(245,166,35,0.06);border:1px solid rgba(245,166,35,0.2)}
+.lens-card.arb-lens{background:rgba(96,165,250,0.06);border:1px solid rgba(96,165,250,0.2)}
+.lens-title{font-weight:700;margin-bottom:10px}
+.lens-card.hedger-lens .lens-title{color:var(--amber)}
+.lens-card.arb-lens .lens-title{color:var(--blue)}
+.lens-row{display:flex;gap:8px;margin-bottom:6px;font-size:0.82rem}
+.lens-q{color:var(--text3);flex-shrink:0;width:100px}
+.lens-a{color:var(--text2)}
+
+/* SESSION NAV */
+.session-nav{display:flex;justify-content:space-between;align-items:center;margin-top:32px;padding-top:24px;border-top:1px solid var(--border)}
+.sn-back{display:inline-flex;align-items:center;gap:7px;padding:10px 18px;border-radius:10px;background:var(--bg3);border:1px solid var(--border2);font-size:0.85rem;font-weight:600;color:var(--text2);transition:color .15s}
+.sn-back:hover{color:var(--text)}
+.sn-next{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:10px;background:var(--blue);color:#0f1117;font-size:0.85rem;font-weight:600;transition:opacity .15s}
+.sn-next:hover{opacity:.88}
+.sn-info{font-family:var(--mono);font-size:0.72rem;color:var(--text3);text-align:center}
+
+@media(max-width:700px){
+  .s-hero{padding:24px 20px}
+  .sit-grid{grid-template-columns:1fr 1fr}
+  .role-grid{grid-template-columns:1fr}
+  .two-lens{grid-template-columns:1fr}
+  .activity-body{padding:16px}
+}
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="index.html">DERIVATIVES<span>LAB</span></a>
+  <div class="nav-pill">
+    <span class="nav-session">Module 2 · Session 2.3 of 3</span>
+    <a class="nav-next" href="module2.html">Module 2 Home →</a>
+  </div>
+</nav>
+
+<div class="shell">
+  <div class="progress-meta">
+    <span class="progress-label">Session Progress</span>
+    <span class="progress-label" id="progressTxt">0 of 4 complete</span>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+
+  <div class="s-hero">
+    <div class="crumb"><a href="index.html">Home</a> <span>/</span> <a href="module2.html">Module 2</a> <span>/</span> <span>Session 2.3</span></div>
+    <div class="s-kicker">Session 2.3 · Two Lenses</div>
+    <h1>Pick Your Hat</h1>
+    <p>Nifty spot = ₹22,000. Futures = ₹22,380. Fair value = ₹22,182. Same numbers — completely different meaning depending on who you are. Pick a role and see what this basis tells you.</p>
+    <div class="s-out">Interpret basis from a hedger's perspective: it is residual risk, not opportunity</div>
+    <div class="s-out">Execute a cash-and-carry arbitrage trade step by step and calculate locked P&amp;L</div>
+    <div class="s-out">Explain why convergence is enforced by arbitrageurs, not just the exchange</div>
+  </div>
+
+  <!-- SITUATION PANEL -->
+  <div class="situation">
+    <div class="sit-label">Today's Market Setup — same numbers throughout this session</div>
+    <div class="sit-grid">
+      <div class="sit-item">
+        <div class="sit-name">Nifty Spot</div>
+        <div class="sit-val spot">₹22,000</div>
+        <div class="sit-sub">Current index level</div>
+      </div>
+      <div class="sit-item">
+        <div class="sit-name">Nifty Futures</div>
+        <div class="sit-val futures">₹22,380</div>
+        <div class="sit-sub">Screen price · 30 DTE</div>
+      </div>
+      <div class="sit-item">
+        <div class="sit-name">Fair Value</div>
+        <div class="sit-val fv">₹22,182</div>
+        <div class="sit-sub">r=6.5% · d=1.2% · T=30</div>
+      </div>
+    </div>
+    <div class="sit-deviation">
+      <span>Actual Basis: <strong style="color:var(--text);font-family:var(--mono)">−380</strong> &nbsp;·&nbsp; Fair Basis: <strong style="color:var(--text);font-family:var(--mono)">−182</strong></span>
+      <strong>Futures ₹198 ABOVE fair value</strong>
+    </div>
+  </div>
+
+  <!-- ACTIVITY 1: ROLE PICKER -->
+  <div class="activity" id="actRole">
+    <div class="activity-head">
+      <div class="act-num" id="actRoleNum">1</div>
+      <div class="act-meta">
+        <div class="act-tag">Activity · Role Selection</div>
+        <div class="act-title">Choose Your Perspective</div>
+      </div>
+      <div class="act-check" id="actRoleCheck"></div>
+    </div>
+    <div class="activity-body">
+      <p class="role-intro">Before you look at the analysis — pick who you are. The same ₹198 mispricing means something fundamentally different depending on your position.</p>
+      <div class="role-grid">
+        <div class="role-card hedger" onclick="pickRole('hedger')">
+          <div class="role-icon">🛡️</div>
+          <div class="role-name">Priya — The Hedger</div>
+          <div class="role-desc">I manage a ₹2.2 crore equity portfolio tracking the Nifty. I want to hedge my downside risk for the next 30 days using Nifty futures. I need certainty, not profit.</div>
+          <span class="role-tag hedger">Hedger</span>
+        </div>
+        <div class="role-card arb" onclick="pickRole('arb')">
+          <div class="role-icon">⚡</div>
+          <div class="role-name">Mihir — The Arbitrageur</div>
+          <div class="role-desc">I run a prop desk. I have no existing position. I spotted that Nifty futures are ₹198 above fair value. I want to lock in a risk-free profit before someone else does.</div>
+          <span class="role-tag arb">Arbitrageur</span>
+        </div>
+      </div>
+      <div id="roleConfirm" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- HEDGER PATH -->
+  <div class="path-section" id="hedgerPath">
+    <!-- Hedger Activity: Scenarios -->
+    <div class="activity" id="actHedger">
+      <div class="activity-head" onclick="toggleAct('actHedger')">
+        <div class="act-num" id="actHedgerNum">2</div>
+        <div class="act-meta">
+          <div class="act-tag">Hedger Path · Priya's Scenarios</div>
+          <div class="act-title">Hedger's Nightmare — What Basis Risk Actually Looks Like</div>
+        </div>
+        <div class="act-check" id="actHedgerCheck"></div>
+      </div>
+      <div class="activity-body" id="actHedgerBody">
+        <div style="background:var(--bg3);border:1px solid rgba(245,166,35,0.2);border-radius:14px;padding:16px 18px;margin-bottom:18px;font-size:0.87rem;color:var(--text2);line-height:1.65">
+          <strong style="color:var(--amber)">Priya's hedge:</strong> She shorts 1 Nifty lot (50 units) of futures at ₹22,380. Her portfolio value = ₹11,00,000 (50 units × ₹22,000). Run each scenario below to see what basis risk looks like in practice.
+        </div>
+
+        <div class="scenario-tabs" id="hedgerTabs">
+          <button class="sc-tab active" onclick="showScenario('h',0,this)">A: Market Falls 5%</button>
+          <button class="sc-tab" onclick="showScenario('h',1,this)">B: Market Flat</button>
+          <button class="sc-tab" onclick="showScenario('h',2,this)">C: Market Rises 3%</button>
+          <button class="sc-tab" onclick="showScenario('h',3,this)">D: Basis Widens (danger)</button>
+        </div>
+
+        <div id="hScenario0" class="sc-panel active"></div>
+        <div id="hScenario1" class="sc-panel"></div>
+        <div id="hScenario2" class="sc-panel"></div>
+        <div id="hScenario3" class="sc-panel"></div>
+
+        <div style="background:rgba(245,166,35,0.06);border:1px solid rgba(245,166,35,0.2);border-radius:12px;padding:14px 16px;margin-top:14px;font-size:0.85rem;color:var(--text2);line-height:1.6">
+          <strong style="color:var(--amber)">Key insight across all scenarios:</strong> Priya eliminated directional market risk — but the <em>basis</em> is still uncertain. When she must close her hedge before expiry, the basis at that moment determines her actual outcome. This unremovable uncertainty is called <strong style="color:var(--text)">basis risk</strong>.
+        </div>
+
+        <button onclick="completeHedger()" style="margin-top:16px;padding:10px 20px;border-radius:10px;background:var(--amber);color:#0f1117;font-weight:600;font-size:0.85rem;cursor:pointer;border:none;font-family:var(--sans)">Mark Complete ✓</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARB PATH -->
+  <div class="path-section" id="arbPath">
+    <div class="activity" id="actArb">
+      <div class="activity-head" onclick="toggleAct('actArb')">
+        <div class="act-num" id="actArbNum">2</div>
+        <div class="act-meta">
+          <div class="act-tag">Arbitrageur Path · Mihir's Trade</div>
+          <div class="act-title">Execute the Arb — Cash-and-Carry Step by Step</div>
+        </div>
+        <div class="act-check" id="actArbCheck"></div>
+      </div>
+      <div class="activity-body" id="actArbBody" id="arb">
+        <div style="background:var(--bg3);border:1px solid rgba(96,165,250,0.2);border-radius:14px;padding:16px 18px;margin-bottom:18px;font-size:0.87rem;color:var(--text2);line-height:1.65">
+          <strong style="color:var(--blue)">The mispricing:</strong> Futures at ₹22,380 vs fair value ₹22,182. Deviation = ₹198/unit. Lot size = 50. Potential locked profit before costs ≈ <strong style="color:var(--text)">₹9,900</strong>. Confirm each step to execute the trade.
+        </div>
+
+        <div class="ledger" id="arbLedger">
+          <div class="ledger-title">Trade Ledger — Locked P&amp;L</div>
+          <div class="ledger-row"><span style="color:var(--text2)">Interest cost (borrow 30d @ 6.5%)</span><span class="lval pending" id="lInt">pending</span></div>
+          <div class="ledger-row"><span style="color:var(--text2)">Futures gain (short at 22,380, settles at spot)</span><span class="lval pending" id="lFut">pending</span></div>
+          <div class="ledger-row"><span style="color:var(--text2)">Dividends received (1.2% × 30d)</span><span class="lval pending" id="lDiv">pending</span></div>
+          <div class="ledger-row"><span style="color:var(--text2)">Transaction costs (₹200/leg × 2)</span><span class="lval pending" id="lTxn">pending</span></div>
+          <div class="ledger-row"><span style="font-weight:700;color:var(--text)">LOCKED PROFIT</span><span class="lval pending" id="lTotal" style="font-size:1rem">calculating…</span></div>
+        </div>
+
+        <div id="arbStepsContainer"></div>
+
+        <div id="arbTwist" style="display:none;margin-top:16px">
+          <div style="background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2);border-radius:14px;padding:16px 18px;margin-bottom:12px">
+            <div style="font-weight:700;color:var(--red);margin-bottom:8px;font-size:0.9rem">⚡ Twist: What if transaction costs are ₹500/leg?</div>
+            <div style="font-size:0.85rem;color:var(--text2);line-height:1.65;margin-bottom:10px">Total transaction costs = ₹500 × 2 = ₹1,000. Your locked profit before costs was ₹9,914. After costs: <strong style="color:var(--text)">₹9,914 − ₹1,000 = ₹8,914</strong>. Still profitable.<br><br>
+            <strong style="color:var(--text)">Break-even question:</strong> What is the minimum mispricing (in ₹/unit) needed to cover ₹1,000 in costs?<br>₹1,000 ÷ 50 units = <strong style="color:var(--blue)">₹20/unit</strong>. The current mispricing is ₹198. You need at least ₹20 to break even — this trade clears that easily.</div>
+          </div>
+          <button onclick="completeArb()" style="padding:10px 20px;border-radius:10px;background:var(--blue);color:#0f1117;font-weight:600;font-size:0.85rem;cursor:pointer;border:none;font-family:var(--sans)">Mark Complete ✓</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHARED: CONVERGENCE WATCH -->
+  <div class="activity" id="actConv" style="display:none">
+    <div class="activity-head" onclick="toggleAct('actConv')">
+      <div class="act-num" id="actConvNum">3</div>
+      <div class="act-meta">
+        <div class="act-tag">Shared Activity · Both Paths</div>
+        <div class="act-title">Convergence Watch — Why Basis Goes to Zero</div>
+      </div>
+      <div class="act-check" id="actConvCheck"></div>
+    </div>
+    <div class="activity-body" id="actConvBody">
+      <p style="font-size:0.88rem;color:var(--text2);margin-bottom:16px;line-height:1.65">Watch spot, futures, and fair value converge as days to expiry count down. Hit <strong style="color:var(--red)">Inject Mispricing</strong> at any point — an arbitrageur bot will fire and pull futures back toward fair value within seconds.</p>
+
+      <div class="conv-container">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px">
+          <div style="font-family:var(--mono);font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em">Live Basis Chart · 30-Day Countdown</div>
+          <div style="display:flex;gap:16px">
+            <div class="conv-stat"><div class="conv-stat-val" id="convDTE" style="color:var(--blue)">30</div><div class="conv-stat-lbl">Days Left</div></div>
+            <div class="conv-stat"><div class="conv-stat-val" id="convBasis" style="color:var(--amber)">−380</div><div class="conv-stat-lbl">Basis</div></div>
+            <div class="conv-stat"><div class="conv-stat-val" id="convDev" style="color:var(--red)">−198</div><div class="conv-stat-lbl">vs Fair</div></div>
+          </div>
+        </div>
+        <canvas id="convCanvas" height="200"></canvas>
+        <div class="conv-legend">
+          <div class="leg-item"><div class="leg-dot" style="background:var(--text)"></div>Spot</div>
+          <div class="leg-item"><div class="leg-dot" style="background:var(--amber)"></div>Futures (actual)</div>
+          <div class="leg-item"><div class="leg-dot" style="background:var(--green)"></div>Fair Value</div>
+        </div>
+      </div>
+
+      <div class="conv-controls">
+        <button class="conv-btn primary" id="convPlayBtn" onclick="togglePlay()">▶ Play</button>
+        <button class="conv-btn" onclick="resetConv()">↺ Reset</button>
+        <button class="conv-btn inject" onclick="injectMispricing()">⚡ Inject Mispricing</button>
+      </div>
+
+      <div id="convMessage" style="margin-top:12px;font-size:0.83rem;color:var(--text3);min-height:20px;font-family:var(--mono)"></div>
+
+      <div style="margin-top:16px;background:rgba(96,165,250,0.06);border:1px solid rgba(96,165,250,0.2);border-radius:12px;padding:14px 16px;font-size:0.85rem;color:var(--text2);line-height:1.65">
+        <strong style="color:var(--blue)">What you're seeing:</strong> Fair value shrinks toward spot as DTE approaches zero (because carry = 0 when T = 0). The actual futures price tracks fair value closely — not because of rules, but because every deviation is immediately exploited by traders like Mihir. On expiry day, the exchange settles at spot. Basis = 0. Always.
+      </div>
+
+      <button onclick="completeConv()" style="margin-top:14px;padding:10px 20px;border-radius:10px;background:var(--blue);color:#0f1117;font-weight:600;font-size:0.85rem;cursor:pointer;border:none;font-family:var(--sans)">Mark Complete ✓</button>
+    </div>
+  </div>
+
+  <!-- SYNTHESIS -->
+  <div class="activity" id="actSynth" style="display:none">
+    <div class="activity-head" onclick="toggleAct('actSynth')">
+      <div class="act-num" id="actSynthNum">4</div>
+      <div class="act-meta">
+        <div class="act-tag">Synthesis · Both Paths</div>
+        <div class="act-title">Two Lenses, One Number</div>
+      </div>
+      <div class="act-check" id="actSynthCheck"></div>
+    </div>
+    <div class="activity-body" id="actSynthBody">
+      <p style="font-size:0.88rem;color:var(--text2);margin-bottom:16px">The same basis of −380 (vs fair −182) means something completely different to each participant. Here's the full comparison:</p>
+
+      <div class="two-lens">
+        <div class="lens-card hedger-lens">
+          <div class="lens-title">Priya — Hedger 🛡️</div>
+          <div class="lens-row"><span class="lens-q">Basis is…</span><span class="lens-a">Residual risk after hedging</span></div>
+          <div class="lens-row"><span class="lens-q">She wants…</span><span class="lens-a">Basis to be stable &amp; predictable</span></div>
+          <div class="lens-row"><span class="lens-q">Deviation hurts when…</span><span class="lens-a">She must close before expiry &amp; basis moved against her</span></div>
+          <div class="lens-row"><span class="lens-q">Fair basis means…</span><span class="lens-a">Clean hedge — outcome matches expectation</span></div>
+        </div>
+        <div class="lens-card arb-lens">
+          <div class="lens-title">Mihir — Arbitrageur ⚡</div>
+          <div class="lens-row"><span class="lens-q">Basis is…</span><span class="lens-a">A price signal — mispricing = locked profit</span></div>
+          <div class="lens-row"><span class="lens-q">He wants…</span><span class="lens-a">Basis to deviate from fair — then converge</span></div>
+          <div class="lens-row"><span class="lens-q">Deviation hurts when…</span><span class="lens-a">It corrects before he can trade it</span></div>
+          <div class="lens-row"><span class="lens-q">Fair basis means…</span><span class="lens-a">No arb opportunity — market is efficient</span></div>
+        </div>
+      </div>
+
+      <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:14px;padding:16px 18px;margin-bottom:16px">
+        <div style="font-family:var(--mono);font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px">Quick Check — Same Number, Who Cares?</div>
+        <div id="synthQs" style="display:flex;flex-direction:column;gap:10px"></div>
+      </div>
+
+      <button onclick="completeSynth()" id="synthCompleteBtn" style="padding:10px 20px;border-radius:10px;background:var(--blue);color:#0f1117;font-weight:600;font-size:0.85rem;cursor:pointer;border:none;font-family:var(--sans);display:none">Mark Complete — Module 2 Done ✓</button>
+    </div>
+  </div>
+
+  <div class="session-nav">
+    <a class="sn-back" href="s2-2.html">← Session 2.2</a>
+    <div class="sn-info">Session 2.3 of 3</div>
+    <a class="sn-next" href="m2-quiz.html">Take Module 2 Quiz →</a>
+  </div>
+</div>
+
+<script>
+// ── STATE ─────────────────────────────────────────────────────────────────
+let role = null;
+let done = 0;
+const total = 4;
+
+function prog() {
+  document.getElementById('progressFill').style.width = Math.round(done/total*100)+'%';
+  document.getElementById('progressTxt').textContent = done+' of '+total+' complete';
+}
+
+function toggleAct(id){
+  const b=document.getElementById(id+'Body');
+  if(b) b.style.display=b.style.display==='none'?'block':'none';
+}
+
+// ── ROLE PICKER ───────────────────────────────────────────────────────────
+function pickRole(r) {
+  role = r;
+  done++;
+  prog();
+
+  document.querySelectorAll('.role-card').forEach(c=>c.style.opacity='0.5');
+  const sel = document.querySelector('.role-card.'+r);
+  sel.style.opacity='1';
+  sel.classList.add('selected-'+r);
+
+  document.getElementById('actRole').classList.add('done');
+  document.getElementById('actRoleCheck').textContent='✓';
+  document.getElementById('actRoleNum').textContent='✓';
+
+  const conf = document.getElementById('roleConfirm');
+  conf.style.display='block';
+  conf.innerHTML = r==='hedger'
+    ? `<div style="padding:12px 14px;background:rgba(245,166,35,0.07);border:1px solid rgba(245,166,35,0.2);border-radius:12px;font-size:0.85rem;color:var(--text2)"><strong style="color:var(--amber)">You are Priya.</strong> Your job is to protect a portfolio — not to profit from mispricing. The basis tells you how well your hedge is working. Scroll down to see what basis risk really looks like.</div>`
+    : `<div style="padding:12px 14px;background:rgba(96,165,250,0.07);border:1px solid rgba(96,165,250,0.2);border-radius:12px;font-size:0.85rem;color:var(--text2)"><strong style="color:var(--blue)">You are Mihir.</strong> Your job is to find mispricing and lock in profit before the market corrects. The same ₹198 deviation that is Priya's uncertainty is your locked P&L. Scroll down to execute the trade.</div>`;
+
+  if(r==='hedger') {
+    document.getElementById('hedgerPath').classList.add('show');
+    buildHedgerScenarios();
+  } else {
+    document.getElementById('arbPath').classList.add('show');
+    buildArbSteps();
+  }
+}
+
+// ── HEDGER SCENARIOS ──────────────────────────────────────────────────────
+const ENTRY_FUT = 22380, SPOT0 = 22000, LOT = 50, PORT = 22000*50;
+
+function buildHedgerScenarios() {
+  const scenarios = [
+    { label:'A: Market Falls 5%', spotEnd:20900, futEnd:20900, note:'Futures converged to spot at expiry — clean settlement.' },
+    { label:'B: Market Flat', spotEnd:22000, futEnd:22000, note:'Flat market. But because Priya sold futures at 22,380 (above spot), she gained the basis premium — a small bonus.' },
+    { label:'C: Market Rises 3%', spotEnd:22660, futEnd:22660, note:'Market rose. Futures gain on portfolio offset by futures loss. Net outcome largely determined by basis.' },
+    { label:'D: Basis Widens (danger)', spotEnd:22000, futEnd:22600, note:'⚠ Priya had to close her hedge on Day 25, not expiry. Basis was still −600 (not zero). Her short futures showed a loss on an unchanged market.' }
+  ];
+
+  scenarios.forEach((sc,i) => {
+    const portPnL = (sc.spotEnd - SPOT0) * LOT;
+    const futPnL  = (ENTRY_FUT - sc.futEnd) * LOT;
+    const net     = portPnL + futPnL;
+    const html = `
+      <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:14px;padding:16px 18px;margin-bottom:4px">
+        <table class="pnl-table">
+          <thead><tr><th>Item</th><th>Calculation</th><th>P&amp;L</th></tr></thead>
+          <tbody>
+            <tr><td style="color:var(--text2)">Portfolio</td><td style="color:var(--text3);font-family:var(--mono);font-size:0.8rem">(${sc.spotEnd.toLocaleString()}−22,000)×50</td><td class="${portPnL>=0?'up':'down'}">₹${portPnL>=0?'+':''}${portPnL.toLocaleString()}</td></tr>
+            <tr><td style="color:var(--text2)">Short Futures</td><td style="color:var(--text3);font-family:var(--mono);font-size:0.8rem">(22,380−${sc.futEnd.toLocaleString()})×50</td><td class="${futPnL>=0?'up':'down'}">₹${futPnL>=0?'+':''}${futPnL.toLocaleString()}</td></tr>
+            <tr style="border-top:2px solid var(--border2)"><td style="color:var(--text)">Net P&amp;L</td><td></td><td class="${net>0?'up':net<0?'down':'neu'}" style="font-size:0.95rem">₹${net>=0?'+':''}${net.toLocaleString()}</td></tr>
+          </tbody>
+        </table>
+        <div style="font-size:0.82rem;color:var(--text2);padding:10px 12px;background:var(--bg4);border-radius:10px">${sc.note}</div>
+      </div>`;
+    document.getElementById('hScenario'+i).innerHTML = html;
+  });
+}
+
+function showScenario(prefix, idx, btn) {
+  document.querySelectorAll('#hedgerTabs .sc-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('[id^="'+prefix+'Scenario"]').forEach(p=>p.classList.remove('active'));
+  document.getElementById(prefix+'Scenario'+idx).classList.add('active');
+}
+
+function completeHedger() {
+  done++;
+  prog();
+  document.getElementById('actHedger').classList.add('done');
+  document.getElementById('actHedgerCheck').textContent='✓';
+  showShared();
+}
+
+// ── ARB STEPS ─────────────────────────────────────────────────────────────
+const arbSteps = [
+  { num:'Step 1', title:'Get Capital — Borrow ₹11,00,000', body:'You need ₹11,00,000 to buy 1 Nifty lot at spot (50 units × ₹22,000). Borrow at 6.5% for 30 days. Interest cost = ₹11,00,000 × 6.5% × 30/365 = <strong style="color:var(--red)">₹5,863</strong>.', ledger:['lInt','−₹5,863','neg'], btn:'Borrow ₹11,00,000 →' },
+  { num:'Step 2', title:'Buy Spot — Purchase 1 Nifty Lot at ₹22,000', body:'Buy 50 units of Nifty at ₹22,000. Deploy the borrowed capital. Your position: <strong style="color:var(--text)">Long spot</strong> at ₹22,000.', ledger:null, btn:'Buy 50 units at ₹22,000 →' },
+  { num:'Step 3', title:'Short Futures — Sell at ₹22,380', body:'Simultaneously short 1 Nifty futures lot at ₹22,380. Your combined position: <strong style="color:var(--blue)">long spot + short futures</strong>. This is market-neutral — whichever way Nifty moves, the two legs offset each other exactly.', ledger:['lFut','+₹19,000 (locked at convergence)','pos'], btn:'Short futures at ₹22,380 →' },
+  { num:'Step 4', title:'Wait 30 Days — Collect Dividends', body:'Hold both positions to expiry. During this period you collect Nifty dividends on your long spot position. Dividend income = ₹11,00,000 × 1.2% × 30/365 = <strong style="color:var(--green)">₹1,085</strong>.', ledger:['lDiv','+₹1,085','pos'], btn:'Hold to expiry →' },
+  { num:'Step 5', title:'Settle — Futures Close at Spot', body:'On expiry day the exchange settles futures at the Nifty spot closing price. Your short futures gain = (22,380 − settlement) × 50. Your long spot gain/loss = (settlement − 22,000) × 50. These cancel out perfectly — your profit is the locked spread. Transaction cost = <strong style="color:var(--red)">₹400</strong> (₹200 × 2 legs).', ledger:['lTxn','−₹400','neg'], btn:'Settle and close →' }
+];
+
+let arbStepIdx = 0;
+
+function buildArbSteps() {
+  const c = document.getElementById('arbStepsContainer');
+  c.innerHTML = '';
+  arbSteps.forEach((s,i) => {
+    const div = document.createElement('div');
+    div.className = 'arb-step' + (i===0?' active':'');
+    div.id = 'arbStep'+i;
+    div.innerHTML = `
+      <div class="arb-step-header">
+        <span class="arb-step-num">${s.num}</span>
+        <span class="arb-step-title">${s.title}</span>
+      </div>
+      <div class="arb-step-body">${s.body}</div>
+      <button class="step-btn" onclick="advanceArb(${i})">${s.btn}</button>`;
+    c.appendChild(div);
+  });
+}
+
+function advanceArb(i) {
+  const step = arbSteps[i];
+  document.getElementById('arbStep'+i).classList.remove('active');
+  document.getElementById('arbStep'+i).classList.add('done');
+
+  if(step.ledger) {
+    const el = document.getElementById(step.ledger[0]);
+    el.textContent = step.ledger[1];
+    el.className = 'lval '+step.ledger[2];
+  }
+
+  if(i < arbSteps.length - 1) {
+    document.getElementById('arbStep'+(i+1)).classList.remove('');
+    document.getElementById('arbStep'+(i+1)).classList.add('active');
+  } else {
+    // All steps done — show final P&L
+    const total = -5863 + 19000 + 1085 - 400;
+    document.getElementById('lTotal').textContent = '+₹'+total.toLocaleString();
+    document.getElementById('lTotal').className = 'lval locked';
+    document.getElementById('arbTwist').style.display = 'block';
+  }
+}
+
+function completeArb() {
+  done++;
+  prog();
+  document.getElementById('actArb').classList.add('done');
+  document.getElementById('actArbCheck').textContent='✓';
+  showShared();
+}
+
+function showShared() {
+  document.getElementById('actConv').style.display='block';
+  document.getElementById('actSynth').style.display='block';
+  initCanvas();
+  buildSynthQs();
+}
+
+// ── CONVERGENCE CHART ─────────────────────────────────────────────────────
+let convPlaying = false, convFrame = null;
+let convDay = 0, convFutExtra = 0, convArbBot = false;
+const CONV_DAYS = 30, S0 = 22000, R = 0.065, D = 0.012;
+
+function fairVal(t) { return S0 * (1 + (R-D)*(t/365)); }
+
+function initCanvas() {
+  drawConv();
+}
+
+function drawConv() {
+  const canvas = document.getElementById('convCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth || 600;
+  const H = 200;
+  canvas.width = W; canvas.height = H;
+
+  const pad = {l:48,r:16,t:16,b:32};
+  const cw = W-pad.l-pad.r, ch = H-pad.t-pad.b;
+
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#1e2535';
+  ctx.beginPath();
+  ctx.roundRect(0,0,W,H,10);
+  ctx.fill();
+
+  const minV=21600, maxV=22500, range=maxV-minV;
+  const x = d => pad.l + (d/CONV_DAYS)*cw;
+  const y = v => pad.t + ch - ((v-minV)/range)*ch;
+
+  // Grid
+  ctx.strokeStyle='rgba(255,255,255,0.05)';
+  ctx.lineWidth=1;
+  [21700,21800,21900,22000,22100,22200,22300,22400].forEach(v=>{
+    ctx.beginPath(); ctx.moveTo(pad.l,y(v)); ctx.lineTo(pad.l+cw,y(v)); ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,0.2)'; ctx.font='10px DM Mono';
+    ctx.fillText(v.toLocaleString('en-IN'), 2, y(v)+4);
+  });
+
+  // Spot line (flat)
+  ctx.strokeStyle='rgba(232,234,240,0.6)';
+  ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(x(0),y(S0)); ctx.lineTo(x(CONV_DAYS),y(S0)); ctx.stroke();
+
+  // Fair value line
+  ctx.strokeStyle='rgba(74,222,128,0.7)';
+  ctx.lineWidth=2;
+  ctx.setLineDash([4,3]);
+  ctx.beginPath();
+  for(let d=0;d<=CONV_DAYS;d++){
+    const fv=fairVal(CONV_DAYS-d);
+    if(d===0) ctx.moveTo(x(d),y(fv)); else ctx.lineTo(x(d),y(fv));
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Futures line up to current day
+  ctx.strokeStyle='rgba(245,166,35,0.9)';
+  ctx.lineWidth=2.5;
+  ctx.beginPath();
+  for(let d=0;d<=convDay;d++){
+    const fv = fairVal(CONV_DAYS-d);
+    const extra = d===convDay ? convFutExtra : Math.max(0, convFutExtra*(1-(d/Math.max(convDay,1))));
+    const fut = fv + (d===0?198:0) * (1-d/CONV_DAYS) + extra;
+    if(d===0) ctx.moveTo(x(d),y(fut)); else ctx.lineTo(x(d),y(fut));
+  }
+  ctx.stroke();
+
+  // Current day marker
+  if(convDay < CONV_DAYS) {
+    ctx.strokeStyle='rgba(96,165,250,0.3)';
+    ctx.lineWidth=1;
+    ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(x(convDay),pad.t); ctx.lineTo(x(convDay),pad.t+ch); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // Day labels
+  ctx.fillStyle='rgba(255,255,255,0.25)'; ctx.font='10px DM Mono';
+  [0,10,20,30].forEach(d=>{
+    ctx.fillText('d'+(CONV_DAYS-d), x(d)-8, H-6);
+  });
+
+  // Update stats
+  const curFV = fairVal(CONV_DAYS-convDay);
+  const curFut = curFV + 198*(1-convDay/CONV_DAYS) + convFutExtra;
+  document.getElementById('convDTE').textContent = Math.max(0,CONV_DAYS-convDay);
+  document.getElementById('convBasis').textContent = (S0-curFut).toFixed(0);
+  document.getElementById('convDev').textContent = (curFut-curFV).toFixed(0);
+}
+
+function tick() {
+  if(!convPlaying) return;
+  if(convDay >= CONV_DAYS) { convPlaying=false; document.getElementById('convPlayBtn').textContent='▶ Play'; document.getElementById('convMessage').textContent='Expiry reached. Basis = 0. Convergence complete.'; return; }
+
+  if(convArbBot && convFutExtra > 0) {
+    convFutExtra = Math.max(0, convFutExtra*0.82);
+    if(convFutExtra < 1) { convFutExtra=0; convArbBot=false; document.getElementById('convMessage').textContent='Arb bot closed position. Mispricing eliminated.'; }
+  }
+
+  convDay += 0.5;
+  drawConv();
+  convFrame = setTimeout(tick, 60);
+}
+
+function togglePlay() {
+  convPlaying = !convPlaying;
+  document.getElementById('convPlayBtn').textContent = convPlaying ? '⏸ Pause' : '▶ Play';
+  if(convPlaying) tick();
+}
+
+function resetConv() {
+  convPlaying=false; convDay=0; convFutExtra=0; convArbBot=false;
+  clearTimeout(convFrame);
+  document.getElementById('convPlayBtn').textContent='▶ Play';
+  document.getElementById('convMessage').textContent='';
+  drawConv();
+}
+
+function injectMispricing() {
+  convFutExtra = 250;
+  convArbBot = true;
+  document.getElementById('convMessage').textContent='⚡ Mispricing injected! Futures now ₹'+Math.round(250+198*(1-convDay/CONV_DAYS))+'above fair value. Arb bot responding…';
+  drawConv();
+  if(!convPlaying) { convPlaying=true; document.getElementById('convPlayBtn').textContent='⏸ Pause'; tick(); }
+}
+
+// ── SYNTHESIS QUESTIONS ────────────────────────────────────────────────────
+const synthQs = [
+  { q:'Basis suddenly widens from −182 to −450 two weeks before expiry. Priya needs to close her hedge now. Is this good or bad for her short futures position?', options:['Good — wider basis improves short futures','Bad — basis moved against her short','Neutral — basis always goes to zero'], correct:0, explain:'Basis widened from −182 to −450, meaning futures rose further above spot. As a short futures holder, Priya sold at 22,380 but futures are now even higher. If she closes now, she buys back at a higher price — a loss. Basis risk just hit her.' },
+  { q:'The same basis widening from −182 to −450 happens. Mihir has already executed his cash-and-carry arb. How does he feel?', options:['Worried — larger mispricing hurts him','Happy — his short futures position gained more','Neutral — his P&L is already locked'], correct:2, explain:'Mihir\'s P&L is locked at trade entry. He is long spot and short futures. The basis can move to −1000 before expiry and he doesn\'t care — both legs settle at spot on expiry day. His profit was locked when he entered the trade.' },
+  { q:'An arbitrageur sees futures trading at exactly fair value. What does he do?', options:['Enter a cash-and-carry arb immediately','Wait for a larger deviation before acting','Nothing — there is no arb opportunity'], correct:2, explain:'No deviation = no arb. The arbitrageur\'s edge is exactly the gap between screen price and fair value, minus transaction costs. At fair value, the gap is zero — any arb trade would return zero before costs and a loss after costs.' }
+];
+
+let synthAns = 0;
+
+function buildSynthQs() {
+  const c = document.getElementById('synthQs');
+  synthQs.forEach((q,i) => {
+    const div = document.createElement('div');
+    div.style.cssText='background:var(--bg4);border:1px solid var(--border);border-radius:12px;padding:14px 16px';
+    div.innerHTML=`
+      <div style="font-size:0.85rem;font-weight:600;color:var(--text);margin-bottom:10px">${i+1}. ${q.q}</div>
+      <div style="display:flex;flex-direction:column;gap:6px" id="sqOpts${i}">
+        ${q.options.map((o,j)=>`<button onclick="synthAns(${i},${j})" id="sq${i}_${j}" style="padding:8px 12px;border-radius:9px;border:1.5px solid var(--border2);background:var(--bg3);font-family:var(--sans);font-size:0.82rem;font-weight:500;color:var(--text2);cursor:pointer;text-align:left;transition:all .15s" onmouseover="this.style.borderColor='var(--border2)';this.style.color='var(--text)'" onmouseout="if(!this.disabled){this.style.borderColor='var(--border2)';this.style.color='var(--text2)'}">
+          <span style="font-family:var(--mono);font-size:0.7rem;color:var(--text3);margin-right:8px">${String.fromCharCode(65+j)}</span>${o}
+        </button>`).join('')}
+      </div>
+      <div id="sqReveal${i}" style="display:none;margin-top:10px;padding:10px 12px;border-radius:9px;font-size:0.82rem"></div>`;
+    c.appendChild(div);
+  });
+}
+
+let synthDone = 0;
+function synthAns(qi, ai) {
+  const q = synthQs[qi];
+  const correct = ai === q.correct;
+  for(let j=0;j<q.options.length;j++){
+    const btn=document.getElementById('sq'+qi+'_'+j);
+    btn.disabled=true; btn.onmouseover=null; btn.onmouseout=null; btn.style.opacity='0.5';
+    if(j===q.correct){btn.style.borderColor='var(--green)';btn.style.color='var(--green)';btn.style.background='rgba(74,222,128,0.08)';btn.style.opacity='1';}
+    if(j===ai && !correct){btn.style.borderColor='var(--red)';btn.style.color='var(--red)';btn.style.background='rgba(248,113,113,0.08)';btn.style.opacity='1';}
+  }
+  const rev=document.getElementById('sqReveal'+qi);
+  rev.style.display='block';
+  rev.style.cssText+=correct?';background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);color:var(--text2)':';background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2);color:var(--text2)';
+  rev.innerHTML=`<strong style="color:${correct?'var(--green)':'var(--red)'}">${correct?'✓ Correct.':'✗ Not quite.'}</strong> ${q.explain}`;
+  synthDone++;
+  if(synthDone===synthQs.length) document.getElementById('synthCompleteBtn').style.display='inline-flex';
+}
+
+function completeConv() {
+  done++;
+  prog();
+  document.getElementById('actConv').classList.add('done');
+  document.getElementById('actConvCheck').textContent='✓';
+}
+
+function completeSynth() {
+  done++;
+  prog();
+  document.getElementById('actSynth').classList.add('done');
+  document.getElementById('actSynthCheck').textContent='✓';
+}
+</script>
+</body>
+</html>

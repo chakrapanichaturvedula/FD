@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Basis Signal Reader · DerivativesLab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0f1117;--bg2:#161b26;--bg3:#1e2535;--bg4:#252e42;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --amber:#f5a623;--blue:#60a5fa;--green:#4ade80;--red:#f87171;--violet:#a78bfa;--coral:#fb923c;
+  --text:#e8eaf0;--text2:#8b91a8;--text3:#555e78;
+  --serif:'DM Serif Display',Georgia,serif;
+  --mono:'DM Mono','Courier New',monospace;
+  --sans:'DM Sans',system-ui,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+a{text-decoration:none;color:inherit}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:56px;background:rgba(15,17,23,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:var(--mono);font-size:0.82rem;color:var(--amber);letter-spacing:0.04em}
+.nav-logo span{color:var(--text2)}
+.nav-back{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;background:var(--bg3);border:1px solid var(--border2);font-size:0.78rem;font-weight:600;color:var(--text2);transition:color .15s}
+.nav-back:hover{color:var(--text)}
+.shell{max-width:1000px;margin:0 auto;padding:80px 24px 80px}
+
+.page-hero{padding:36px 40px;border-radius:28px;background:var(--bg2);border:1px solid var(--border2);margin-bottom:28px;position:relative;overflow:hidden}
+.page-hero::before{content:'';position:absolute;bottom:-40px;right:-40px;width:220px;height:220px;background:radial-gradient(circle,rgba(96,165,250,0.07) 0%,transparent 70%);pointer-events:none}
+.crumb{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:0.68rem;color:var(--text3);margin-bottom:14px}
+.crumb a{color:var(--text3)}.crumb a:hover{color:var(--blue)}
+.page-kicker{font-family:var(--mono);font-size:0.68rem;color:var(--amber);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px}
+.page-hero h1{font-family:var(--serif);font-size:clamp(1.8rem,3vw,2.4rem);line-height:1.1;margin-bottom:8px}
+.page-hero p{color:var(--text2);font-size:0.9rem;max-width:520px}
+
+/* PRESET BAR */
+.preset-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}
+.preset-btn{padding:7px 14px;border-radius:9px;border:1.5px solid var(--border2);background:var(--bg3);font-family:var(--sans);font-size:0.8rem;font-weight:600;color:var(--text2);cursor:pointer;transition:all .15s}
+.preset-btn:hover{border-color:var(--blue);color:var(--blue)}
+.preset-btn.active{border-color:var(--blue);color:var(--blue);background:rgba(96,165,250,0.08)}
+
+/* MAIN GRID */
+.main-grid{display:grid;grid-template-columns:1fr 1.6fr;gap:20px;margin-bottom:24px}
+
+/* INPUT PANEL */
+.input-panel{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;overflow:hidden}
+.panel-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.panel-title{font-family:var(--mono);font-size:0.72rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em}
+.nse-badge{font-family:var(--mono);font-size:0.62rem;padding:3px 8px;border-radius:5px;background:rgba(96,165,250,0.1);color:var(--blue);border:1px solid rgba(96,165,250,0.2)}
+.panel-body{padding:20px}
+
+.field-group{display:flex;flex-direction:column;gap:14px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field-label{font-size:0.78rem;color:var(--text2);display:flex;justify-content:space-between;align-items:center}
+.field-hint{font-family:var(--mono);font-size:0.65rem;color:var(--text3)}
+.field-input{width:100%;padding:10px 14px;border-radius:10px;background:var(--bg3);border:1.5px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:0.92rem;font-weight:600;outline:none;transition:border-color .15s}
+.field-input:focus{border-color:rgba(96,165,250,0.4)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* OUTPUT PANEL */
+.output-panel{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;overflow:hidden;display:flex;flex-direction:column}
+.output-head{padding:16px 20px;border-bottom:1px solid var(--border)}
+
+/* SIGNAL GAUGE */
+.gauge-area{padding:20px;display:flex;flex-direction:column;align-items:center;border-bottom:1px solid var(--border)}
+.gauge-label{font-family:var(--mono);font-size:0.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:14px}
+.gauge-track{width:100%;height:12px;border-radius:6px;background:linear-gradient(to right, var(--green), rgba(74,222,128,0.3), var(--bg4), rgba(248,113,113,0.3), var(--red));position:relative;margin-bottom:8px}
+.gauge-marker{position:absolute;top:-4px;width:20px;height:20px;border-radius:50%;border:3px solid var(--bg2);transform:translateX(-50%);transition:left .4s ease}
+.gauge-ends{display:flex;justify-content:space-between;width:100%;font-family:var(--mono);font-size:0.65rem;color:var(--text3)}
+.gauge-signal{margin-top:12px;text-align:center}
+.signal-pill{display:inline-block;padding:6px 16px;border-radius:20px;font-family:var(--mono);font-size:0.82rem;font-weight:600;letter-spacing:0.04em}
+.signal-pill.over{background:rgba(248,113,113,0.12);color:var(--red);border:1px solid rgba(248,113,113,0.3)}
+.signal-pill.under{background:rgba(74,222,128,0.12);color:var(--green);border:1px solid rgba(74,222,128,0.3)}
+.signal-pill.fair{background:rgba(96,165,250,0.12);color:var(--blue);border:1px solid rgba(96,165,250,0.3)}
+
+/* METRICS */
+.metrics-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;flex:1}
+.metric{padding:14px 18px;border-bottom:1px solid var(--border);border-right:1px solid var(--border)}
+.metric:nth-child(2n){border-right:none}
+.metric:nth-last-child(-n+2){border-bottom:none}
+.metric-label{font-family:var(--mono);font-size:0.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px}
+.metric-val{font-family:var(--mono);font-size:1.1rem;font-weight:600}
+.metric-sub{font-size:0.72rem;color:var(--text3);margin-top:2px}
+
+/* ROLE PANEL */
+.role-panel{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;overflow:hidden;margin-bottom:20px}
+.role-tabs{display:flex;border-bottom:1px solid var(--border)}
+.role-tab{flex:1;padding:13px;text-align:center;cursor:pointer;font-size:0.82rem;font-weight:600;color:var(--text2);border:none;background:none;font-family:var(--sans);transition:all .15s;border-bottom:2px solid transparent}
+.role-tab:hover{color:var(--text)}
+.role-tab.active-hedger{color:var(--amber);border-bottom-color:var(--amber);background:rgba(245,166,35,0.04)}
+.role-tab.active-arb{color:var(--blue);border-bottom-color:var(--blue);background:rgba(96,165,250,0.04)}
+.role-content{padding:20px}
+.role-pane{display:none}.role-pane.show{display:block}
+
+.interpretation{display:flex;flex-direction:column;gap:10px}
+.interp-row{display:flex;gap:12px;align-items:flex-start;font-size:0.85rem}
+.interp-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px}
+.interp-text{color:var(--text2);line-height:1.55}
+.interp-text strong{color:var(--text)}
+
+.trade-box{background:var(--bg3);border:1px solid var(--border2);border-radius:14px;padding:16px 18px;margin-top:12px}
+.trade-title{font-family:var(--mono);font-size:0.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px}
+.trade-row{display:flex;justify-content:space-between;font-size:0.85rem;padding:6px 0;border-bottom:1px solid var(--border)}
+.trade-row:last-child{border-bottom:none;font-weight:700;padding-top:10px;font-size:0.9rem}
+
+/* NSE STYLE TICKER */
+.nse-ticker{background:var(--bg2);border:1px solid rgba(96,165,250,0.2);border-radius:20px;padding:20px;margin-bottom:20px}
+.ticker-title{font-family:var(--mono);font-size:0.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.ticker-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.tick-item{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:12px 14px;text-align:center}
+.tick-label{font-family:var(--mono);font-size:0.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px}
+.tick-val{font-family:var(--mono);font-size:1rem;font-weight:700}
+.tick-val.pos{color:var(--green)}.tick-val.neg{color:var(--red)}.tick-val.neu{color:var(--text)}
+.tick-val.warn{color:var(--amber)}
+.tick-sub{font-size:0.68rem;color:var(--text3);margin-top:2px}
+
+@media(max-width:800px){
+  .main-grid{grid-template-columns:1fr}
+  .ticker-grid{grid-template-columns:1fr 1fr}
+  .metrics-grid{grid-template-columns:1fr 1fr}
+  .page-hero{padding:24px 20px}
+}
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="index.html">DERIVATIVES<span>LAB</span></a>
+  <a class="nav-back" href="module2.html">← Module 2</a>
+</nav>
+
+<div class="shell">
+  <div class="page-hero">
+    <div class="crumb"><a href="index.html">Home</a> <span>/</span> <a href="module2.html">Module 2</a> <span>/</span> <span>Basis Signal Reader</span></div>
+    <div class="page-kicker">Track 1 · Markets</div>
+    <h1>Is Nifty Futures Fairly Priced?</h1>
+    <p>Enter any spot price, futures price, rate, dividend yield, and days to expiry. Instantly see fair value, basis, deviation, and a plain-language signal — from both the hedger's and arbitrageur's perspective.</p>
+  </div>
+
+  <!-- PRESETS -->
+  <div class="preset-bar">
+    <span style="font-family:var(--mono);font-size:0.72rem;color:var(--text3);align-self:center;margin-right:4px">Load scenario:</span>
+    <button class="preset-btn active" onclick="loadPreset(0,this)">Nifty — Overpriced</button>
+    <button class="preset-btn" onclick="loadPreset(1,this)">Nifty — Fair Value</button>
+    <button class="preset-btn" onclick="loadPreset(2,this)">Nifty — Underpriced</button>
+    <button class="preset-btn" onclick="loadPreset(3,this)">Gold — Contango</button>
+    <button class="preset-btn" onclick="loadPreset(4,this)">High Dividend Stock</button>
+  </div>
+
+  <!-- NSE TICKER -->
+  <div class="nse-ticker">
+    <div class="ticker-title"><div class="live-dot"></div>Live Position Summary</div>
+    <div class="ticker-grid">
+      <div class="tick-item"><div class="tick-label">Spot</div><div class="tick-val neu" id="tSpot">22,000</div><div class="tick-sub">Current</div></div>
+      <div class="tick-item"><div class="tick-label">Futures</div><div class="tick-val warn" id="tFut">22,380</div><div class="tick-sub" id="tDTE">30 DTE</div></div>
+      <div class="tick-item"><div class="tick-label">Fair Value</div><div class="tick-val" id="tFV" style="color:var(--green)">22,096</div><div class="tick-sub">Cost of carry</div></div>
+      <div class="tick-item"><div class="tick-label">Deviation</div><div class="tick-val" id="tDev">+284</div><div class="tick-sub" id="tDevLbl">Overpriced</div></div>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="main-grid">
+
+    <!-- INPUTS -->
+    <div class="input-panel">
+      <div class="panel-head">
+        <span class="panel-title">Market Inputs</span>
+        <span class="nse-badge">NSE Style</span>
+      </div>
+      <div class="panel-body">
+        <div class="field-group">
+          <div class="field">
+            <div class="field-label"><span>Spot Price (₹)</span><span class="field-hint">Nifty / stock / commodity</span></div>
+            <input class="field-input" id="inSpot" type="number" value="22000" oninput="compute()">
+          </div>
+          <div class="field">
+            <div class="field-label"><span>Futures Screen Price (₹)</span><span class="field-hint">What the market shows</span></div>
+            <input class="field-input" id="inFut" type="number" value="22380" oninput="compute()">
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <div class="field-label"><span>Risk-Free Rate (%)</span></div>
+              <input class="field-input" id="inRate" type="number" value="6.5" step="0.1" oninput="compute()">
+            </div>
+            <div class="field">
+              <div class="field-label"><span>Dividend Yield (%)</span></div>
+              <input class="field-input" id="inDiv" type="number" value="1.2" step="0.1" oninput="compute()">
+            </div>
+          </div>
+          <div class="field">
+            <div class="field-label"><span>Days to Expiry</span><span class="field-hint" id="dteHint">30 days</span></div>
+            <input type="range" id="inDTE" min="0" max="90" value="30" step="1" oninput="compute()" style="accent-color:var(--blue);width:100%;cursor:pointer">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTPUTS -->
+    <div class="output-panel">
+      <div class="output-head">
+        <span class="panel-title" style="font-family:var(--mono);font-size:0.72rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em">Signal Analysis</span>
+      </div>
+
+      <!-- GAUGE -->
+      <div class="gauge-area">
+        <div class="gauge-label">Mispricing Gauge — Futures vs Fair Value</div>
+        <div class="gauge-track" style="width:80%;max-width:360px">
+          <div class="gauge-marker" id="gaugeMarker" style="background:var(--red);left:80%"></div>
+        </div>
+        <div class="gauge-ends" style="width:80%;max-width:360px">
+          <span>Underpriced</span><span>Fair Zone</span><span>Overpriced</span>
+        </div>
+        <div class="gauge-signal">
+          <span class="signal-pill" id="signalPill">OVERPRICED</span>
+          <div style="font-size:0.8rem;color:var(--text2);margin-top:6px" id="signalSub">Futures ₹284 above fair value</div>
+        </div>
+      </div>
+
+      <!-- METRICS -->
+      <div class="metrics-grid">
+        <div class="metric">
+          <div class="metric-label">Actual Basis</div>
+          <div class="metric-val" id="mBasis" style="color:var(--text)">−380</div>
+          <div class="metric-sub">Spot − Futures</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Fair Basis</div>
+          <div class="metric-val" id="mFairBasis" style="color:var(--green)">−96</div>
+          <div class="metric-sub">Spot − Fair Value</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Carry Cost</div>
+          <div class="metric-val" id="mCarry" style="color:var(--blue)">+₹118</div>
+          <div class="metric-sub">Financing (r × T)</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Div Income</div>
+          <div class="metric-val" id="mDiv" style="color:var(--red)">−₹22</div>
+          <div class="metric-sub">Dividends (d × T)</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Fair Value</div>
+          <div class="metric-val" id="mFV" style="color:var(--green)">₹22,096</div>
+          <div class="metric-sub">Theoretical price</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Deviation</div>
+          <div class="metric-val" id="mDev" style="color:var(--red)">+₹284</div>
+          <div class="metric-sub">Screen − Fair Value</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ROLE PANEL -->
+  <div class="role-panel">
+    <div class="role-tabs">
+      <button class="role-tab active-hedger" id="tabHedger" onclick="switchRole('hedger')">🛡️ Hedger's View</button>
+      <button class="role-tab" id="tabArb" onclick="switchRole('arb')">⚡ Arbitrageur's View</button>
+    </div>
+    <div class="role-content">
+      <div class="role-pane show" id="paneHedger">
+        <div class="interpretation" id="hedgerInterp"></div>
+      </div>
+      <div class="role-pane" id="paneArb">
+        <div class="interpretation" id="arbInterp"></div>
+        <div class="trade-box" id="tradeBox" style="display:none">
+          <div class="trade-title">Arb Trade Summary (per lot · 50 units)</div>
+          <div id="tradeRows"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FORMULA REFERENCE -->
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:18px;padding:20px 24px">
+    <div style="font-family:var(--mono);font-size:0.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px">Formula Reference</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:0.83rem">
+      <div style="background:var(--bg3);border-radius:10px;padding:12px 14px">
+        <div style="font-family:var(--mono);font-size:0.72rem;color:var(--blue);margin-bottom:4px">Fair Value</div>
+        <div style="font-family:var(--mono);color:var(--text2)">F = S × [1 + (r − d) × T/365]</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:10px;padding:12px 14px">
+        <div style="font-family:var(--mono);font-size:0.72rem;color:var(--amber);margin-bottom:4px">Basis</div>
+        <div style="font-family:var(--mono);color:var(--text2)">Basis = Spot − Futures</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:10px;padding:12px 14px">
+        <div style="font-family:var(--mono);font-size:0.72rem;color:var(--green);margin-bottom:4px">Arb profit (per unit)</div>
+        <div style="font-family:var(--mono);color:var(--text2)">= (F_screen − F_fair) − txn costs</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:10px;padding:12px 14px">
+        <div style="font-family:var(--mono);font-size:0.72rem;color:var(--coral);margin-bottom:4px">Convergence</div>
+        <div style="font-family:var(--mono);color:var(--text2)">At T=0: F = S, Basis = 0</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const presets = [
+  { name:'Nifty Overpriced',  spot:22000, fut:22380, r:6.5, d:1.2, dte:30 },
+  { name:'Nifty Fair Value',  spot:22000, fut:22096, r:6.5, d:1.2, dte:30 },
+  { name:'Nifty Underpriced', spot:22000, fut:21900, r:6.5, d:1.2, dte:30 },
+  { name:'Gold Contango',     spot:60000, fut:60650, r:6.5, d:0,   dte:30 },
+  { name:'High Div Stock',    spot:500,   fut:493,   r:6.5, d:8,   dte:30 }
+];
+
+function loadPreset(i, btn) {
+  document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const p = presets[i];
+  document.getElementById('inSpot').value = p.spot;
+  document.getElementById('inFut').value  = p.fut;
+  document.getElementById('inRate').value = p.r;
+  document.getElementById('inDiv').value  = p.d;
+  document.getElementById('inDTE').value  = p.dte;
+  compute();
+}
+
+let currentRole = 'hedger';
+
+function switchRole(r) {
+  currentRole = r;
+  document.getElementById('paneHedger').className = 'role-pane'+(r==='hedger'?' show':'');
+  document.getElementById('paneArb').className    = 'role-pane'+(r==='arb'?' show':'');
+  document.getElementById('tabHedger').className  = 'role-tab'+(r==='hedger'?' active-hedger':'');
+  document.getElementById('tabArb').className     = 'role-tab'+(r==='arb'?' active-arb':'');
+  renderRoles();
+}
+
+function fmt(n,d=2){ return n.toLocaleString('en-IN',{maximumFractionDigits:d,minimumFractionDigits:d}); }
+function fmtSgn(n){ return (n>=0?'+':'')+fmt(n); }
+
+function compute() {
+  const S   = +document.getElementById('inSpot').value  || 0;
+  const F   = +document.getElementById('inFut').value   || 0;
+  const r   = +document.getElementById('inRate').value  || 0;
+  const d   = +document.getElementById('inDiv').value   || 0;
+  const T   = +document.getElementById('inDTE').value   || 0;
+
+  document.getElementById('dteHint').textContent = T+' days';
+
+  const carry  = S*(r/100)*(T/365);
+  const divInc = S*(d/100)*(T/365);
+  const fv     = S + carry - divInc;
+  const dev    = F - fv;
+  const basis  = S - F;
+  const fbasis = S - fv;
+  const pct    = dev/fv*100;
+
+  // Ticker
+  document.getElementById('tSpot').textContent = S.toLocaleString('en-IN');
+  document.getElementById('tFut').textContent  = F.toLocaleString('en-IN');
+  document.getElementById('tDTE').textContent  = T+' DTE';
+  document.getElementById('tFV').textContent   = fmt(fv,0);
+
+  const devEl = document.getElementById('tDev');
+  devEl.textContent = fmtSgn(dev);
+  if(Math.abs(dev)<50){ devEl.style.color='var(--blue)'; document.getElementById('tDevLbl').textContent='Fair'; }
+  else if(dev>0){ devEl.style.color='var(--red)'; document.getElementById('tDevLbl').textContent='Overpriced'; }
+  else{ devEl.style.color='var(--green)'; document.getElementById('tDevLbl').textContent='Underpriced'; }
+
+  // Metrics
+  document.getElementById('mBasis').textContent    = fmtSgn(basis);
+  document.getElementById('mFairBasis').textContent= fmtSgn(fbasis);
+  document.getElementById('mCarry').textContent    = '+₹'+fmt(carry);
+  document.getElementById('mDiv').textContent      = '−₹'+fmt(divInc);
+  document.getElementById('mFV').textContent       = '₹'+fmt(fv);
+  document.getElementById('mDev').textContent      = fmtSgn(dev);
+  document.getElementById('mDev').style.color      = dev>50?'var(--red)':dev<-50?'var(--green)':'var(--blue)';
+
+  // Gauge — map dev/fv % to 0-100 scale, clamp
+  const normalised = Math.max(0, Math.min(100, 50 + pct*8));
+  const marker = document.getElementById('gaugeMarker');
+  marker.style.left = normalised+'%';
+  marker.style.background = dev>50?'var(--red)':dev<-50?'var(--green)':'var(--blue)';
+
+  // Signal pill
+  const pill = document.getElementById('signalPill');
+  const sub  = document.getElementById('signalSub');
+  if(Math.abs(dev)<50){
+    pill.className='signal-pill fair'; pill.textContent='FAIRLY PRICED';
+    sub.textContent='Futures within ±₹50 of fair value — no arb opportunity';
+  } else if(dev>0){
+    pill.className='signal-pill over'; pill.textContent='OVERPRICED';
+    sub.textContent=`Futures ₹${fmt(dev)} above fair value`;
+  } else {
+    pill.className='signal-pill under'; pill.textContent='UNDERPRICED';
+    sub.textContent=`Futures ₹${fmt(Math.abs(dev))} below fair value`;
+  }
+
+  // Store for role render
+  window._calc = {S,F,r,d,T,carry,divInc,fv,dev,basis,fbasis,pct};
+  renderRoles();
+}
+
+function renderRoles() {
+  const {S,F,r,d,T,carry,divInc,fv,dev,basis,fbasis} = window._calc || {};
+  if(!S) return;
+
+  // Hedger
+  const hInterp = document.getElementById('hedgerInterp');
+  let hRows = [];
+  if(Math.abs(dev)<50){
+    hRows=[{icon:'✓',text:`<strong>Basis ≈ fair.</strong> If you're shorting futures to hedge a long portfolio, basis risk is low right now. The gap between spot and futures is behaving as theory predicts.`}];
+  } else if(dev>0){
+    hRows=[
+      {icon:'📌',text:`<strong>Basis is wider than fair:</strong> Futures are ₹${fmt(dev)} richer than fair value. If you short futures here to hedge, you are selling at a premium — this <em>benefits</em> a short hedger initially.`},
+      {icon:'⚠️',text:`<strong>Watch out at close:</strong> When this wide basis converges to zero (as it must by expiry), your short futures position gains the extra premium. But if you close early and basis hasn't converged yet, you face a mark-to-market loss.`},
+      {icon:'📊',text:`<strong>Basis risk:</strong> The ±₹${fmt(Math.abs(dev))} mispricing is not something you control. It's the uncertainty in your hedge outcome — the gap between theoretical and actual settlement.`}
+    ];
+  } else {
+    hRows=[
+      {icon:'📌',text:`<strong>Basis is tighter than fair:</strong> Futures are ₹${fmt(Math.abs(dev))} cheaper than fair value. Shorting futures at a discount means your hedge locked in less than fair carry.`},
+      {icon:'⚠️',text:`<strong>For a short hedger this is unfavourable:</strong> You sold the futures cheap. As basis converges to zero, the short position underperforms expectations.`}
+    ];
+  }
+  hInterp.innerHTML = hRows.map(r=>`<div class="interp-row"><span class="interp-icon">${r.icon}</span><span class="interp-text">${r.text}</span></div>`).join('');
+
+  // Arb
+  const aInterp = document.getElementById('arbInterp');
+  const tradeBox = document.getElementById('tradeBox');
+  const tradeRows = document.getElementById('tradeRows');
+  let aRows = [];
+  const LOT=50, borrow=S*LOT*(r/100)*(T/365), divLot=S*LOT*(d/100)*(T/365), futGain=dev*LOT, txn=400, netProfit=futGain-borrow+divLot-txn;
+
+  if(Math.abs(dev)<50){
+    aRows=[{icon:'—',text:`<strong>No arb opportunity.</strong> The deviation of ₹${fmt(Math.abs(dev))} is within the noise band. After transaction costs (typically ₹400 per round trip) this trade would not be profitable.`}];
+    tradeBox.style.display='none';
+  } else if(dev>0){
+    aRows=[
+      {icon:'⚡',text:`<strong>Cash-and-carry arb available:</strong> Futures are ₹${fmt(dev)}/unit above fair value. Execute: <strong>buy spot + short futures</strong>.`},
+      {icon:'🔒',text:`<strong>Locked P&L per lot:</strong> ₹${fmt(netProfit)} before any price risk. This profit is guaranteed because both legs settle at the same price at expiry.`},
+      {icon:'📉',text:`<strong>Break-even mispricing</strong> (for txn cost ₹400): ₹400 ÷ 50 = <strong>₹8/unit</strong>. Current deviation ₹${fmt(dev)} is ${fmt(dev)>=8?'above':'below'} break-even.`}
+    ];
+    tradeBox.style.display='block';
+    const rows=[
+      ['Borrow capital ('+r+'% × '+T+'d)','−₹'+fmt(borrow),'neg'],
+      ['Futures gain at convergence','+₹'+fmt(futGain),'pos'],
+      ['Dividends received','+₹'+fmt(divLot),'pos'],
+      ['Transaction costs','−₹'+fmt(txn),'neg'],
+      ['Net locked profit', (netProfit>=0?'+':'')+'₹'+fmt(Math.abs(netProfit)), netProfit>=0?'pos':'neg']
+    ];
+    tradeRows.innerHTML=rows.map(([l,v,c])=>`<div class="trade-row"><span style="color:var(--text2)">${l}</span><span style="font-family:var(--mono);font-weight:600;color:var(--${c==='pos'?'green':'neg'===c?'red':'text'});">${v}</span></div>`).join('');
+  } else {
+    aRows=[
+      {icon:'⚡',text:`<strong>Reverse arb potential:</strong> Futures are ₹${fmt(Math.abs(dev))}/unit below fair value. Theoretical trade: <strong>short spot + buy futures</strong>.`},
+      {icon:'⚠️',text:`<strong>India caveat:</strong> Short selling equities in India is heavily restricted. This is why Nifty futures almost never sustain a discount to fair value — the reverse arb is hard to execute.`}
+    ];
+    tradeBox.style.display='none';
+  }
+  aInterp.innerHTML = aRows.map(r=>`<div class="interp-row"><span class="interp-icon">${r.icon}</span><span class="interp-text">${r.text}</span></div>`).join('');
+}
+
+// Init
+window._calc = {};
+compute();
+</script>
+</body>
+</html>
