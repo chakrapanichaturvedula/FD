@@ -1,15 +1,17 @@
 /* site-config.js — DerivativesLab · FIA 401
-   Replace the placeholder values below with your actual Firebase project config.
-   Find these in: Firebase Console → Project Settings → Your Apps → SDK setup → Config
+   Firebase config for project: fia401-price-discovery
+   NOTE: A Firebase Web API key is NOT a secret — it only identifies the
+   project. Real protection comes from Firestore security rules.
 */
 
 window.DLabConfig = {
   firebase: {
-    apiKey:            "YOUR_API_KEY",
+    apiKey:            "AIzaSyBAguhylORLXVjZb8fPpVvzaXYLeYco4II",
     authDomain:        "fia401-price-discovery.firebaseapp.com",
     projectId:         "fia401-price-discovery",
-    storageBucket:     "fia401-price-discovery.appspot.com",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId:             "YOUR_APP_ID"
+    storageBucket:     "fia401-price-discovery.firebasestorage.app",
+    messagingSenderId: "506663905021",
+    appId:             "1:506663905021:web:f01fd43ec725c500170094",
+    measurementId:     "G-9W99C799SK"
   }
 };
